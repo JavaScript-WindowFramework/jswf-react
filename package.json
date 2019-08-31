@@ -1,0 +1,32 @@
+{
+  "name": "@jswf/react",
+  "version": "0.0.4",
+  "description": "Virtual Window for React",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -b src",
+    "watch": "tsc -b -w src"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "jswf",
+    "react",
+    "virtual window"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "~16.9.0",
+    "resize-observer-polyfill": "~1.5.1",
+    "styled-components": "~4.3.2"
+  },
+  "devDependencies": {
+    "typescript": "~3.6.2",
+    "@types/react": "~16.9.2",
+    "@types/react-dom": "~16.9.0",
+    "@types/styled-components": "~4.1.18"
+  }
+}
