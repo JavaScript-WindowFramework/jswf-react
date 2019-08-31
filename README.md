@@ -9,7 +9,7 @@ JSWFWindowで囲むだけで、そこが仮想ウインドウ化します
 
 ## ２．Screen Shot
 
-![ScreenShot](https://raw.githubusercontent.com/JavaScript-WindowFramework/jwf-react-sample01/ScreenShot/ScreenShot.png)
+![ScreenShot](https://raw.githubusercontent.com/JavaScript-WindowFramework/jwf-react-sample01/ScreenShot/ScreenShot.gif)
 
 ## ３．Sample source
 
