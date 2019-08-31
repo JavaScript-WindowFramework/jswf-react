@@ -440,8 +440,8 @@ export class JSWFWindow extends Component<WindowProps, State> {
    *  WindowState.HIDE
    * @memberof JswfWindow
    */
-  public setWindowState(enumState: WindowState | undefined) {
-    if (enumState) this.setState({ windowState: enumState });
+  public setWindowState(state: WindowState | undefined) {
+    if (state) this.setState({ windowState: state });
   }
 
   /**

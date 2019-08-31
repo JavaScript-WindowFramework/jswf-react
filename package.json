@@ -1,6 +1,6 @@
 {
   "name": "@jswf/react",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Virtual Window for React",
   "main": "dist/index.js",
   "scripts": {
@@ -16,8 +16,8 @@
     "react",
     "virtual window"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "SoraKumo",
+  "license": "MIT",
   "dependencies": {
     "react": "~16.9.0",
     "resize-observer-polyfill": "~1.5.1",
