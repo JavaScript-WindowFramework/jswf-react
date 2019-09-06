@@ -1,9 +1,9 @@
 import styled from "styled-components";
 
-import imageMin from "../../images/min.svg";
-import imageMax from "../../images/max.svg";
-import imageClose from "../../images/close.svg";
-import imageNormal from "../../images/normal.svg";
+import imageMin from "../../../images/min.svg";
+import imageMax from "../../../images/max.svg";
+import imageClose from "../../../images/close.svg";
+import imageNormal from "../../../images/normal.svg";
 
 
 export const Title = styled.div.attrs<{ Active: boolean }>(p => ({

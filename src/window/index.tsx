@@ -1,6 +1,6 @@
 import ResizeObserver from "resize-observer-polyfill";
 import React, { ReactNode, Component, createRef } from "react";
-import { Manager, MovePoint, JWFEvent } from "./Manager";
+import { Manager, MovePoint, JWFEvent } from "../lib/Manager";
 import { Clinet } from "./Parts/Client";
 import { Title } from "./Parts/Title";
 import { Root } from "./Parts/Root";
