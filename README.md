@@ -92,6 +92,7 @@ ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 | overlapped  | boolean            | falseにするとウインドウが親ウインドウ内にのみ表示              |
 | windowStyle | number             | WindowStyle ビットの込み合わせ <br> TITLE:タイトルバー<br> MAX:最大化ボタン<br> MIN:最小化ボタン<br> CLOSE:クローズボタン<br> FRAME:枠の表示<br> RESIZE:サイズ変更<br> |
 | windowState | WindowState                    | WindowState　ウインドウの状態<br>  NORMAL:通常<br> MAX:最大化<br> MIN:最小化<br> HIDE:非表示<br> |
+| clientStyle | React.CSSProperties | クライアント領域に適用するスタイル |
 | onUpdate    | function(p:WindowInfo)  &#124; null | ウインドウの状態が変化するとコールバックされる |
 
 ### 4.3 メソッド

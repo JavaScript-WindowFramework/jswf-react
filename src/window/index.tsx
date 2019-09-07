@@ -1,10 +1,10 @@
 import ResizeObserver from "resize-observer-polyfill";
 import React, { ReactNode, Component, createRef } from "react";
 import { Manager, MovePoint, JWFEvent } from "../lib/Manager";
-import { Clinet } from "./Parts/Client";
-import { Title } from "./Parts/Title";
-import { Root } from "./Parts/Root";
-import { Border, borders } from "./Parts/Border";
+import { Clinet } from "./parts/Client";
+import { Title } from "./parts/Title";
+import { Root } from "./parts/Root";
+import { Border, borders } from "./parts/Border";
 
 export enum WindowStyle {
   TITLE = 1,
@@ -29,6 +29,7 @@ export interface WindowProps {
   windowStyle?: number;
   windowState?: WindowState;
   onUpdate?: ((status: WindowInfo) => void) | null;
+  clientStyle?:React.CSSProperties;
 }
 type NonNullableType<T, K extends keyof T = keyof T> = {
   [P in K]-?: T[P];
@@ -79,6 +80,23 @@ interface MoveParams {
  * @extends {Component<WindowProps, State>}
  */
 export class JSWFWindow extends Component<WindowProps, State> {
+  static defaultProps: WindowProps = {
+    x: null,
+    y: null,
+    width: 300,
+    height: 300,
+    moveable: false,
+    borderSize: 8,
+    titleSize: 32,
+    title: "",
+    active: false,
+    overlapped: true,
+    windowStyle: 0xff,
+    windowState: WindowState.NORMAL,
+    clientStyle:{},
+    onUpdate: null
+  };
+
   private rootRef = createRef<HTMLDivElement>();
   private titleRef = createRef<HTMLDivElement>();
   private clientRef = createRef<HTMLDivElement>();
@@ -97,45 +115,26 @@ export class JSWFWindow extends Component<WindowProps, State> {
   public constructor(props: WindowProps) {
     super(props);
     let state: State;
-    if (props) {
-      state = {
-        active: props.active || false,
-        overlapped: props.overlapped == null ? true : props.overlapped,
-        titlePrmisson:
-          props.windowStyle !== undefined ? props.windowStyle : 0xff,
-        titleSize:
-          (props.windowStyle && props.windowStyle & WindowStyle.TITLE) === 0
-            ? 0
-            : props.titleSize || 32,
-        borderSize: props.borderSize || 8,
-        x: props.x === undefined ? null : props.x,
-        y: props.y === undefined ? null : props.y,
-        width: props.width || 300,
-        height: props.height || 300,
-        oldEnumState: WindowState.HIDE,
-        windowState: props.windowState || WindowState.NORMAL,
-        boxEnumState: WindowState.HIDE,
-        clientWidth: 0,
-        clientHeight: 0
-      };
-    } else {
-      state = {
-        active: false,
-        overlapped: true,
-        titlePrmisson: 0xff,
-        titleSize: 32,
-        borderSize: 8,
-        x: null,
-        y: null,
-        width: 300,
-        height: 300,
-        oldEnumState: WindowState.HIDE,
-        windowState: WindowState.NORMAL,
-        boxEnumState: WindowState.HIDE,
-        clientWidth: 0,
-        clientHeight: 0
-      };
-    }
+
+    state = {
+      active: props.active!,
+      overlapped: props.overlapped!,
+      titlePrmisson:props.windowStyle!,
+      titleSize:(props.windowStyle! & WindowStyle.TITLE) === 0
+          ? 0
+          : props.titleSize!,
+      borderSize: props.borderSize!,
+      x: props.x!,
+      y: props.y!,
+      width: props.width!,
+      height: props.height!,
+      oldEnumState: WindowState.HIDE,
+      windowState: props.windowState!,
+      boxEnumState: WindowState.HIDE,
+      clientWidth: 0,
+      clientHeight: 0
+    };
+
     this.state = state;
 
     this.windowInfo = {
@@ -143,18 +142,19 @@ export class JSWFWindow extends Component<WindowProps, State> {
       y: state.y,
       width: state.width,
       height: state.height,
-      moveable: (props && props.moveable) || false,
+      moveable: props.moveable!,
       borderSize: state.borderSize,
-      title: (props && props.title) || "",
+      title: props.title!,
       titleSize: state.titleSize,
       children: (props && props.children) || null,
       active: state.active,
       overlapped: state.overlapped,
-      windowStyle: (props && props.windowStyle) || 0xff,
+      windowStyle: props.windowStyle!,
       windowState: state.windowState,
-      onUpdate: (props && props.onUpdate) || null,
+      onUpdate: props.onUpdate!,
       clientWidth: 0,
       clientHeight: 0,
+      clientStyle:props.clientStyle!,
       realX: 0,
       realY: 0,
       realWidth: 0,
@@ -201,7 +201,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
       node.removeEventListener("active", this.onActive.bind(this));
     }
   }
-  componentDidUpdate() {
+  public componentDidUpdate() {
     if (this.props.onUpdate) {
       let flag = false;
       for (const key of Object.keys(this.windowInfo)) {
@@ -415,6 +415,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
           TitleSize={this.state.titleSize}
           Width={clientWidth}
           Height={clientHeight}
+          style={this.props.clientStyle!}
         >
           {this.props.children}
         </Clinet>
@@ -714,7 +715,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
       width: pwidth
     };
     if (!this.moveHandle) {
-      this.moveHandle=setTimeout(() => {
+      this.moveHandle = setTimeout(() => {
         this.setState(this.moveParams!);
         this.moveHandle = undefined;
       }, 10);
