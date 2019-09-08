@@ -5,7 +5,7 @@ React用仮想Windowコンポーネント
 ## １．内容
 
 Reactで仮想ウインドウを実現するためのコンポーネント
-JSWFWindowで囲むだけで、そこが仮想ウインドウ化します
+JSWindowで囲むだけで、そこが仮想ウインドウ化します
 
 ## ２．Screen Shot
 
@@ -16,18 +16,26 @@ JSWFWindowで囲むだけで、そこが仮想ウインドウ化します
 ```index.tsx
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { JSWFWindow, WindowState, WindowStyle, WindowInfo } from "@jswf/react";
+import {
+  JSWindow,
+  WindowState,
+  WindowStyle,
+  WindowInfo,
+  SplitView,
+  SplitType
+} from "@jswf/react";
 
 function App() {
-  const frame = React.createRef<JSWFWindow>();
+  const frame = React.createRef<JSWindow>();
   const [info, setInfo] = React.useState<WindowInfo | null>(null);
+  const [type, setType] = React.useState<SplitType>("ew");
   return (
     <>
-      <JSWFWindow ref={frame} title="Window1" x={50} y={100}>
+      <JSWindow ref={frame} title="Window1" x={50} y={100}>
         この中に入れたコンテンツは仮想ウインドウ上に表示されます
-      </JSWFWindow>
+      </JSWindow>
 
-      <JSWFWindow
+      <JSWindow
         title="Window2"
         width={600}
         height={500}
@@ -36,19 +44,48 @@ function App() {
         ウインドウ位置を設定しなかった場合、中央に表示されます
         <br />
         windowStyleで使用する機能を設定できます
-        <JSWFWindow
+        <JSWindow
           title="ChildWindow"
           overlapped={false}
           width={200}
           height={200}
         >
           overlappedをfalseにするとクライアント領域内に表示され、trueにすると重ね合わせだけ調整されます
-        </JSWFWindow>
-      </JSWFWindow>
+        </JSWindow>
+      </JSWindow>
 
-      <JSWFWindow title="更新テスト" y={50} onUpdate={p => setInfo(p)}>
-        <pre>{info && JSON.stringify(info,["realX","realY","realWidth","realHeight"],' ')}</pre>
-      </JSWFWindow>
+      <JSWindow title="更新テスト" y={50} onUpdate={p => setInfo(p)}>
+        <pre>
+          {info &&
+            JSON.stringify(
+              info,
+              ["realX", "realY", "realWidth", "realHeight"],
+              " "
+            )}
+        </pre>
+      </JSWindow>
+
+      <JSWindow
+        width={500}
+        height={400}
+        title="分割バー"
+        clientStyle={{ display: "flex", flexDirection: "column" }}
+      >
+        {/* ボタン設置 */}
+        <div style={{ borderBottom: "solid 2px" }}>
+          <button onClick={() => setType("we")}>WE</button>
+          <button onClick={() => setType("ew")}>EW</button>
+          <button onClick={() => setType("ns")}>NS</button>
+          <button onClick={() => setType("sn")}>SN</button>
+        </div>
+        {/* 分割バー(デフォルトスタイルは親のクライアント領域の最大まで広がる) */}
+        <SplitView type={type} style={{ position: "relative", flex: 1 }}>
+          <div style={{ height: "100%" }}>アクティブ側</div>
+          <div style={{ height: "100%", backgroundColor: "rgb(230,255,255)" }}>
+            スタティック側
+          </div>
+        </SplitView>
+      </JSWindow>
 
       <button
         onClick={() => {
@@ -63,6 +100,7 @@ function App() {
 }
 
 ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
+
 ```
 
 ## ４．機能に関して
@@ -75,8 +113,15 @@ ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 - 最小化
 - 重ね合わせ
 - 親子ウインドウ
+- 画面分割
 
-### 4.2 Propsパラメータ
+## ５．コンポーネント
+
+### **JSWindow**
+
+<div style="text-indent:4em">
+
+#### Propsパラメータ
 
 | Name        | Type               | Info                                                       |
 | ----------- | ------------------ | ---------------------------------------------------------- |
@@ -95,7 +140,7 @@ ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 | clientStyle | React.CSSProperties | クライアント領域に適用するスタイル |
 | onUpdate    | function(p:WindowInfo)  &#124; null | ウインドウの状態が変化するとコールバックされる |
 
-### 4.3 メソッド
+#### メソッド
 
 - foreground()  
 ウインドウをフォアグラウンドにする
@@ -107,6 +152,25 @@ WindowState.NORMAL
 WindowState.MAX  
 WindowState.MIN  
 WindowState.HIDE  
+
+</div>
+
+### **SplitView**
+
+<div style="text-indent:4em">
+
+#### Propsパラメータ
+
+| Name        | Type                | Info                                                       |
+| ----------- | ------------------- | ---------------------------------------------------------- |
+| type        | SplitType           | ns,sn,we,ew                                                |
+| pos         | number              | BarPosition                                                |
+| activeSize  | number              | SlideModeSize -1:NotUse 0:always                           |
+| activeWait  | number              | SlideTime (ms)                                             |
+| bold        | number              | Bar thickness                                              |
+| style       | React.CSSProperties | CSS                                                        |
+
+</div>
 
 ## ５．関連リンク
 

@@ -1,2 +1,2 @@
-export * from "./window";
-export * from "./splitView";
+export * from "./JSWindow";
+export * from "./SplitView";

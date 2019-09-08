@@ -1,6 +1,5 @@
 import ResizeObserver from "resize-observer-polyfill";
 import React, { Component, createRef, ReactNode } from "react";
-import { Manager, JWFEvent, MovePoint } from "../lib/Manager";
 import { Root } from "./parts/Root";
 import { Bar } from "./parts/Bar";
 import { Child } from "./parts/Child";
@@ -11,11 +10,16 @@ interface SplitProps {
   type?: SplitType;
   pos?: number;
   activeSize?: number;
-  barSize?: number;
+  activeWait?: number;
+  bold?: number;
   children?: ReactNode | null;
   style?: React.CSSProperties;
 }
-
+interface State {
+  pos: number;
+  activeMode: boolean;
+  barOpen: boolean;
+}
 /**
  *画面分割コンポーネント
  *
@@ -23,29 +27,27 @@ interface SplitProps {
  * @class SplitView
  * @extends {Component<SplitProps, { pos: number }>}
  */
-
-interface State {
-  pos: number;
-  activeMode: boolean;
-  barOpen: boolean;
-}
 export class SplitView extends Component<SplitProps, State> {
-  static defaultProps = {
+  static defaultProps: SplitProps = {
     type: "we",
-    barSize: 8,
-    pos: 100,
+    bold: 8,
+    pos: 200,
+    activeWait: 3000,
     activeSize: 300,
     style: {}
   };
+  private type: SplitType;
+  private activeStop: boolean = false;
   private closeHandle?: number;
+  private layoutHandle?: number;
   private resizeObserver?: ResizeObserver;
   private rootRef = createRef<HTMLDivElement>();
-  private splitterRef = createRef<HTMLDivElement>();
   private childRef = [createRef<HTMLDivElement>(), createRef<HTMLDivElement>()];
   private children: (ReactNode | undefined)[] = [undefined, undefined];
   public constructor(props: SplitProps) {
     super(props);
     this.state = { pos: props.pos!, activeMode: false, barOpen: true };
+    this.type = props.type!;
     if (props.children) {
       if (props.children instanceof Array) {
         this.children = props.children;
@@ -55,214 +57,202 @@ export class SplitView extends Component<SplitProps, State> {
   public render() {
     return (
       <Root ref={this.rootRef} style={this.props.style!}>
-        <Child ref={this.childRef[1]}>{this.children[1]}</Child>
-        <Child ref={this.childRef[0]}>{this.children[0]}</Child>
+        <Child
+          ref={this.childRef[1]}
+          onClick={() => {
+            this.activeStop = false;
+            this.closeBar();
+          }}
+        >
+          {this.children[1]}
+        </Child>
+        <Child ref={this.childRef[0]} onClick={() => (this.activeStop = true)}>
+          {this.children[0]}
+        </Child>
         <Bar
           activeMode={this.state.activeMode}
           open={this.state.barOpen}
-          refs={this.splitterRef}
-          onTouchStart={this.onMouseDown.bind(this)}
-          onMouseDown={this.onMouseDown.bind(this)}
           type={this.props.type!}
-          size={this.props.barSize!}
+          size={this.props.bold!}
           pos={this.state.pos}
           procOpen={open => this.onOpen(open)}
+          procMove={pos => this.onMove(pos)}
         ></Bar>
       </Root>
     );
   }
-  componentDidUpdate() {
-    this.onLayout();
+  public componentDidUpdate() {
+    if (this.props.type !== this.type) {
+      this.type = this.props.type!;
+      this.onOpen(true);
+      this.onLayout();
+    } else this.layout();
   }
   public componentDidMount() {
-    const node = this.splitterRef.current!;
-    node.addEventListener("move", this.onMove.bind(this));
-
     this.resizeObserver = new ResizeObserver(() => {
-      this.onLayout();
+      this.layout();
     });
     this.resizeObserver.observe(this.rootRef.current! as Element);
-
     this.onLayout();
   }
   public componentWillUnmount() {
-    const node = this.splitterRef.current!;
-    node.removeEventListener("move", this.onMove.bind(this));
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
     }
   }
-  protected onMove(e: JWFEvent) {
-    let p = e.params as MovePoint;
-    let pos = this.state.pos;
-    switch (this.props.type!) {
-      case "we":
-        pos = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-        break;
-      case "ew":
-        pos = p.nodePoint.x - (p.nowPoint.x - p.basePoint.x);
-        break;
-      case "ns":
-        pos = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
-        break;
-      case "sn":
-        pos = p.nodePoint.y - (p.nowPoint.y - p.basePoint.y);
-        break;
+  public closeBar() {
+    if (this.state.activeMode && !this.activeStop) {
+      if (this.closeHandle) {
+        clearTimeout(this.closeHandle);
+      }
+      this.closeHandle = setTimeout(() => {
+        if (this.state.activeMode && !this.activeStop) this.onOpen(false);
+        this.closeHandle = undefined;
+      }, this.props.activeWait!);
     }
-    this.setState({ pos });
   }
-  closeBar() {
-    if (this.closeHandle) {
-      clearTimeout(this.closeHandle);
+
+  /**
+   *分割レイアウトの遅延実行
+   *
+   * @protected
+   * @memberof SplitView
+   */
+  protected layout() {
+    if (!this.layoutHandle) {
+      this.layoutHandle = setTimeout(() => {
+        this.layoutHandle = undefined;
+        this.onLayout();
+      }, 1);
     }
-    setTimeout(() => {
-      // this.onOpen(false);
-      this.closeHandle = undefined;
-    }, 2000);
   }
+  /**
+   *分割レイアウト処理
+   *
+   * @protected
+   * @memberof SplitView
+   */
   protected onLayout() {
     let activeMode = false;
     let pos = this.state.pos;
     const rootRef = this.rootRef!.current!;
     const children = [this.childRef[0].current!, this.childRef[1].current!];
-    const barSize = this.props.barSize!;
+    const barSize = this.props.bold!;
     const barType = this.props.type;
     const width = rootRef.offsetWidth;
     const height = rootRef.offsetHeight;
 
-    if (barType === "we" || barType === "ew") {
-      const w = width - (pos + barSize);
-      if (w < this.props.activeSize!) {
-        activeMode = true;
-        if (!this.state.activeMode) {
-          children[1].style.left = "0";
-          children[1].style.right = "0";
-          children[1].style.width = null;
-          children[1].style.height = null;
-          children[1].style.top = "0";
-          children[1].style.bottom = "0";
-          this.closeBar();
+    //アクティブバーの処理
+    if (this.props.activeSize! > -1) {
+      if (barType === "we" || barType === "ew") {
+        const w = width - (pos + barSize);
+        if (w < this.props.activeSize!) {
+          activeMode = true;
+          if (!this.state.activeMode) {
+            children[1].style.animation = "DrawerMax 0.5s ease 0s forwards";
+          }
+        }
+      } else {
+        const h = height - (pos + barSize);
+        if (h < this.props.activeSize!) {
+          activeMode = true;
+          if (!this.state.activeMode) {
+            children[1].style.animation = "DrawerMax 0.5s ease 0s forwards";
+          }
         }
       }
-    } else {
-      const h = height - (pos + barSize);
-      if (h < this.props.activeSize!) {
-        activeMode = true;
-        if (!this.state.activeMode) {
-          children[1].style.left = "0";
-          children[1].style.right = "0";
-          children[1].style.top = "0";
-          children[1].style.bottom = "0";
-          children[1].style.width = null;
-          children[1].style.height = null;
-          this.closeBar();
+      if (activeMode !== this.state.activeMode) {
+        this.setState({ activeMode });
+        if (!activeMode) {
+          this.onOpen(true);
+          children[1].style.animation = "DrawerNormal 0.5s ease 0s normal";
         }
+        this.closeBar();
       }
-    }
-    if (activeMode !== this.state.activeMode) {
-      if (!activeMode) {
-        this.onOpen(true);
-      }
-      this.setState({ activeMode });
     }
 
     switch (barType) {
       case "we":
         children[0].style.left = "0";
-        children[0].style.right = null;
+        children[0].style.right = "auto";
         children[0].style.width = pos + "px";
-        children[0].style.height = null;
+        children[0].style.height = "auto";
         children[0].style.top = "0";
         children[0].style.bottom = "0";
         if (!activeMode) {
           children[1].style.left = pos + barSize + "px";
           children[1].style.right = "0";
-          children[1].style.width = null;
-          children[1].style.height = null;
+          children[1].style.width = "auto";
+          children[1].style.height = "auto";
           children[1].style.top = "0";
           children[1].style.bottom = "0";
         }
         break;
       case "ew":
-        children[0].style.left = null;
+        children[0].style.left = "auto";
         children[0].style.right = "0";
         children[0].style.width = pos + "px";
-        children[0].style.height = null;
+        children[0].style.height = "auto";
         children[0].style.top = "0";
         children[0].style.bottom = "0";
         if (!activeMode) {
           children[1].style.left = "0";
           children[1].style.right = pos + barSize + "px";
-          children[1].style.width = null;
-          children[1].style.height = null;
+          children[1].style.width = "auto";
+          children[1].style.height = "auto";
           children[1].style.top = "0";
           children[1].style.bottom = "0";
         }
         break;
       case "ns":
         children[0].style.top = "0";
-        children[0].style.bottom = null;
-        children[0].style.width = null;
+        children[0].style.bottom = "auto";
+        children[0].style.width = "auto";
         children[0].style.height = pos + "px";
         children[0].style.left = "0";
         children[0].style.right = "0";
         if (!activeMode) {
           children[1].style.top = pos + barSize + "px";
           children[1].style.bottom = "0";
-          children[1].style.width = null;
-          children[1].style.height = null;
+          children[1].style.width = "auto";
+          children[1].style.height = "auto";
           children[1].style.left = "0";
           children[1].style.right = "0";
         }
         break;
       case "sn":
-        children[0].style.top = null;
+        children[0].style.top = "auto";
         children[0].style.bottom = "0";
-        children[0].style.width = null;
+        children[0].style.width = "auto";
         children[0].style.height = pos + "px";
         children[0].style.left = "0";
         children[0].style.right = "0";
         if (!activeMode) {
           children[1].style.top = "0";
           children[1].style.bottom = pos + barSize + "px";
-          children[1].style.width = null;
-          children[1].style.height = null;
+          children[1].style.width = "auto";
+          children[1].style.height = "auto";
           children[1].style.left = "0";
           children[1].style.right = "0";
         }
         break;
     }
   }
-  protected onMouseDown(
-    e:
-      | React.MouseEvent<HTMLDivElement, MouseEvent>
-      | React.TouchEvent<HTMLDivElement>
-  ) {
-    if (Manager.moveNode == null) {
-      const node = this.splitterRef.current!;
-      Manager.moveNode = node;
-      let p = Manager.getPos((e as unknown) as MouseEvent | TouchEvent);
-      Manager.baseX = p.x;
-      Manager.baseY = p.y;
-      Manager.nodeX = this.state.pos;
-      Manager.nodeY = this.state.pos;
-      Manager.nodeWidth = node.offsetWidth;
-      Manager.nodeHeight = node.offsetHeight;
-      e.stopPropagation();
-    } else {
-      e.preventDefault();
-    }
-  }
+
   onOpen(open: boolean) {
-    const children = this.childRef[0].current!;
+    const children = [this.childRef[0].current!, this.childRef[1].current!];
     if (open) {
-      children.style.animation =
-        this.props.type + "DrawerShow 0.5s ease 0s forwards";
+      children[0].style.animation =
+        this.props.type + "DrawerShow 0.5s ease 0s normal";
     } else {
-      children.style.animation =
+      children[0].style.animation =
         this.props.type + "DrawerClose 0.5s ease 0s forwards";
     }
     this.setState({ barOpen: open });
+  }
+  onMove(pos: number) {
+    this.setState({ pos });
+    this.closeBar();
   }
 }

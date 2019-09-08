@@ -14,7 +14,10 @@ export const Clinet = styled.div.attrs<ClientState>(p => ({
   background: whitesmoke;
   position: absolute;
   overflow: hidden;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
+  right: 0;
+  left: 0;
+  top:0;
+  bottom: 0;
+  width:0;
+  height:0;
 `;

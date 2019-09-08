@@ -79,7 +79,7 @@ interface MoveParams {
  * @class JswfWindow
  * @extends {Component<WindowProps, State>}
  */
-export class JSWFWindow extends Component<WindowProps, State> {
+export class JSWindow extends Component<WindowProps, State> {
   static defaultProps: WindowProps = {
     x: null,
     y: null,
@@ -169,7 +169,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
    * @memberof JswfWindow
    */
   public componentDidMount() {
-    const node: HTMLElement & { _symbol?: JSWFWindow } | null = this.rootRef
+    const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
       .current;
     if (node) {
       node._symbol = this;
@@ -190,7 +190,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
    * @memberof JswfWindow
    */
   public componentWillUnmount() {
-    const node: HTMLElement & { _symbol?: JSWFWindow } | null = this.rootRef
+    const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
       .current;
     if (node) {
       if (this.resizeObserver) {
@@ -231,7 +231,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
    * @memberof JswfWindow
    */
   public render() {
-    const node: HTMLElement & { _symbol?: JSWFWindow } | null = this.rootRef
+    const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
       .current;
     const clientNode: HTMLElement | null = this.clientRef.current;
 
@@ -457,7 +457,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
     if (node) {
       let topNode: HTMLElement = node;
       do {
-        if (node._symbol instanceof JSWFWindow) {
+        if (node._symbol instanceof JSWindow) {
           activeNodes.add(node);
           topNode = node;
         }
@@ -465,7 +465,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
       const parent = topNode.parentNode;
       if (parent) {
         const sendActive = (node: HTMLElement & { _symbol?: Symbol }) => {
-          if (node._symbol instanceof JSWFWindow) {
+          if (node._symbol instanceof JSWindow) {
             Manager.callEvent(node, "active", activeNodes.has(node));
           }
           Array.prototype.forEach.call(node.childNodes, node => {
@@ -477,7 +477,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
     }
   }
   protected update() {
-    const node: HTMLElement & { _symbol?: JSWFWindow } | null = this.rootRef
+    const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
       .current;
     const clientNode: HTMLElement | null = this.clientRef.current;
     if (node && clientNode) {
@@ -504,9 +504,9 @@ export class JSWFWindow extends Component<WindowProps, State> {
     }
   }
   private min() {
-    const rootNode: HTMLElement & { _symbol?: JSWFWindow } | null = this.rootRef
+    const rootNode: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
       .current;
-    const clientNode: HTMLElement & { _symbol?: JSWFWindow } | null = this
+    const clientNode: HTMLElement & { _symbol?: JSWindow } | null = this
       .clientRef.current;
     if (!rootNode || !clientNode) return;
     if (this.state.boxEnumState === WindowState.MIN) {
@@ -536,7 +536,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
     }
   }
   private max() {
-    const node: HTMLElement & { _symbol?: JSWFWindow } | null = this.rootRef
+    const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
       .current;
     if (!node) return;
     node.style.animation = "";
@@ -550,7 +550,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
       this.min();
       return;
     } else if (this.state.oldEnumState === WindowState.HIDE) {
-      const node: HTMLElement & { _symbol?: JSWFWindow } | null = this.rootRef
+      const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
         .current;
       if (!node) return;
       const animationEnd = () => {
@@ -562,7 +562,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
       node.style.visibility = "visible";
       this.setState({ boxEnumState: WindowState.NORMAL });
     } else {
-      const node: HTMLElement & { _symbol?: JSWFWindow } | null = this.rootRef
+      const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
         .current;
       if (!node) return;
       node.style.animation = "";
@@ -573,7 +573,7 @@ export class JSWFWindow extends Component<WindowProps, State> {
     }
   }
   private hide() {
-    const node: HTMLElement & { _symbol?: JSWFWindow } | null = this.rootRef
+    const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
       .current;
     if (!node) return;
     node.style.animation = "";
@@ -626,8 +626,8 @@ export class JSWFWindow extends Component<WindowProps, State> {
           .call(parent.childNodes, 0)
           .filter(node => {
             return (
-              (node as typeof node & { _symbol?: JSWFWindow })
-                ._symbol instanceof JSWFWindow
+              (node as typeof node & { _symbol?: JSWindow })
+                ._symbol instanceof JSWindow
             );
           })
           .sort((a, b) => {

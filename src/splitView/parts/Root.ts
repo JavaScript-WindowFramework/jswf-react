@@ -106,4 +106,27 @@ export const Root = styled.div.attrs<StyleProps>(p => ({
       transform: translateX(100%);
     }
   }
+
+  @keyframes DrawerMax {
+    0% {
+    }
+
+    100% {
+      right: 0;
+      left: 0;
+      top: 0;
+      bottom: 0;
+    }
+  }
+  @keyframes DrawerNormal {
+    0% {
+      right: 0;
+      left: 0;
+      top: 0;
+      bottom: 0;
+    }
+
+    100% {
+    }
+  }
 `;
