@@ -7,13 +7,24 @@ React用仮想Windowコンポーネント
 Reactで仮想ウインドウを実現するためのコンポーネント
 JSWindowで囲むだけで、そこが仮想ウインドウ化します
 
-## ２．Screen Shot
+## ２．Screen shot
 
 ![ScreenShot](https://raw.githubusercontent.com/JavaScript-WindowFramework/jwf-react-sample01/ScreenShot/ScreenShot.gif)
 
-## ３．Sample source
+## ３．links
 
-```index.tsx
+- Source code  
+[https://github.com/JavaScript-WindowFramework/jswf-react](https://github.com/JavaScript-WindowFramework/jswf-react)
+
+- Sample code  
+[https://github.com/JavaScript-WindowFramework/jwf-react-sample01](https://github.com/JavaScript-WindowFramework/jwf-react-sample01)
+
+- Operation sample  
+[https://javascript-windowframework.github.io/jwf-react-sample01/dist/](https://javascript-windowframework.github.io/jwf-react-sample01/dist/)
+
+## ４．Sample source
+
+```tsx:index.tsx
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {
@@ -31,29 +42,22 @@ function App() {
   const [type, setType] = React.useState<SplitType>("ew");
   return (
     <>
+      {/* -------- 単純にウインドウを表示する ------------*/}
       <JSWindow ref={frame} title="Window1" x={50} y={100}>
         この中に入れたコンテンツは仮想ウインドウ上に表示されます
       </JSWindow>
 
-      <JSWindow
-        title="Window2"
-        width={600}
-        height={500}
-        windowStyle={~WindowStyle.CLOSE}
-      >
+      {/* -------- ウインドウの中にウインドウ ------------*/}
+      <JSWindow title="Window2" width={600} height={500} windowStyle={~WindowStyle.CLOSE}>
         ウインドウ位置を設定しなかった場合、中央に表示されます
         <br />
         windowStyleで使用する機能を設定できます
-        <JSWindow
-          title="ChildWindow"
-          overlapped={false}
-          width={200}
-          height={200}
-        >
+        <JSWindow title="ChildWindow" overlapped={false} width={200} height={200}>
           overlappedをfalseにするとクライアント領域内に表示され、trueにすると重ね合わせだけ調整されます
         </JSWindow>
       </JSWindow>
 
+      {/* -------- ウインドウの情報を表示 ------------*/}
       <JSWindow title="更新テスト" y={50} onUpdate={p => setInfo(p)}>
         <pre>
           {info &&
@@ -65,12 +69,8 @@ function App() {
         </pre>
       </JSWindow>
 
-      <JSWindow
-        width={500}
-        height={400}
-        title="分割バー"
-        clientStyle={{ display: "flex", flexDirection: "column" }}
-      >
+      {/* -------- 分割バーの設置 ------------*/}
+      <JSWindow width={500} height={400} title="分割バー" clientStyle={{ display: "flex", flexDirection: "column" }}>
         {/* ボタン設置 */}
         <div style={{ borderBottom: "solid 2px" }}>
           <button onClick={() => setType("we")}>WE</button>
@@ -87,12 +87,11 @@ function App() {
         </SplitView>
       </JSWindow>
 
-      <button
-        onClick={() => {
+      {/* -------- 非ウインドウの通常ボタン ------------*/}
+      <button onClick={() => {
           frame.current!.foreground();
           frame.current!.setWindowState(WindowState.NORMAL);
-        }}
-      >
+        }}>
         Window1を復活させる
       </button>
     </>
@@ -103,9 +102,9 @@ ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 
 ```
 
-## ４．機能に関して
+## ５．機能に関して
 
-### 4.1 現時点で使用可能な機能
+### 5.1 現時点で使用可能な機能
 
 - ウインドウの移動
 - リサイズ
@@ -115,9 +114,9 @@ ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 - 親子ウインドウ
 - 画面分割
 
-## ５．コンポーネント
+## ６．コンポーネント
 
-### **JSWindow**
+### 6.1 **JSWindow**
 
 <div style="text-indent:4em">
 
@@ -155,7 +154,7 @@ WindowState.HIDE
 
 </div>
 
-### **SplitView**
+### 6.2 **SplitView**
 
 <div style="text-indent:4em">
 
@@ -172,17 +171,6 @@ WindowState.HIDE
 
 </div>
 
-## ５．関連リンク
-
-- ソースコード  
-[https://github.com/JavaScript-WindowFramework/jswf-react](https://github.com/JavaScript-WindowFramework/jswf-react)
-
-- サンプルソース  
-[https://github.com/JavaScript-WindowFramework/jwf-react-sample01](https://github.com/JavaScript-WindowFramework/jwf-react-sample01)
-
-- 動作サンプル  
-[https://javascript-windowframework.github.io/jwf-react-sample01/dist/](https://javascript-windowframework.github.io/jwf-react-sample01/dist/)
-
-## ６．ライセンス
+## ７．ライセンス
 
 MIT
