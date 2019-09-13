@@ -43,18 +43,17 @@ export class SplitView extends Component<SplitProps, State> {
   private resizeObserver?: ResizeObserver;
   private rootRef = createRef<HTMLDivElement>();
   private childRef = [createRef<HTMLDivElement>(), createRef<HTMLDivElement>()];
-  private children: (ReactNode | undefined)[] = [undefined, undefined];
   public constructor(props: SplitProps) {
     super(props);
-    this.state = { pos: props.pos!, activeMode: false, barOpen: true };
+    this.state = {
+      pos: props.pos!,
+      activeMode: false,
+      barOpen: true,
+    };
     this.type = props.type!;
-    if (props.children) {
-      if (props.children instanceof Array) {
-        this.children = props.children;
-      }
-    }
   }
   public render() {
+    const children = React.Children.toArray(this.props.children);
     return (
       <Root ref={this.rootRef} style={this.props.style!}>
         <Child
@@ -64,10 +63,10 @@ export class SplitView extends Component<SplitProps, State> {
             this.closeBar();
           }}
         >
-          {this.children[1]}
+          {children[1]}
         </Child>
         <Child ref={this.childRef[0]} onClick={() => (this.activeStop = true)}>
-          {this.children[0]}
+          {children[0]}
         </Child>
         <Bar
           activeMode={this.state.activeMode}
@@ -240,7 +239,7 @@ export class SplitView extends Component<SplitProps, State> {
     }
   }
 
-  onOpen(open: boolean) {
+  protected onOpen(open: boolean) {
     const children = [this.childRef[0].current!, this.childRef[1].current!];
     if (open) {
       children[0].style.animation =
@@ -251,7 +250,7 @@ export class SplitView extends Component<SplitProps, State> {
     }
     this.setState({ barOpen: open });
   }
-  onMove(pos: number) {
+  protected onMove(pos: number) {
     this.setState({ pos });
     this.closeBar();
   }

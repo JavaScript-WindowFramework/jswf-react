@@ -13,6 +13,9 @@ JSWindowで囲むだけで、そこが仮想ウインドウ化します
 
 ## ３．links
 
+- WebSite  
+[https://ttis.croud.jp/?uuid=b292d429-dbad-49b5-8fed-6d268f4feaf0](https://ttis.croud.jp/?uuid=b292d429-dbad-49b5-8fed-6d268f4feaf0)
+
 - Source code  
 [https://github.com/JavaScript-WindowFramework/jswf-react](https://github.com/JavaScript-WindowFramework/jswf-react)
 
@@ -113,12 +116,11 @@ ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 - 重ね合わせ
 - 親子ウインドウ
 - 画面分割
+- リストビュー
 
 ## ６．コンポーネント
 
 ### 6.1 **JSWindow**
-
-<div style="text-indent:4em">
 
 #### Propsパラメータ
 
@@ -152,11 +154,7 @@ WindowState.MAX
 WindowState.MIN  
 WindowState.HIDE  
 
-</div>
-
 ### 6.2 **SplitView**
-
-<div style="text-indent:4em">
 
 #### Propsパラメータ
 
@@ -168,8 +166,6 @@ WindowState.HIDE
 | activeWait  | number              | SlideTime (ms)                                             |
 | bold        | number              | Bar thickness                                              |
 | style       | React.CSSProperties | CSS                                                        |
-
-</div>
 
 ## ７．ライセンス
 

@@ -6,24 +6,32 @@ interface HeaderProps {
   onSize: () => void;
   onClick: () => void;
 }
-interface HeaderStatus {
+interface HeaderState {
   width: number;
+  tempWidth: number;
 }
 
-export class Header extends Component<HeaderProps, HeaderStatus> {
+/**
+ *ListViewヘッダークラス
+ *
+ * @export
+ * @class Header
+ * @extends {Component<HeaderProps, HeaderState>}
+ */
+export class Header extends Component<HeaderProps, HeaderState> {
   static defaultProps = {
     minWidth: 60
   };
-  state = { width: -1 };
-  type: string = "string";
-  labelRef = createRef<HTMLDivElement>();
-  sliderRef = createRef<HTMLDivElement>();
-  render() {
+  state: HeaderState = { width: -1,tempWidth:0 };
+  private type: string = "string";
+  private labelRef = createRef<HTMLDivElement>();
+  private sliderRef = createRef<HTMLDivElement>();
+  public render() {
     const child = this.props.children as ReactElement;
     const label = child.props.children;
     return (
       <div
-        style={{ width: this.state.width + "px" }}
+        style={{ width: Math.max(this.state.tempWidth,this.state.width) + "px" }}
         onClick={this.props.onClick}
       >
         <div id="back">
@@ -63,15 +71,15 @@ export class Header extends Component<HeaderProps, HeaderStatus> {
       this.props.onSize();
     });
   }
-  public componentDitUnmount() {
+  public componentWillUnmount() {
     const node = this.sliderRef.current!;
     node.removeEventListener("move", this.onMove.bind(this));
   }
   public getWidth() {
-    return this.state.width;
+    return Math.max(this.state.width,this.state.tempWidth);
   }
-  public setWidth(width:number) {
-    return this.setState({width});
+  public getTempWidth() {
+    return this.state.tempWidth;
   }
   public getType() {
     return this.type;

@@ -29,7 +29,7 @@ export interface WindowProps {
   windowStyle?: number;
   windowState?: WindowState;
   onUpdate?: ((status: WindowInfo) => void) | null;
-  clientStyle?:React.CSSProperties;
+  clientStyle?: React.CSSProperties;
 }
 type NonNullableType<T, K extends keyof T = keyof T> = {
   [P in K]-?: T[P];
@@ -93,7 +93,7 @@ export class JSWindow extends Component<WindowProps, State> {
     overlapped: true,
     windowStyle: 0xff,
     windowState: WindowState.NORMAL,
-    clientStyle:{},
+    clientStyle: {},
     onUpdate: null
   };
 
@@ -119,10 +119,9 @@ export class JSWindow extends Component<WindowProps, State> {
     state = {
       active: props.active!,
       overlapped: props.overlapped!,
-      titlePrmisson:props.windowStyle!,
-      titleSize:(props.windowStyle! & WindowStyle.TITLE) === 0
-          ? 0
-          : props.titleSize!,
+      titlePrmisson: props.windowStyle!,
+      titleSize:
+        (props.windowStyle! & WindowStyle.TITLE) === 0 ? 0 : props.titleSize!,
       borderSize: props.borderSize!,
       x: props.x!,
       y: props.y!,
@@ -154,7 +153,7 @@ export class JSWindow extends Component<WindowProps, State> {
       onUpdate: props.onUpdate!,
       clientWidth: 0,
       clientHeight: 0,
-      clientStyle:props.clientStyle!,
+      clientStyle: props.clientStyle!,
       realX: 0,
       realY: 0,
       realWidth: 0,
@@ -411,6 +410,7 @@ export class JSWindow extends Component<WindowProps, State> {
             />
           ))}
         <Clinet
+          id="CLIENT"
           ref={this.clientRef}
           TitleSize={this.state.titleSize}
           Width={clientWidth}
@@ -589,17 +589,19 @@ export class JSWindow extends Component<WindowProps, State> {
   ) {
     if (Manager.moveNode == null) {
       this.foreground();
-      Manager.moveNode = this.rootRef.current;
-      let p = Manager.getPos((e as unknown) as MouseEvent | TouchEvent);
-      Manager.baseX = p.x;
-      Manager.baseY = p.y;
-      Manager.nodeX = this.windowInfo.realX;
-      Manager.nodeY = this.windowInfo.realY;
-      Manager.nodeWidth = this.windowInfo.realWidth;
-      Manager.nodeHeight = this.windowInfo.realHeight;
-      e.stopPropagation();
+      if (this.props.moveable || Manager.frame) {
+        Manager.moveNode = this.rootRef.current;
+        let p = Manager.getPos((e as unknown) as MouseEvent | TouchEvent);
+        Manager.baseX = p.x;
+        Manager.baseY = p.y;
+        Manager.nodeX = this.windowInfo.realX;
+        Manager.nodeY = this.windowInfo.realY;
+        Manager.nodeWidth = this.windowInfo.realWidth;
+        Manager.nodeHeight = this.windowInfo.realHeight;
+        e.stopPropagation();
+      }
     } else {
-      e.preventDefault();
+      //  e.preventDefault();
     }
   }
   //フレームクリックイベントの処理
@@ -626,8 +628,8 @@ export class JSWindow extends Component<WindowProps, State> {
           .call(parent.childNodes, 0)
           .filter(node => {
             return (
-              (node as typeof node & { _symbol?: JSWindow })
-                ._symbol instanceof JSWindow
+              (node as typeof node & { _symbol?: JSWindow })._symbol instanceof
+              JSWindow
             );
           })
           .sort((a, b) => {

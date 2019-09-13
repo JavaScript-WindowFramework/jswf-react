@@ -1,3 +1,4 @@
+import ResizeObserver from "resize-observer-polyfill";
 import React, { Component, ReactNode, ReactElement, createRef } from "react";
 import { Root } from "./parts/Root";
 import { Headers } from "./parts/Header/Headers";
@@ -7,6 +8,12 @@ interface Props {
   children?: ReactNode;
   onItemClick?: (row: number, col: number) => void;
   onItemDoubleClick?: (row: number, col: number) => void;
+  onItemDragStart?: (e: React.DragEvent, row: number, col: number) => void;
+  onItemDragEnter?: (e: React.DragEvent, row: number, col: number) => void;
+  onItemDragLeave?: (e: React.DragEvent, row: number, col: number) => void;
+  onItemDragOver?: (e: React.DragEvent, row: number, col: number) => void;
+  onItemDrop?: (e: React.DragEvent, row: number, col: number) => void;
+  onDrop?: (e: React.DragEvent) => void;
 }
 interface State {
   xScroll: number;
@@ -15,7 +22,15 @@ interface State {
   sortOrder?: boolean;
   sortType?: string;
   selectItems: Set<number>;
+  clientWidth?: number;
 }
+/**
+ *WindowsライクなListView
+ *
+ * @export
+ * @class ListView
+ * @extends {Component<Props, State>}
+ */
 export class ListView extends Component<Props, State> {
   static defaultProps = { children: [] };
   state: State = {
@@ -24,11 +39,12 @@ export class ListView extends Component<Props, State> {
     sortIndex: -1,
     selectItems: new Set()
   };
-  rootRef = createRef<HTMLDivElement>();
-  itemsRef = createRef<Items>();
-  headersRef = createRef<Headers>();
+  private resizeObserver?: ResizeObserver;
+  private rootRef = createRef<HTMLDivElement>();
+  private itemsRef = createRef<Items>();
+  private headersRef = createRef<Headers>();
 
-  render() {
+  public render(): JSX.Element {
     const children = React.Children.toArray(
       this.props.children
     ) as React.ReactElement[];
@@ -41,11 +57,13 @@ export class ListView extends Component<Props, State> {
     return (
       <Root
         ref={this.rootRef}
+        onDrop={this.props.onDrop}
         onScroll={e => {
           this.setState({ xScroll: this.rootRef.current!.scrollLeft });
         }}
       >
         <Headers
+          clientWidth={this.state.clientWidth}
           ref={this.headersRef}
           onClick={this.onHeaderClick.bind(this)}
           onSize={headerSizes => this.setState({ headerSizes })}
@@ -54,7 +72,9 @@ export class ListView extends Component<Props, State> {
         </Headers>
         <Items
           ref={this.itemsRef}
-          headerTypes={this.headersRef.current?this.headersRef.current!.getTypes():[]}
+          headerTypes={
+            this.headersRef.current ? this.headersRef.current!.getTypes() : []
+          }
           selectItems={this.state.selectItems}
           sortIndex={this.state.sortIndex}
           sortOrder={this.state.sortOrder}
@@ -63,13 +83,43 @@ export class ListView extends Component<Props, State> {
           headerSizes={this.state.headerSizes}
           onClick={this.onItemClick.bind(this)}
           onDoubleClick={this.onItemDoubleClick.bind(this)}
+          onItemDragStart={this.props.onItemDragStart}
+          onItemDragEnter={this.props.onItemDragEnter}
+          onItemDragLeave={this.props.onItemDragLeave}
+          onItemDragOver={this.props.onItemDragOver}
+          onItemDrop={this.props.onItemDrop}
         >
           {items}
         </Items>
       </Root>
     );
   }
-  onHeaderClick(sortIndex: number) {
+  public componentDidMount(): void {
+    this.resizeObserver = new ResizeObserver(() => {
+      this.layout();
+    });
+    this.resizeObserver.observe(this.rootRef.current! as Element);
+    this.layout();
+  }
+  public componentWillUnmount(): void {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = undefined;
+    }
+  }
+  /**
+   *レイアウト処理
+   *
+   * @protected
+   * @memberof SplitView
+   */
+  protected layout(): void {
+    this.setState({ clientWidth: this.rootRef.current!.clientWidth });
+    if (this.rootRef.current) {
+      this.rootRef.current.scrollLeft = 0;
+    }
+  }
+  protected onHeaderClick(sortIndex: number): void {
     let sortOrder;
     if (this.state.sortIndex === sortIndex) {
       sortOrder = !this.state.sortOrder;
@@ -81,7 +131,7 @@ export class ListView extends Component<Props, State> {
       .current!.getType();
     this.setState({ sortOrder, sortIndex, sortType });
   }
-  onItemClick(e: React.MouseEvent, row: number, col: number) {
+  protected onItemClick(e: React.MouseEvent, row: number, col: number): void {
     const selectItems = this.state.selectItems;
     if (e.ctrlKey) {
       if (!selectItems.has(row)) selectItems.add(row);
@@ -104,34 +154,95 @@ export class ListView extends Component<Props, State> {
       this.props.onItemClick(row, col);
     }
   }
-  onItemDoubleClick(e: React.MouseEvent, row: number, col: number) {
+  protected onItemDoubleClick(
+    e: React.MouseEvent,
+    row: number,
+    col: number
+  ): void {
     if (this.props.onItemDoubleClick) {
       this.props.onItemDoubleClick(row, col);
     }
   }
-  getSelectItem() {
+  /**
+   *選択中の最初のアイテムを返す
+   *
+   * @returns 0<=:アイテム番号 -1:選択無し
+   * @memberof ListView
+   */
+  public getSelectItem(): number {
     const selectItems = this.state.selectItems;
-    if (selectItems.size) return selectItems.values().next();
+    if (selectItems.size) return selectItems.values().next().value;
     return -1;
   }
-  getSelectItems() {
+  /**
+   *選択中のアイテムを配列で返す
+   *
+   * @returns 選択中のアイテム番号の配列
+   * @memberof ListView
+   */
+  public getSelectItems(): number[] {
     return Array.from(this.state.selectItems.values());
   }
-  getItem(row: number, col: number): React.ReactNode | undefined {
+  /**
+   *アイテムの内容を返す
+   *
+   * @param {number} row
+   * @param {number} col
+   * @returns {(React.ReactNode | undefined)} 内容
+   * @memberof ListView
+   */
+  public getItem(row: number, col: number): React.ReactNode | undefined {
     const itemValues = this.itemsRef.current!.getItemValues();
     if (row >= itemValues.length) return undefined;
     return itemValues[row][col];
   }
-  getRows() {
+  /**
+   *アイテムの内容を変更する
+   *
+   * @param {number} row
+   * @param {number} col
+   * @param {ReactNode} value
+   * @memberof ListView
+   */
+  public setItem(row: number, col: number, value: ReactNode): void {
+    const itemValues = this.itemsRef.current!.getItemValues();
+    if (row < itemValues.length) itemValues[row][col] = value;
+    this.forceUpdate();
+  }
+  /**
+   *アイテム数を返す
+   *
+   * @returns
+   * @memberof ListView
+   */
+  public getRows(): number {
     return this.itemsRef.current!.getItemValues().length;
   }
-  getCols() {
+  /**
+   *アイテムのカラム数を返す
+   *
+   * @returns
+   * @memberof ListView
+   */
+  public getCols(): number {
     return this.state.headerSizes.length;
   }
-  addItem(item: ReactNode[]) {
+  /**
+   *アイテムの追加
+   *
+   * @param {ReactNode[]} item 追加するアイテム
+   * @memberof ListView
+   */
+  public addItem(item: ReactNode[]): void {
     this.itemsRef.current!.addItem(item);
   }
-  removeItem(row: number) {
+  /**
+   *アイテムの削除
+   *
+   * @param {number} row 削除するレコード番号
+   * @memberof ListView
+   */
+  public removeItem(row: number): void {
     this.itemsRef.current!.removeItem(row);
     this.state.selectItems.clear();
   }

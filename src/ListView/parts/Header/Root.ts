@@ -13,28 +13,28 @@ export const Root = styled.div.attrs<RootProps>(p => ({
   min-width: 100%;
   background-image: linear-gradient(
     180deg,
-    rgba(144, 197, 240, 0.9) 0%,
-    rgba(63, 164, 201, 0.9) 50%,
-    rgba(100, 122, 221, 0.9) 100%
+    rgb(144, 197, 240) 0%,
+    rgb(63, 164, 201) 50%,
+    rgb(100, 122, 221) 100%
   );
   > div {
     #back {
-      display:flex;
+      display: flex;
       justify-content: center;
       align-items: center;
       height: 100%;
       background-image: linear-gradient(
         180deg,
-        rgba(144, 197, 240, 0.9) 0%,
-        rgba(63, 164, 201, 0.9) 50%,
-        rgba(100, 122, 221, 0.9) 100%
+        rgb(144, 197, 240) 0%,
+        rgb(63, 164, 201) 50%,
+        rgb(100, 122, 221) 100%
       );
       &:hover {
         background-image: linear-gradient(
           0deg,
-          rgba(144, 197, 240, 0.9) 0%,
-          rgba(63, 164, 201, 0.9) 50%,
-          rgba(100, 122, 221, 0.9) 100%
+          rgb(144, 197, 240) 0%,
+          rgb(63, 164, 201) 50%,
+          rgb(100, 122, 221) 100%
         );
       }
     }
@@ -53,10 +53,16 @@ export const Root = styled.div.attrs<RootProps>(p => ({
       cursor: ew-resize;
       position: absolute;
       top: 0px;
-      right: -12px;
+      right: -16px;
       width: 32px;
       height: 100%;
       // background-color: rgba(255, 255, 255, 0.4);
+    }
+    &:last-child {
+      > #slider {
+        right: 0;
+        width: 16px;
+      }
     }
   }
 `;
