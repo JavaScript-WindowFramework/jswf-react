@@ -1,63 +1,120 @@
 import React, { Component, createRef, ReactElement } from "react";
-import { TreeItem } from "./Item/TreeItem";
+import { TreeItem, TreeItemProps } from "./Item/TreeItem";
 import { Root } from "./Root";
 
 interface Props {
+  itemStyle?: number;
   onItemClick?: (item: TreeItem) => void;
   onItemDoubleClick?: (item: TreeItem) => void;
 }
-interface State {}
+interface State {
+  item: TreeItemProps;
+}
 
+/**
+ *TreeViewクラス
+ *
+ * @export
+ * @class TreeView
+ * @extends {Component<Props, State>}
+ */
 export class TreeView extends Component<Props, State> {
-  rootItemRef = createRef<TreeItem>();
-  select: TreeItem | null = null;
-  render() {
+  private rootItemRef = createRef<TreeItem>();
+  private select: TreeItem | null = null;
+
+  public constructor(props: Props) {
+    super(props);
     const rootItem = this.props.children as ReactElement;
     if (rootItem && rootItem.type === TreeItem) {
-      //TreeItemを再定義
-      return (
-        <Root>
-          <TreeItem
-            {...rootItem.props}
-            ref={this.rootItemRef}
-            treeView={this}
-          ></TreeItem>
-        </Root>
-      );
+      this.state = { item: rootItem.props };
     } else {
-      //データが存在しなかった場合は、デフォルトでrootアイテムを用意
-      return (
-        <Root>
-          <TreeItem
-            ref={this.rootItemRef}
-            label="Root"
-            treeView={this}
-          ></TreeItem>
-        </Root>
-      );
+      this.state = { item: { label: "Root" } };
     }
   }
-  getItem(): TreeItem {
+  public render() {
+    return (
+      <Root>
+        <TreeItem
+          {...this.state.item}
+          ref={this.rootItemRef}
+          itemStyle={this.props.itemStyle}
+          treeView={this}
+          parent={this}
+        ></TreeItem>
+      </Root>
+    );
+  }
+  public setProps(item: TreeItem, state: object) {
+    if (item === this.rootItemRef.current) {
+      this.setState({ item: Object.assign({}, this.state.item, state) });
+    }
+  }
+  /**
+   *Rootアイテムを返す
+   *
+   * @returns {TreeItem}
+   * @memberof TreeView
+   */
+  public getItem(): TreeItem {
     return this.rootItemRef.current!;
   }
-  findItem(value: unknown) {
+  /**
+   *該当する値を持つアイテムを一つ返す
+   *
+   * @param {unknown} value
+   * @returns {(TreeItem | null)}
+   * @memberof TreeView
+   */
+  public findItem(value: unknown): TreeItem | null {
     return this.rootItemRef.current!.findItem(value);
   }
-  findItems(value: unknown) {
+  /**
+   *該当する値を持つアイテムを複数返す
+   *
+   * @param {unknown} value
+   * @returns {TreeItem[]}
+   * @memberof TreeView
+   */
+  public findItems(value: unknown): TreeItem[] {
     return this.rootItemRef.current!.findItems(value);
   }
-  delItem(item: TreeItem) {
+  /**
+   *アイテムを削除する
+   *
+   * @param {TreeItem} item
+   * @returns {boolean}
+   * @memberof TreeView
+   */
+  public delItem(item: TreeItem): boolean {
     return this.rootItemRef.current!.delItem(item);
   }
-  getSelectItem(): TreeItem | null {
+  /**
+   *選択中のアイテムを返す
+   *
+   * @returns {(TreeItem | null)}
+   * @memberof TreeView
+   */
+  public getSelectItem(): TreeItem | null {
     return this.select;
   }
-  selectItem(item: TreeItem | null) {
+  /**
+   *アイテムを選択する
+   *
+   * @param {(TreeItem | null)} item
+   * @memberof TreeView
+   */
+  public selectItem(item: TreeItem | null): void {
     if (this.select) this.select.onSelect(false);
     if (item) item.onSelect(true);
     this.select = item;
   }
-  getCheckItems(){
+  /**
+   *チェック中のアイテムを複数返す
+   *
+   * @returns {TreeItem[]}
+   * @memberof TreeView
+   */
+  public getCheckItems(): TreeItem[] {
     return this.rootItemRef.current!.getCheckItems();
   }
 }

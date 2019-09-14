@@ -29,8 +29,8 @@ interface State {
  */
 export class SplitView extends Component<SplitProps, State> {
   static defaultProps: SplitProps = {
-    type: "we",
-    bold: 8,
+    type: "ew",
+    bold: 16,
     pos: 200,
     activeWait: 3000,
     activeSize: 300,

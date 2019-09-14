@@ -12,8 +12,8 @@ export const Root = styled.div.attrs<StyleProps>(p => ({
   #icon {
     cursor: pointer;
     box-sizing: border-box;
-    margin: ${lineSize*0.2}em;
-    width: ${lineSize*0.8}em;
+    margin: ${lineSize * 0.2}em;
+    width: ${lineSize * 0.8}em;
   }
   #item {
     border-radius: 4px;
@@ -44,16 +44,16 @@ export const Root = styled.div.attrs<StyleProps>(p => ({
       display: flex;
     }
   }
-  #children{
-    flex:1;
+  #children {
+    flex: 1;
   }
   #line {
-    width:${lineSize/2}em;
-    margin-right:${lineSize/2}em;
+    width: ${lineSize / 2}em;
+    margin-right: ${lineSize / 2}em;
     bottom: 0;
     flex-grow: 0;
     flex-shrink: 0;
-    border-right:solid 1px;
+    border-right: solid 1px;
   }
 
   .close {

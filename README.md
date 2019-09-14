@@ -117,6 +117,7 @@ ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 - 親子ウインドウ
 - 画面分割
 - リストビュー
+- ツリービュー
 
 ## ６．コンポーネント
 
@@ -154,18 +155,9 @@ WindowState.MAX
 WindowState.MIN  
 WindowState.HIDE  
 
-### 6.2 **SplitView**
+### 6.2 その他の機能
 
-#### Propsパラメータ
-
-| Name        | Type                | Info                                                       |
-| ----------- | ------------------- | ---------------------------------------------------------- |
-| type        | SplitType           | ns,sn,we,ew                                                |
-| pos         | number              | BarPosition                                                |
-| activeSize  | number              | SlideModeSize -1:NotUse 0:always                           |
-| activeWait  | number              | SlideTime (ms)                                             |
-| bold        | number              | Bar thickness                                              |
-| style       | React.CSSProperties | CSS                                                        |
+Markdownで書くのはキッツいので[こちら](https://ttis.croud.jp/?uuid=b292d429-dbad-49b5-8fed-6d268f4feaf0)を参照してください。
 
 ## ７．ライセンス
 

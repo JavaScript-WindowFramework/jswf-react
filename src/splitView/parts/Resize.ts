@@ -2,25 +2,42 @@ import { ReactNode } from "react";
 import styled from "styled-components";
 
 interface StyleProps {
+  barSize: number;
   size: number;
-  rot: boolean;
+  barOpen: boolean;
+  type: string;
 }
 
 export const Resize = styled.img.attrs<StyleProps>(p => {
-  let style = {};
-  if (p.rot) {
-    style =  {
-      transform:"rotate(90deg)"
-    }
-    return { style };
+  let style: React.CSSProperties = {};
+  if (p.type === "ns" || p.type === "sn") {
+    style.transform = "rotate(90deg)";
   }
+  if (!p.barOpen) {
+    switch (p.type) {
+      case "we":
+        style.marginLeft = -(p.size -p.barSize)/2+ "px";
+        break;
+      case "ew":
+        style.marginLeft = -(p.size +p.barSize)/2+ "px";
+        break;
+      case "ns":
+        style.marginTop = -(p.size -p.barSize)/2+ "px";
+        break;
+      case "sn":
+        style.marginTop = -(p.size +p.barSize)/2+ "px";
+        break;
+    }
+  }
+  return { style };
 })<StyleProps>`
   & {
-    position: relative;
+    position: absolute;
+    box-sizing:border-box;
     width: ${p => p.size}px;
     height: ${p => p.size}px;
-    margin-top: -${p => p.size / 2 + 2}px;
-    margin-left: -${p => p.size / 2 + 2}px;
+    margin-top: -${p => p.size / 2}px;
+    margin-left: -${p => p.size / 2}px;
     top: 50%;
     left: 50%;
     cursor: pointer;

@@ -1,6 +1,6 @@
 import ResizeObserver from "resize-observer-polyfill";
 import React, { ReactNode, Component, createRef } from "react";
-import { Manager, MovePoint, JWFEvent } from "../lib/Manager";
+import { Manager, MovePoint, JWFEvent, objectAssign } from "../lib/Manager";
 import { Clinet } from "./parts/Client";
 import { Title } from "./parts/Title";
 import { Root } from "./parts/Root";
@@ -86,7 +86,7 @@ export class JSWindow extends Component<WindowProps, State> {
     width: 300,
     height: 300,
     moveable: false,
-    borderSize: 8,
+    borderSize: 16,
     titleSize: 32,
     title: "",
     active: false,
@@ -222,6 +222,7 @@ export class JSWindow extends Component<WindowProps, State> {
         }
       }
     }
+    this.changeState();
   }
   /**
    * React render
@@ -237,8 +238,6 @@ export class JSWindow extends Component<WindowProps, State> {
     let x, y, width, height, clientWidth, clientHeight;
     if (node && clientNode) {
       node._symbol = this;
-
-      this.changeState();
 
       //座標系リミットチェック
       const parent = node.parentNode as HTMLElement;
@@ -589,19 +588,17 @@ export class JSWindow extends Component<WindowProps, State> {
   ) {
     if (Manager.moveNode == null) {
       this.foreground();
-      if (this.props.moveable || Manager.frame) {
-        Manager.moveNode = this.rootRef.current;
-        let p = Manager.getPos((e as unknown) as MouseEvent | TouchEvent);
-        Manager.baseX = p.x;
-        Manager.baseY = p.y;
-        Manager.nodeX = this.windowInfo.realX;
-        Manager.nodeY = this.windowInfo.realY;
-        Manager.nodeWidth = this.windowInfo.realWidth;
-        Manager.nodeHeight = this.windowInfo.realHeight;
-        e.stopPropagation();
-      }
-    } else {
-      //  e.preventDefault();
+      //  if (this.props.moveable || Manager.frame) {
+      Manager.moveNode = this.rootRef.current;
+      let p = Manager.getPos((e as unknown) as MouseEvent | TouchEvent);
+      Manager.baseX = p.x;
+      Manager.baseY = p.y;
+      Manager.nodeX = this.windowInfo.realX;
+      Manager.nodeY = this.windowInfo.realY;
+      Manager.nodeWidth = this.windowInfo.realWidth;
+      Manager.nodeHeight = this.windowInfo.realHeight;
+      // e.stopPropagation();
+      //  }
     }
   }
   //フレームクリックイベントの処理
@@ -641,7 +638,7 @@ export class JSWindow extends Component<WindowProps, State> {
             node.style.zIndex = index.toString();
           });
       }
-      e.preventDefault();
+      //e.preventDefault();
     }
   }
 
@@ -662,53 +659,63 @@ export class JSWindow extends Component<WindowProps, State> {
       this.state.height
     ];
     let p = e.params as MovePoint;
-    //選択されている場所によって挙動を変える
-    let frameIndex = Manager.frame || "";
-    switch (frameIndex) {
-      case "TOP":
-        py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
-        pheight = Manager.nodeHeight - (p.nowPoint.y - p.basePoint.y);
-        break;
-      case "RIGHT":
-        pwidth = Manager.nodeWidth + (p.nowPoint.x - p.basePoint.x);
-        break;
-      case "BOTTOM":
-        pheight = Manager.nodeHeight + (p.nowPoint.y - p.basePoint.y);
-        break;
-      case "LEFT":
-        px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-        pwidth = Manager.nodeWidth - (p.nowPoint.x - p.basePoint.x);
-        break;
-      case "LEFT-TOP":
-        px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-        py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
-        pwidth = Manager.nodeWidth - (p.nowPoint.x - p.basePoint.x);
-        pheight = Manager.nodeHeight - (p.nowPoint.y - p.basePoint.y);
-        break;
-      case "RIGHT-TOP":
-        py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
-        pwidth = Manager.nodeWidth + (p.nowPoint.x - p.basePoint.x);
-        pheight = Manager.nodeHeight - (p.nowPoint.y - p.basePoint.y);
-        break;
-      case "LEFT-BOTTOM":
-        px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-        pwidth = Manager.nodeWidth - (p.nowPoint.x - p.basePoint.x);
-        pheight = Manager.nodeHeight + (p.nowPoint.y - p.basePoint.y);
-        break;
-      case "RIGHT-BOTTOM":
-        pwidth = Manager.nodeWidth + (p.nowPoint.x - p.basePoint.x);
-        pheight = Manager.nodeHeight + (p.nowPoint.y - p.basePoint.y);
-        break;
-      case "TITLE":
-        px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-        py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
-        break;
-      default:
-        //クライアント領域
-        if (this.props.moveable) {
+    if (p.distance) {
+      const vx = Math.abs(Math.cos(p.radian!) * p.distance)*(p.distance<0?-1:1);
+      const vy = Math.abs(-Math.sin(p.radian!) * p.distance)*(p.distance<0?-1:1);
+
+      px = p.nodePoint.x - vx / 2;
+      py = p.nodePoint.y - vy / 2;
+      pwidth = Manager.nodeWidth + vx;
+      pheight = Manager.nodeHeight + vy;
+    } else {
+      //選択されている場所によって挙動を変える
+      let frameIndex = Manager.frame || "";
+      switch (frameIndex) {
+        case "TOP":
+          py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
+          pheight = Manager.nodeHeight - (p.nowPoint.y - p.basePoint.y);
+          break;
+        case "RIGHT":
+          pwidth = Manager.nodeWidth + (p.nowPoint.x - p.basePoint.x);
+          break;
+        case "BOTTOM":
+          pheight = Manager.nodeHeight + (p.nowPoint.y - p.basePoint.y);
+          break;
+        case "LEFT":
+          px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
+          pwidth = Manager.nodeWidth - (p.nowPoint.x - p.basePoint.x);
+          break;
+        case "LEFT-TOP":
           px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
           py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
-        } else return;
+          pwidth = Manager.nodeWidth - (p.nowPoint.x - p.basePoint.x);
+          pheight = Manager.nodeHeight - (p.nowPoint.y - p.basePoint.y);
+          break;
+        case "RIGHT-TOP":
+          py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
+          pwidth = Manager.nodeWidth + (p.nowPoint.x - p.basePoint.x);
+          pheight = Manager.nodeHeight - (p.nowPoint.y - p.basePoint.y);
+          break;
+        case "LEFT-BOTTOM":
+          px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
+          pwidth = Manager.nodeWidth - (p.nowPoint.x - p.basePoint.x);
+          pheight = Manager.nodeHeight + (p.nowPoint.y - p.basePoint.y);
+          break;
+        case "RIGHT-BOTTOM":
+          pwidth = Manager.nodeWidth + (p.nowPoint.x - p.basePoint.x);
+          pheight = Manager.nodeHeight + (p.nowPoint.y - p.basePoint.y);
+          break;
+        case "TITLE":
+          px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
+          py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
+          break;
+        default:
+          //クライアント領域
+          if (this.props.moveable) {
+            px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
+            py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
+          } else return;
+      }
     }
     this.moveParams = {
       x: px,
@@ -722,10 +729,7 @@ export class JSWindow extends Component<WindowProps, State> {
         this.moveHandle = undefined;
       }, 10);
     }
-    //
 
-    //移動フレーム処理時はイベントを止める
-    p.event.preventDefault();
     try {
       const selection = window.getSelection();
       if (selection) selection.removeAllRanges();
@@ -733,13 +737,4 @@ export class JSWindow extends Component<WindowProps, State> {
       //
     }
   }
-}
-function objectAssign<T, U>(target: T, src: U): T & U {
-  if (Object.assign) {
-    return Object.assign(target, src);
-  }
-  for (const key of Object.keys(src)) {
-    target[key as keyof T] = src[key as keyof U] as never;
-  }
-  return target as T & U;
 }

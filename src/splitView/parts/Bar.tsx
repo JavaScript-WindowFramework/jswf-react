@@ -12,7 +12,7 @@ interface BarProps extends React.HTMLAttributes<HTMLDivElement> {
   open: boolean;
   activeMode: boolean;
   procOpen: (open: boolean) => void;
-  procMove:(pos: number) => void;
+  procMove: (pos: number) => void;
 }
 const BarStyle = styled.div.attrs<BarProps>(p => {
   let style = {};
@@ -67,21 +67,24 @@ const BarStyle = styled.div.attrs<BarProps>(p => {
   position: absolute;
   overflow: visible;
   box-sizing: border-box;
-  background-color: #777777;
+  background-color: #bbbbbb;
   border: outset 2px #b8b7b7;
   user-select: none;
   vertical-align: middle;
+  &:active{
+    background-color: #cccccc;
+  }
 `;
 
 interface BarState {
   open: boolean;
-  pos:number;
+  pos: number;
 }
 export class Bar extends Component<BarProps, BarState> {
   private barRef = createRef<HTMLDivElement>();
   constructor(props: BarProps) {
     super(props);
-    this.state = { open: true,pos:props.pos };
+    this.state = { open: true, pos: props.pos };
   }
   render() {
     return (
@@ -94,7 +97,9 @@ export class Bar extends Component<BarProps, BarState> {
         {this.props.activeMode && (
           <Resize
             size={32}
-            rot={this.props.type === "ns" || this.props.type === "sn"}
+            barSize={this.props.size}
+            barOpen={this.state.open}
+            type={this.props.type}
             src={imgResize}
             onClick={() => this.props.procOpen(!this.state.open)}
           />
@@ -159,6 +164,7 @@ export class Bar extends Component<BarProps, BarState> {
       Manager.nodeWidth = node.offsetWidth;
       Manager.nodeHeight = node.offsetHeight;
     }
+    e.stopPropagation();
     this.props.procMove(this.state.pos);
   }
 }

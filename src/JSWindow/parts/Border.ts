@@ -3,6 +3,9 @@ import styled from "styled-components";
 export const Border = styled.div<{ Size: number }>`
   position: absolute;
   user-select: none;
+  &:active{
+    background-color:rgba(0,0,0,0.05);
+  }
   &#TOP {
     cursor: n-resize;
     left: 0px;
