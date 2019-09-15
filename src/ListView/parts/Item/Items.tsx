@@ -4,11 +4,14 @@ import React, {
   ReactNode,
   RefObject,
   ReactElement,
-  createRef
+  createRef,
+  ReactComponentElement
 } from "react";
 import { Root } from "./Root";
 import { Item } from "./Item";
 import imgFile from "../../../../images/file.png";
+import { ListViewDragData } from "../../";
+import { ListRow } from "../../DomDefinition";
 
 interface ItemColumnProps {
   width: number;
@@ -22,9 +25,10 @@ const ItemColumn = styled.div.attrs<ItemColumnProps>(p => ({
 
 interface ItemsProps {
   xScroll: number;
+  draggable: boolean;
   headerSizes: number[];
   headerTypes: string[];
-  children: ReactNode;
+  children: ReactComponentElement<typeof ListRow>[];
   sortOrder?: boolean;
   sortIndex?: number;
   sortType?: string;
@@ -37,18 +41,23 @@ interface ItemsProps {
   onItemDragOver?: (e: React.DragEvent, row: number, col: number) => void;
   onItemDrop?: (e: React.DragEvent, row: number, col: number) => void;
 }
-interface State {
-  values: ReactNode[][];
+export interface ItemRow {
+  value?: unknown;
+  labels: ReactNode[];
 }
 
-export class Items extends Component<ItemsProps, State> {
-  state: State = { values: [] };
+interface State {
+  itemRows: ItemRow[];
+}
+
+export class ItemArea extends Component<ItemsProps, State> {
+  state: State = { itemRows: [] };
   private rootRef: RefObject<HTMLDivElement> = createRef();
   private columnsRef: RefObject<HTMLDivElement>[] = [];
   private itemsRef: RefObject<HTMLDivElement>[][] = [];
   private sortOrder?: boolean;
   private sortIndex?: number;
-  private values: ReactNode[][] = [];
+  private itemRows: ItemRow[] = [];
   private fileImage?: HTMLImageElement;
 
   public componentDidUpdate() {
@@ -85,20 +94,19 @@ export class Items extends Component<ItemsProps, State> {
     this.fileImage.src = imgFile;
     this.fileImage.style.height = "64px";
 
-    const values: ReactNode[][] = [];
-    React.Children.forEach(this.props.children, children => {
-      const value: ReactNode[] = [];
-      values.push(value);
+    const itemRows: ItemRow[] = [];
+    for (const itemRow of this.props.children) {
+      itemRows.push({
+        value: itemRow.props.value,
+        labels: React.Children.map(
+          itemRow.props.children as ReactElement,
+          item => item.props.children
+        )
+      });
+    }
 
-      React.Children.forEach(
-        (children as ReactElement).props!.children,
-        item => {
-          value.push(item.props!.children);
-        }
-      );
-    });
-    this.values = values;
-    this.setState({ values: this.values });
+    this.itemRows = itemRows;
+    this.setState({ itemRows: this.itemRows });
     this.sort();
   }
 
@@ -113,17 +121,20 @@ export class Items extends Component<ItemsProps, State> {
         this.sort();
       });
     }
-
     this.itemsRef = [];
     this.columnsRef = [];
     return (
-      <Root ref={this.rootRef} left={this.props.xScroll} onDragOver={e=>e.preventDefault()}>
+      <Root
+        ref={this.rootRef}
+        left={this.props.xScroll}
+        onDragOver={e => e.preventDefault()}
+      >
         <div style={{ position: "relative", left: -this.props.xScroll }}>
           {this.props.headerSizes.map((size, cols) => {
             this.columnsRef[cols] = createRef();
             return (
               <ItemColumn ref={this.columnsRef[cols]} key={cols} width={size}>
-                {this.state.values.map((items, rows) => {
+                {this.state.itemRows.map((itemRow, rows) => {
                   const ref = createRef<HTMLDivElement>();
                   if (this.itemsRef[rows]) this.itemsRef[rows][cols] = ref;
                   else this.itemsRef[rows] = [ref];
@@ -135,7 +146,7 @@ export class Items extends Component<ItemsProps, State> {
                       ref={ref}
                       key={rows}
                       widthPos={type}
-                      draggable={true}
+                      draggable={this.props.draggable}
                       onMouseOver={() => {
                         this.onOver(rows, true);
                       }}
@@ -164,7 +175,7 @@ export class Items extends Component<ItemsProps, State> {
                         this.onDrop(e, rows, cols);
                       }}
                     >
-                      <div>{items[cols]}</div>
+                      <div>{itemRow.labels[cols]}</div>
                     </Item>
                   );
                 })}
@@ -187,25 +198,26 @@ export class Items extends Component<ItemsProps, State> {
     if (sortIndex === undefined || sortIndex < 0) return;
     const sortOrder = this.props.sortOrder;
     if (this.props.sortType === "number") {
-      this.values.sort((a, b) => {
+      this.itemRows.sort((a, b) => {
         if (sortOrder)
           return (
-            parseFloat(a[sortIndex]! as string) -
-            parseFloat(b[sortIndex]! as string)
+            parseFloat(a.labels[sortIndex]! as string) -
+            parseFloat(b.labels[sortIndex]! as string)
           );
         else
           return (
-            parseFloat(b[sortIndex]! as string) -
-            parseFloat(a[sortIndex]! as string)
+            parseFloat(b.labels[sortIndex]! as string) -
+            parseFloat(a.labels[sortIndex]! as string)
           );
       });
     } else {
-      this.values.sort((a, b) => {
-        if (sortOrder) return a[sortIndex]! <= b[sortIndex]! ? -1 : 1;
-        else return a[sortIndex]! < b[sortIndex]! ? 1 : -1;
+      this.itemRows.sort((a, b) => {
+        if (sortOrder)
+          return a.labels[sortIndex]! <= b.labels[sortIndex]! ? -1 : 1;
+        else return a.labels[sortIndex]! < b.labels[sortIndex]! ? 1 : -1;
       });
     }
-    this.setState({ values: this.values });
+    this.setState({ itemRows: this.itemRows });
   }
 
   protected onDragStart(e: React.DragEvent, row: number, col: number) {
@@ -217,10 +229,12 @@ export class Items extends Component<ItemsProps, State> {
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setDragImage(this.fileImage!, 10, 10);
     const rows = Array.from(this.props.selectItems.values());
-    const items = rows.map((item)=>{
-      return this.values[item];
-    })
-    e.dataTransfer.setData("text/plain",JSON.stringify(items));
+    const items = rows.map(item => {
+      return this.itemRows[item];
+    });
+
+    const value: ListViewDragData = { type: "ListViewDragData", items };
+    e.dataTransfer.setData("text/plain", JSON.stringify(value));
   }
   protected onDragLeave(e: React.DragEvent, row: number, col: number) {
     if (this.props.onItemDragLeave) this.props.onItemDragLeave(e, row, col);
@@ -239,14 +253,14 @@ export class Items extends Component<ItemsProps, State> {
   }
 
   public getItemValues() {
-    return this.state.values;
+    return this.state.itemRows;
   }
-  public addItem(item: ReactNode[]) {
-    this.values.push(item);
-    this.setState({ values: this.values });
+  public addItem(item:ItemRow) {
+    this.itemRows.push(item);
+    this.setState({ itemRows: this.itemRows });
   }
   public removeItem(row: number) {
-    this.values.splice(row, 1);
-    this.setState({ values: this.values });
+    this.itemRows.splice(row, 1);
+    this.setState({ itemRows: this.itemRows });
   }
 }

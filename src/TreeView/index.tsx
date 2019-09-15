@@ -1,6 +1,7 @@
 import React, { Component, createRef, ReactElement } from "react";
 import { TreeItem, TreeItemProps } from "./Item/TreeItem";
 import { Root } from "./Root";
+import { objectAssign } from "../lib/Manager";
 
 interface Props {
   itemStyle?: number;
@@ -46,7 +47,7 @@ export class TreeView extends Component<Props, State> {
   }
   public setProps(item: TreeItem, state: object) {
     if (item === this.rootItemRef.current) {
-      this.setState({ item: Object.assign({}, this.state.item, state) });
+      this.setState({ item: objectAssign({}, this.state.item, state) });
     }
   }
   /**

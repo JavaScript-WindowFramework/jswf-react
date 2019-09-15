@@ -1,11 +1,24 @@
 # @jswf/react
 
-React用仮想Windowコンポーネント
+Virtual window component for React
 
-## １．内容
+## １．Contents
 
-Reactで仮想ウインドウを実現するためのコンポーネント
-JSWindowで囲むだけで、そこが仮想ウインドウ化します
+### 1.1 Basic explanation
+
+Components for realizing virtual windows with React
+Just enclose with JSWindow and it will become a virtual window
+
+### 1.2 Currently available features
+
+- Move windows
+- Resize
+- Maximize
+- Minimize
+- Parent-child window
+- Split screen
+- List view
+- Tree view
 
 ## ２．Screen shot
 
@@ -13,7 +26,7 @@ JSWindowで囲むだけで、そこが仮想ウインドウ化します
 
 ## ３．links
 
-- WebSite  
+- The website where the document is written  
 [https://ttis.croud.jp/?uuid=b292d429-dbad-49b5-8fed-6d268f4feaf0](https://ttis.croud.jp/?uuid=b292d429-dbad-49b5-8fed-6d268f4feaf0)
 
 - Source code  
@@ -45,57 +58,53 @@ function App() {
   const [type, setType] = React.useState<SplitType>("ew");
   return (
     <>
-      {/* -------- 単純にウインドウを表示する ------------*/}
+      {/* -------- Simply display the window ------------*/}
       <JSWindow ref={frame} title="Window1" x={50} y={100}>
-        この中に入れたコンテンツは仮想ウインドウ上に表示されます
+        The content you put in this will be displayed on the virtual window
       </JSWindow>
 
-      {/* -------- ウインドウの中にウインドウ ------------*/}
+      {/* -------- Window inside window ------------*/}
       <JSWindow title="Window2" width={600} height={500} windowStyle={~WindowStyle.CLOSE}>
-        ウインドウ位置を設定しなかった場合、中央に表示されます
+        If the window position is not set, it will be displayed in the center.
         <br />
-        windowStyleで使用する機能を設定できます
+        You can set the function used in windowStyle
         <JSWindow title="ChildWindow" overlapped={false} width={200} height={200}>
-          overlappedをfalseにするとクライアント領域内に表示され、trueにすると重ね合わせだけ調整されます
+          If overlapped is set to false, it will be displayed in the client area,
+          if it is set to true, only the overlap will be adjusted.
         </JSWindow>
       </JSWindow>
 
-      {/* -------- ウインドウの情報を表示 ------------*/}
-      <JSWindow title="更新テスト" y={50} onUpdate={p => setInfo(p)}>
+      {/* -------- Display window information ------------*/}
+      <JSWindow title="Update test" y={50} onUpdate={p => setInfo(p)}>
         <pre>
-          {info &&
-            JSON.stringify(
-              info,
-              ["realX", "realY", "realWidth", "realHeight"],
-              " "
-            )}
+          {info && JSON.stringify(info,["realX", "realY", "realWidth", "realHeight"]," ")}
         </pre>
       </JSWindow>
 
-      {/* -------- 分割バーの設置 ------------*/}
-      <JSWindow width={500} height={400} title="分割バー" clientStyle={{ display: "flex", flexDirection: "column" }}>
-        {/* ボタン設置 */}
+      {/* -------- Installation of split bar ------------*/}
+      <JSWindow width={500} height={400} title="Split bar" clientStyle={{ display: "flex", flexDirection: "column" }}>
+        {/* Button installation */}
         <div style={{ borderBottom: "solid 2px" }}>
           <button onClick={() => setType("we")}>WE</button>
           <button onClick={() => setType("ew")}>EW</button>
           <button onClick={() => setType("ns")}>NS</button>
           <button onClick={() => setType("sn")}>SN</button>
         </div>
-        {/* 分割バー(デフォルトスタイルは親のクライアント領域の最大まで広がる) */}
+        {/* Split bar (default style extends to the maximum of the parent client area) */}
         <SplitView type={type} style={{ position: "relative", flex: 1 }}>
-          <div style={{ height: "100%" }}>アクティブ側</div>
+          <div style={{ height: "100%" }}>Active side</div>
           <div style={{ height: "100%", backgroundColor: "rgb(230,255,255)" }}>
-            スタティック側
+            Static side
           </div>
         </SplitView>
       </JSWindow>
 
-      {/* -------- 非ウインドウの通常ボタン ------------*/}
+      {/* -------- Non-window normal button ------------*/}
       <button onClick={() => {
           frame.current!.foreground();
           frame.current!.setWindowState(WindowState.NORMAL);
         }}>
-        Window1を復活させる
+        Revive Window1
       </button>
     </>
   );
@@ -105,60 +114,16 @@ ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 
 ```
 
-## ５．機能に関して
+## ５．Component list
 
-### 5.1 現時点で使用可能な機能
+| Name                                                                          | Usage                       |
+| ----------------------------------------------------------------------------- | --------------------------- |
+| [JSWindow](https://ttis.croud.jp/?uuid=f111063f-5af3-4158-816d-ae8c4f4c2ac7)  | Virtual Window Components   |
+| [SplitView](https://ttis.croud.jp/?uuid=b3aa0115-2d3a-4ff3-afb0-c221d3e3918b) | Component for region split  |
+| [ListView](https://ttis.croud.jp/?uuid=7f858598-112b-4d98-8890-19f4084c49a2)  | Similar to Windows ListView |
+| [TreeView](https://ttis.croud.jp/?uuid=2ab9d650-0deb-4cdd-84c5-0481aee71ed3)  | TreeView components         |
+| [TreeItem](https://ttis.croud.jp/?uuid=faedbbf6-eef3-43fc-9d02-7d61a4db7ed6)  | TreeView Item components    |
 
-- ウインドウの移動
-- リサイズ
-- 最大化
-- 最小化
-- 重ね合わせ
-- 親子ウインドウ
-- 画面分割
-- リストビュー
-- ツリービュー
-
-## ６．コンポーネント
-
-### 6.1 **JSWindow**
-
-#### Propsパラメータ
-
-| Name        | Type               | Info                                                       |
-| ----------- | ------------------ | ---------------------------------------------------------- |
-| x           | number &#124; null | X Position                                                 |
-| y           | number &#124; null | Y Position                                                 |
-| width       | number             | Width                                                      |
-| height      | number             | Height                                                     |
-| moveable    | boolean            | trueだとクライアント領域のドラッグで移動                      |
-| borderSize  | number             | サイズ変更用の見えないフレームのサイズ                        |
-| titleSize   | number             | タイトルバーのサイズ                                         |
-| title       | string             | タイトル                                                    |
-| active      | boolean            | trueでアクティブ                                            |
-| overlapped  | boolean            | falseにするとウインドウが親ウインドウ内にのみ表示              |
-| windowStyle | number             | WindowStyle ビットの込み合わせ <br> TITLE:タイトルバー<br> MAX:最大化ボタン<br> MIN:最小化ボタン<br> CLOSE:クローズボタン<br> FRAME:枠の表示<br> RESIZE:サイズ変更<br> |
-| windowState | WindowState                    | WindowState　ウインドウの状態<br>  NORMAL:通常<br> MAX:最大化<br> MIN:最小化<br> HIDE:非表示<br> |
-| clientStyle | React.CSSProperties | クライアント領域に適用するスタイル |
-| onUpdate    | function(p:WindowInfo)  &#124; null | ウインドウの状態が変化するとコールバックされる |
-
-#### メソッド
-
-- foreground()  
-ウインドウをフォアグラウンドにする
-
-- setWindowState(state: WindowState | undefined)  
-ウインドウの状態を変更する  
-  - state  
-WindowState.NORMAL  
-WindowState.MAX  
-WindowState.MIN  
-WindowState.HIDE  
-
-### 6.2 その他の機能
-
-Markdownで書くのはキッツいので[こちら](https://ttis.croud.jp/?uuid=b292d429-dbad-49b5-8fed-6d268f4feaf0)を参照してください。
-
-## ７．ライセンス
+## ６．license
 
 MIT

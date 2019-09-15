@@ -32,7 +32,7 @@ export interface MovePoint {
   nodePoint: Point;
   nodeSize: Size;
   distance?: number;
-  radian?:number;
+  radian?: number;
 }
 export interface JWFEvent extends Event {
   params?: unknown;
@@ -166,7 +166,7 @@ function mouseMove(e: MouseEvent | TouchEvent): void {
         Manager.callEvent(node, "move", params);
       }
       e.preventDefault();
-      e.stopPropagation();
+     // e.stopPropagation();
     } else {
       let node = Manager.moveNode; //移動中ノード
       let p = Manager.getPos(e); //座標の取得
@@ -179,7 +179,7 @@ function mouseMove(e: MouseEvent | TouchEvent): void {
       };
       Manager.callEvent(node, "move", params);
       e.preventDefault();
-      e.stopPropagation();
+      //e.stopPropagation();
     }
   }
   // e.preventDefault();
@@ -189,23 +189,27 @@ function getDistance(p: TouchList) {
   const y = p[0].pageY - p[1].pageY;
   return Math.sqrt(x * x + y * y);
 }
-function getRadian(p:TouchList){
+function getRadian(p: TouchList) {
   const x = p[0].pageX - p[1].pageX;
   const y = p[0].pageY - p[1].pageY;
-  return Math.atan2(y,x);
+  return Math.atan2(y, x);
 }
 function onTouchStart(e: TouchEvent) {
   Manager.pinchiBaseDistance = undefined;
 }
 
-export function objectAssign<T, U>(target: T, src: U): T & U {
+export function objectAssign(target: object, ...src: object[]): any {
   if (Object.assign) {
-    return Object.assign(target, src);
+    return Object.assign(target, ...src);
   }
-  for (const key of Object.keys(src)) {
-    target[key as keyof T] = src[key as keyof U] as never;
+  for (let i = 0, l = src.length; i < l; i++) {
+    for (const key of Object.keys(src[i])) {
+      (target as { [key: string]: unknown })[key] = (src[i] as {
+        [key: string]: unknown;
+      })[key] as never;
+    }
   }
-  return target as T & U;
+  return target;
 }
 
 addEventListener("mouseup", mouseUp, false);

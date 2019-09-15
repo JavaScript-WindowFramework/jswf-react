@@ -89,7 +89,7 @@ export class JSWindow extends Component<WindowProps, State> {
     borderSize: 16,
     titleSize: 32,
     title: "",
-    active: false,
+    active: true,
     overlapped: true,
     windowStyle: 0xff,
     windowState: WindowState.NORMAL,
@@ -181,6 +181,7 @@ export class JSWindow extends Component<WindowProps, State> {
       node.addEventListener("move", this.onMove.bind(this));
       node.addEventListener("active", this.onActive.bind(this));
     }
+    if (this.props.active!) this.foreground();
     this.update();
   }
   /**
@@ -588,17 +589,16 @@ export class JSWindow extends Component<WindowProps, State> {
   ) {
     if (Manager.moveNode == null) {
       this.foreground();
-      //  if (this.props.moveable || Manager.frame) {
-      Manager.moveNode = this.rootRef.current;
-      let p = Manager.getPos((e as unknown) as MouseEvent | TouchEvent);
-      Manager.baseX = p.x;
-      Manager.baseY = p.y;
-      Manager.nodeX = this.windowInfo.realX;
-      Manager.nodeY = this.windowInfo.realY;
-      Manager.nodeWidth = this.windowInfo.realWidth;
-      Manager.nodeHeight = this.windowInfo.realHeight;
-      // e.stopPropagation();
-      //  }
+      if (this.props.moveable || Manager.frame) {
+        Manager.moveNode = this.rootRef.current;
+        let p = Manager.getPos((e as unknown) as MouseEvent | TouchEvent);
+        Manager.baseX = p.x;
+        Manager.baseY = p.y;
+        Manager.nodeX = this.windowInfo.realX;
+        Manager.nodeY = this.windowInfo.realY;
+        Manager.nodeWidth = this.windowInfo.realWidth;
+        Manager.nodeHeight = this.windowInfo.realHeight;
+      }
     }
   }
   //フレームクリックイベントの処理
@@ -608,9 +608,6 @@ export class JSWindow extends Component<WindowProps, State> {
       | React.MouseEvent<HTMLDivElement, MouseEvent>
   ): void {
     if (Manager.frame == null) Manager.frame = e.currentTarget.id;
-    //EDGEはここでイベントを止めないとテキスト選択が入る
-    //if (WindowManager.frame < 9)
-    //	if (e.preventDefault) e.preventDefault(); else e.returnValue = false
   }
   private onActive(e: Event & { params?: boolean }) {
     const act = e.params === true;
@@ -638,7 +635,6 @@ export class JSWindow extends Component<WindowProps, State> {
             node.style.zIndex = index.toString();
           });
       }
-      //e.preventDefault();
     }
   }
 
@@ -660,8 +656,10 @@ export class JSWindow extends Component<WindowProps, State> {
     ];
     let p = e.params as MovePoint;
     if (p.distance) {
-      const vx = Math.abs(Math.cos(p.radian!) * p.distance)*(p.distance<0?-1:1);
-      const vy = Math.abs(-Math.sin(p.radian!) * p.distance)*(p.distance<0?-1:1);
+      const vx =
+        Math.abs(Math.cos(p.radian!) * p.distance) * (p.distance < 0 ? -1 : 1);
+      const vy =
+        Math.abs(-Math.sin(p.radian!) * p.distance) * (p.distance < 0 ? -1 : 1);
 
       px = p.nodePoint.x - vx / 2;
       py = p.nodePoint.y - vy / 2;

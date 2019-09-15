@@ -1,11 +1,18 @@
-import React, { Component, createRef, ReactNode, RefObject } from "react";
+import React, {
+  Component,
+  createRef,
+  ReactNode,
+  RefObject,
+  ReactElement
+} from "react";
 import { Root } from "./Root";
 import { Header } from "./Header";
+import { ListHeader, ListHeaderProps } from "../../DomDefinition";
 
 interface HeadersProps {
   onSize: (headers: number[]) => void;
   onClick: (index: number) => void;
-  children: ReactNode;
+  children: ReactElement<typeof ListHeader>[];
   clientWidth?: number;
 }
 /**
@@ -15,26 +22,30 @@ interface HeadersProps {
  * @class Headers
  * @extends {Component<HeadersProps>}
  */
-export class Headers extends Component<HeadersProps> {
-  private headers: RefObject<Header>[] = [];
-  private values: ReactNode[] = [];
+export class HeaderArea extends Component<HeadersProps> {
+  private headersRef: RefObject<Header>[] = [];
+  private values: ListHeaderProps[] = [];
   private rootRef = createRef<HTMLDivElement>();
   public componentDidMount() {
-    this.values = React.Children.toArray(this.props.children);
+    this.values = this.props.children
+      .filter(header => {
+        return header.type === ListHeader.prototype.constructor;
+      })
+      .map(header => header.props) as ListHeaderProps[];
     this.onSize();
   }
   public componentDidUpdate() {
     const clientWidth = this.props.clientWidth;
     if (this.props.clientWidth !== undefined) {
-      const width = this.headers.reduce((a, b) => {
+      const width = this.headersRef.reduce((a, b) => {
         const w = b.current!.getWidth();
         if (w < 0) a = -9999999;
         return a - b.current!.getWidth();
       }, clientWidth!);
 
-      const index = this.headers.length - 1;
+      const index = this.headersRef.length - 1;
       if (index >= 0) {
-        const header = this.headers[index].current!;
+        const header = this.headersRef[index].current!;
         let tempWidth = header.getTempWidth() + width;
         if (tempWidth < 0) tempWidth = 0;
         if (header.state.tempWidth !== tempWidth) {
@@ -44,22 +55,23 @@ export class Headers extends Component<HeadersProps> {
     }
   }
   public render() {
-    this.headers = [];
+    this.headersRef = [];
     return (
       <Root ref={this.rootRef}>
-        {this.values.map((element: ReactNode, index) => {
+        {this.values.map((header, index) => {
           const refHeader = createRef<Header>();
-          this.headers.push(refHeader);
+          this.headersRef.push(refHeader);
           return (
             <Header
               key={index}
               ref={refHeader}
+              width={header.width}
               onClick={() => {
                 this.onClick(index);
               }}
               onSize={() => this.onSize()}
             >
-              {element}
+              {header.children}
             </Header>
           );
         })}
@@ -67,20 +79,22 @@ export class Headers extends Component<HeadersProps> {
     );
   }
   protected onSize() {
-    const headerSizes = this.headers.map(headerRef => {
+    const headerSizes = this.headersRef.map(headerRef => {
       if (headerRef.current) return headerRef.current.getWidth();
       return -1;
     });
-    if (headerSizes.indexOf(-1) === -1) this.props.onSize(headerSizes);
+    if (headerSizes.indexOf(-1) === -1) {
+      this.props.onSize(headerSizes);
+    }
   }
   protected onClick(index: number) {
     this.props.onClick(index);
   }
   public getHeader(index: number) {
-    return this.headers[index];
+    return this.headersRef[index];
   }
   public getTypes() {
-    return this.headers.map(header => {
+    return this.headersRef.map(header => {
       return header.current!.getType();
     });
   }

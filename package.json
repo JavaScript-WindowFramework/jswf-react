@@ -1,6 +1,6 @@
 {
   "name": "@jswf/react",
-  "version": "0.2.3",
+  "version": "0.2.6",
   "description": "Virtual Window for React",
   "main": "dist/index.js",
   "scripts": {
@@ -14,7 +14,10 @@
   "keywords": [
     "jswf",
     "react",
-    "virtual window"
+    "virtual window",
+    "List View",
+    "Tree View",
+    "Split View"
   ],
   "author": "SoraKumo",
   "license": "MIT",

@@ -154,10 +154,18 @@ export class TreeItem extends Component<TreeItemProps, State> {
     this.setParentState({ select });
   }
   public setProps(item: TreeItem, state: TreeItemProps) {
-    const index = this.itemsRef.findIndex(itemRef => {
-      return itemRef.current === item;
-    });
-    if (index >= 0) {
+    // const index = this.itemsRef.findIndex(itemRef => {
+    //   return itemRef.current === item;
+    // });
+
+    const itemsRef = this.itemsRef;
+    let index:number;
+    let length = itemsRef.length;
+    for(index=0;index<length;index++){
+      if(itemsRef[index].current === item)
+        break;
+    }
+    if (index < itemsRef.length) {
       for (const key of Object.keys(state)) {
         this.items[index][key as keyof TreeItemProps] = state[
           key as keyof TreeItemProps
@@ -253,10 +261,14 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   public delItem(item: TreeItem): boolean {
-    const index = this.itemsRef.findIndex(itemRef => {
-      return itemRef.current === item;
-    });
-    if (index >= 0) {
+    const itemsRef = this.itemsRef;
+    let index:number;
+    let length = itemsRef.length;
+    for(index=0;index<length;index++){
+      if(itemsRef[index].current === item)
+        break;
+    }
+    if (index < length) {
       if (
         this.props.treeView &&
         this.props.treeView.getSelectItem() === this.itemsRef[index].current
