@@ -1,5 +1,5 @@
-import React, { Component, createRef, ReactElement, Props } from "react";
-import { Manager, JWFEvent, MovePoint } from "../../../lib/Manager";
+import React, { Component, createRef } from "react";
+import { Manager, JWFEvent, MovePoint } from "../../lib/Manager";
 interface HeaderProps {
   type?: string;
   width?: number;

@@ -217,4 +217,3 @@ addEventListener("touchend", mouseUp, { passive: false });
 addEventListener("mousemove", mouseMove, false);
 addEventListener("touchmove", mouseMove, { passive: false });
 addEventListener("touchstart", onTouchStart, { passive: false });
-// addEventListener("mousedown", mouseDown, false);

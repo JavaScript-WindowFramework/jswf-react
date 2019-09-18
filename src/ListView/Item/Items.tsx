@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import React, {
   Component,
   ReactNode,
@@ -7,23 +6,13 @@ import React, {
   createRef,
   ReactComponentElement
 } from "react";
-import { Root } from "./Root";
-import { Item } from "./Item";
-import imgFile from "../../../../images/file.png";
-import { ListViewDragData } from "../../";
-import { ListRow } from "../../DomDefinition";
-
-interface ItemColumnProps {
-  width: number;
-}
-const ItemColumn = styled.div.attrs<ItemColumnProps>(p => ({
-  style: { width: p.width + "px" }
-}))<ItemColumnProps>`
-  display: inline-block;
-  vertical-align: top;
-`;
+import { ListViewDragData, ListView } from "..";
+import { ListRow } from "../ExportDefinition";
+import { ItemColumn, Root, Item } from "./Items.style";
+import imgFile from "../../../images/file.png";
 
 interface ItemsProps {
+  listView: ListView;
   xScroll: number;
   draggable: boolean;
   headerSizes: number[];
@@ -221,20 +210,24 @@ export class ItemArea extends Component<ItemsProps, State> {
   }
 
   protected onDragStart(e: React.DragEvent, row: number, col: number) {
+    //選択されていなければ終了
     if (!this.props.selectItems.has(row)) {
-      e.preventDefault();
       return;
     }
+    //コールバックイベントを呼ぶ
     if (this.props.onItemDragStart) this.props.onItemDragStart(e, row, col);
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setDragImage(this.fileImage!, 10, 10);
-    const rows = Array.from(this.props.selectItems.values());
-    const items = rows.map(item => {
-      return this.itemRows[item];
-    });
+    //イベントがキャンセルされていなければ転送データを修正
+    if (!e.defaultPrevented) {
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setDragImage(this.fileImage!, 10, 10);
+      const rows = Array.from(this.props.selectItems.values());
+      const items = rows.map(item => {
+        return this.itemRows[item];
+      });
 
-    const value: ListViewDragData = { type: "ListViewDragData", items };
-    e.dataTransfer.setData("text/plain", JSON.stringify(value));
+      const value: ListViewDragData = { type: this.props.listView.props.dragString!, items };
+      e.dataTransfer.setData("text/plain", JSON.stringify(value));
+    }
   }
   protected onDragLeave(e: React.DragEvent, row: number, col: number) {
     if (this.props.onItemDragLeave) this.props.onItemDragLeave(e, row, col);
@@ -255,7 +248,7 @@ export class ItemArea extends Component<ItemsProps, State> {
   public getItemValues() {
     return this.state.itemRows;
   }
-  public addItem(item:ItemRow) {
+  public addItem(item: ItemRow) {
     this.itemRows.push(item);
     this.setState({ itemRows: this.itemRows });
   }

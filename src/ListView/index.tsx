@@ -6,20 +6,22 @@ import React, {
   createRef,
   ReactComponentElement
 } from "react";
-import { Root } from "./parts/Root";
-import { HeaderArea } from "./parts/Header/Headers";
-import { ItemArea, ItemRow } from "./parts/Item/Items";
-import { ListRow, ListHeaders } from "./DomDefinition";
-export * from "./DomDefinition";
+import { Root } from "./ListView.style";
+import { HeaderArea } from "./Header/Headers";
+import { ItemArea, ItemRow } from "./Item/Items";
+import { ListRow, ListHeaders } from "./ExportDefinition";
+export * from "./ExportDefinition";
+
+export const ListViewDragString = "ListViewDragData";
 
 export interface ListViewDragData {
-  type: "ListViewDragData";
+  type: string;
   items: ItemRow[];
 }
 
-type ListViewChild = ReactComponentElement<typeof ListRow | typeof ListHeaders>;
 interface Props {
   draggable?: boolean;
+  dragString?:string;
   children?: ReactNode;
   onItemClick?: (row: number, col: number) => void;
   onItemDoubleClick?: (row: number, col: number) => void;
@@ -47,7 +49,7 @@ interface State {
  * @extends {Component<Props, State>}
  */
 export class ListView extends Component<Props, State> {
-  static defaultProps = { draggable: false, children: [] };
+  static defaultProps = { draggable: false,dragString:ListViewDragString, children: [] };
   state: State = {
     xScroll: 0,
     headerSizes: [],
@@ -96,6 +98,7 @@ export class ListView extends Component<Props, State> {
           headerTypes={
             this.headersRef.current ? this.headersRef.current!.getTypes() : []
           }
+          listView={this}
           draggable={this.props.draggable!}
           selectItems={this.state.selectItems}
           sortIndex={this.state.sortIndex}

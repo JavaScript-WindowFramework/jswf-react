@@ -1,13 +1,12 @@
 import React, {
   Component,
   createRef,
-  ReactNode,
   RefObject,
   ReactElement
 } from "react";
-import { Root } from "./Root";
+import { Root } from "./Headers.style";
 import { Header } from "./Header";
-import { ListHeader, ListHeaderProps } from "../../DomDefinition";
+import { ListHeader, ListHeaderProps } from "../ExportDefinition";
 
 interface HeadersProps {
   onSize: (headers: number[]) => void;
@@ -65,6 +64,7 @@ export class HeaderArea extends Component<HeadersProps> {
             <Header
               key={index}
               ref={refHeader}
+              type={header.type}
               width={header.width}
               onClick={() => {
                 this.onClick(index);

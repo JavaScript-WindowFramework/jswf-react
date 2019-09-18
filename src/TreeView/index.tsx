@@ -1,10 +1,11 @@
 import React, { Component, createRef, ReactElement } from "react";
 import { TreeItem, TreeItemProps } from "./Item/TreeItem";
-import { Root } from "./Root";
+import { Root } from "./TreeView.style";
 import { objectAssign } from "../lib/Manager";
 
 interface Props {
   itemStyle?: number;
+  onExpand?:(item:TreeItem,expand:boolean)=>void
   onItemClick?: (item: TreeItem) => void;
   onItemDoubleClick?: (item: TreeItem) => void;
 }
@@ -38,6 +39,8 @@ export class TreeView extends Component<Props, State> {
         <TreeItem
           {...this.state.item}
           ref={this.rootItemRef}
+          uniqueKey={1}
+          key={1}
           itemStyle={this.props.itemStyle}
           treeView={this}
           parent={this}

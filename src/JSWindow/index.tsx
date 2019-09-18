@@ -3,7 +3,7 @@ import React, { ReactNode, Component, createRef } from "react";
 import { Manager, MovePoint, JWFEvent, objectAssign } from "../lib/Manager";
 import { Clinet } from "./parts/Client";
 import { Title } from "./parts/Title";
-import { Root } from "./parts/Root";
+import { Root } from "./JSWindow.style";
 import { Border, borders } from "./parts/Border";
 
 export enum WindowStyle {
@@ -466,7 +466,9 @@ export class JSWindow extends Component<WindowProps, State> {
       if (parent) {
         const sendActive = (node: HTMLElement & { _symbol?: Symbol }) => {
           if (node._symbol instanceof JSWindow) {
-            Manager.callEvent(node, "active", activeNodes.has(node));
+            const act = activeNodes.has(node);
+            //if(node._symbol.state.active !== act)
+              Manager.callEvent(node, "active", act);
           }
           Array.prototype.forEach.call(node.childNodes, node => {
             sendActive(node as HTMLElement);
@@ -600,6 +602,7 @@ export class JSWindow extends Component<WindowProps, State> {
         Manager.nodeHeight = this.windowInfo.realHeight;
       }
     }
+    e.stopPropagation();
   }
   //フレームクリックイベントの処理
   private onFrame(

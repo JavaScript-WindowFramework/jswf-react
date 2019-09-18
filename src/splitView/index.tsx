@@ -1,6 +1,6 @@
 import ResizeObserver from "resize-observer-polyfill";
 import React, { Component, createRef, ReactNode } from "react";
-import { Root } from "./parts/Root";
+import { Root } from "./SplitView.style";
 import { Bar } from "./parts/Bar";
 import { Child } from "./parts/Child";
 

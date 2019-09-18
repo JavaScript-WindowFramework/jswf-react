@@ -11,14 +11,14 @@ Just enclose with JSWindow and it will become a virtual window
 
 ### 1.2 Currently available features
 
-- Move windows
+- MoveWindow
 - Resize
 - Maximize
 - Minimize
 - Parent-child window
-- Split screen
-- List view
-- Tree view
+- SplitScreen
+- ListView
+- TreeView
 
 ## ２．Screen shot
 
