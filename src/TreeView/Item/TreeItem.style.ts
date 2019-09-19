@@ -42,6 +42,7 @@ export const Root = styled.div.attrs<StyleProps>(p => ({
     position: relative;
     > div {
       display: flex;
+      position: relative;
     }
   }
   #children {
@@ -58,33 +59,32 @@ export const Root = styled.div.attrs<StyleProps>(p => ({
 
   .close {
     > div {
-      animation: treeClose 0.5s ease 0s forwards;
+      animation: treeClose 0.3s ease 0s forwards;
     }
   }
   .open {
     > div {
-      animation: treeOpen 0.1s ease 0s normal;
+      animation: treeOpen 0.3s ease 0s normal;
     }
   }
 
   @keyframes treeOpen {
     0% {
-      margin-top: -100%;
+      transform:translateY(-100%);
     }
 
     100% {
-      margin-top: 0%;
+      transform:translateY(0);
     }
   }
 
   @keyframes treeClose {
     0% {
-      height: auto;
-      margin-top: 0;
+      transform:translateY(0);
     }
 
     100% {
-      margin-top: -100%;
+      transform:translateY(-100%);
     }
   }
 `;
