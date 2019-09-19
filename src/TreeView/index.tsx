@@ -5,7 +5,7 @@ import { objectAssign } from "../lib/Manager";
 
 interface Props {
   itemStyle?: number;
-  onExpand?:(item:TreeItem,expand:boolean)=>void
+  onExpand?: (item: TreeItem, expand: boolean) => void;
   onItemClick?: (item: TreeItem) => void;
   onItemDoubleClick?: (item: TreeItem) => void;
 }
@@ -23,15 +23,17 @@ interface State {
 export class TreeView extends Component<Props, State> {
   private rootItemRef = createRef<TreeItem>();
   private select: TreeItem | null = null;
+  private item: TreeItemProps;
 
   public constructor(props: Props) {
     super(props);
     const rootItem = this.props.children as ReactElement;
     if (rootItem && rootItem.type === TreeItem) {
-      this.state = { item: rootItem.props };
+      this.item = { ...rootItem.props };
     } else {
-      this.state = { item: { label: "Root" } };
+      this.item = { label: "Root" };
     }
+    this.state = { item: this.item };
   }
   public render() {
     return (
@@ -48,10 +50,15 @@ export class TreeView extends Component<Props, State> {
       </Root>
     );
   }
-  public setProps(item: TreeItem, state: object) {
-    if (item === this.rootItemRef.current) {
-      this.setState({ item: objectAssign({}, this.state.item, state) });
-    }
+  public setProps(_item: TreeItem, props: TreeItemProps) {
+    objectAssign(this.item, props);
+    this.setState({ item: { ...this.item } });
+  }
+  public getProps<K extends keyof TreeItemProps>(
+    _item: TreeItem,
+    key: K
+  ): TreeItemProps[K] {
+    return this.item[key];
   }
   /**
    *Rootアイテムを返す
