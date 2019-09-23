@@ -5,7 +5,7 @@ import { Root } from "./TreeView.style";
 interface Props {
   children?: ReactNode;
   itemStyle?: number;
-  onExpand?: (item: TreeItem, expand: boolean) => void;
+  onExpand?: (item: TreeItem, expand: boolean,first:boolean) => void;
   onItemClick?: (item: TreeItem) => void;
   onItemDoubleClick?: (item: TreeItem) => void;
 }
@@ -24,7 +24,7 @@ export interface TreeItemData {
   keys: { [key: string]: unknown };
   parent: TreeItemData | null;
   children: TreeItemData[];
-  onExpand?: (expand: boolean) => void;
+  onExpand?: (expand: boolean,first:boolean) => void;
   onItemClick?: () => void;
   onDoubleClick?: () => void;
 }
@@ -78,7 +78,6 @@ export class TreeView extends Component<Props, State> {
         onItemClick: p.onItemClick,
         onDoubleClick: p.onDoubleClick
       };
-
       //子アイテムの作成
       item.children = (element.props.children
         ? React.Children.map(element.props.children, child => {
@@ -169,8 +168,8 @@ export class TreeView extends Component<Props, State> {
    */
   public selectItem(item: TreeItem | null): void {
     if (this.select) this.select.onSelect(false);
-    if (item) item.onSelect(true);
     this.select = item;
+    if (item) item.onSelect(true);
   }
   /**
    *チェック中のアイテムを複数返す
@@ -180,5 +179,8 @@ export class TreeView extends Component<Props, State> {
    */
   public getCheckItems(): TreeItem[] {
     return this.rootItemRef.current!.getCheckItems();
+  }
+  public getRootUniqueKey(){
+    return this.item.uniqueKey;
   }
 }

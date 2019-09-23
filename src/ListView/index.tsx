@@ -10,6 +10,7 @@ import { Root } from "./ListView.style";
 import { HeaderArea } from "./Header/Headers";
 import { ItemArea, ItemRow } from "./Item/Items";
 import { ListRow, ListHeaders } from "./ExportDefinition";
+import { getSetValues } from "../lib/Manager";
 export * from "./ExportDefinition";
 
 export const ListViewDragString = "ListViewDragData";
@@ -21,7 +22,7 @@ export interface ListViewDragData {
 
 interface Props {
   draggable?: boolean;
-  dragString?:string;
+  dragString?: string;
   children?: ReactNode;
   onItemClick?: (row: number, col: number) => void;
   onItemDoubleClick?: (row: number, col: number) => void;
@@ -49,12 +50,10 @@ interface State {
  * @extends {Component<Props, State>}
  */
 export class ListView extends Component<Props, State> {
-  static defaultProps = { draggable: false,dragString:ListViewDragString, children: [] };
-  state: State = {
-    xScroll: 0,
-    headerSizes: [],
-    sortIndex: -1,
-    selectItems: new Set()
+  static defaultProps = {
+    draggable: false,
+    dragString: ListViewDragString,
+    children: []
   };
   private resizeObserver?: ResizeObserver;
   private rootRef = createRef<HTMLDivElement>();
@@ -62,19 +61,42 @@ export class ListView extends Component<Props, State> {
   private headersRef = createRef<HeaderArea>();
   private itemRows: ReactComponentElement<typeof ListRow>[] = [];
   private headers: ReactElement[] = [];
+  private manual: boolean = false;
 
   public constructor(props: Props) {
     super(props);
-    this.itemRows = [];
+
+    this.state = {
+      xScroll: 0,
+      headerSizes: [],
+      sortIndex: -1,
+      selectItems: new Set()
+    };
+    this.createItem(props);
+  }
+  createItem(props: Props) {
+    const itemRows = [];
     const children = React.Children.toArray(
-      this.props.children
+      props.children
     ) as React.ReactElement[];
     for (const child of children) {
       if (child.type === ListHeaders)
         this.headers = child.props.children as ReactElement[];
       else if (child.type === ListRow)
-        this.itemRows.push(child as ReactComponentElement<typeof ListRow>);
+        itemRows.push(child as ReactComponentElement<typeof ListRow>);
     }
+    this.itemRows = itemRows;
+  }
+  shouldComponentUpdate(props: Props) {
+    if (!this.manual) {
+      if (this.props !== props) {
+        this.createItem(props);
+      }
+    }
+    return true;
+  }
+  public isManual() {
+    return this.manual;
   }
   public render(): JSX.Element {
     return (
@@ -163,7 +185,7 @@ export class ListView extends Component<Props, State> {
       else selectItems.delete(row);
     } else if (e.shiftKey) {
       this.state.selectItems.add(row);
-      const items = Array.from(selectItems.values());
+      const items = getSetValues(selectItems);
       let s = Math.min.apply(null, items);
       let e = Math.max.apply(null, items);
       for (let i = s; i <= e; i++) selectItems.add(i);
@@ -173,7 +195,7 @@ export class ListView extends Component<Props, State> {
     }
 
     this.state.selectItems.add(row);
-    this.setState({ selectItems: new Set(selectItems.values()) });
+    this.setState({ selectItems: new Set(getSetValues(selectItems)) });
 
     if (this.props.onItemClick) {
       this.props.onItemClick(row, col);
@@ -196,7 +218,7 @@ export class ListView extends Component<Props, State> {
    */
   public getSelectItem(): number {
     const selectItems = this.state.selectItems;
-    if (selectItems.size) return selectItems.values().next().value;
+    if (selectItems.size) return getSetValues(selectItems)[0];
     return -1;
   }
   /**
@@ -206,7 +228,7 @@ export class ListView extends Component<Props, State> {
    * @memberof ListView
    */
   public getSelectItems(): number[] {
-    return Array.from(this.state.selectItems.values());
+    return getSetValues(this.state.selectItems);
   }
   /**
    *アイテムの内容を返す
@@ -230,6 +252,7 @@ export class ListView extends Component<Props, State> {
    * @memberof ListView
    */
   public setItem(row: number, col: number, value: ReactNode): void {
+    this.manual = true;
     const itemValues = this.itemsRef.current!.getItemValues();
     if (row < itemValues.length) itemValues[row].labels[col] = value;
     this.forceUpdate();
@@ -259,11 +282,10 @@ export class ListView extends Component<Props, State> {
    * @param {ReactNode[]} item 追加するアイテム
    * @memberof ListView
    */
-  public addItem(item: ItemRow|ReactNode[]): void{
-    if("labels" in item)
-     this.itemsRef.current!.addItem(item);
-    else
-       this.itemsRef.current!.addItem({labels:item});
+  public addItem(item: ItemRow | ReactNode[]): void {
+    this.manual = true;
+    if ("labels" in item) this.itemsRef.current!.addItem(item);
+    else this.itemsRef.current!.addItem({ labels: item });
   }
   /**
    *アイテムの削除
@@ -272,6 +294,7 @@ export class ListView extends Component<Props, State> {
    * @memberof ListView
    */
   public removeItem(row: number): void {
+    this.manual = true;
     this.itemsRef.current!.removeItem(row);
     this.state.selectItems.clear();
   }

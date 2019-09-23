@@ -4,7 +4,7 @@ interface StyleProps {}
 export const Root = styled.div.attrs<StyleProps>(p => ({
   style: {}
 }))<StyleProps>`
-  position: absolute;
+  position: relative;
   overflow-x: auto;
   overflow-y: hidden;
   width: 100%;

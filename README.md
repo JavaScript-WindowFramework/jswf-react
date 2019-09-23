@@ -1,5 +1,7 @@
 # @jswf/react
 
+[![npm version](https://badge.fury.io/js/%40jswf%2Freact.svg)](https://badge.fury.io/js/%40jswf%2Freact)  
+
 Virtual window component for React
 
 ## １．Contents

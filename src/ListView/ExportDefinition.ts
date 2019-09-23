@@ -7,7 +7,7 @@ export interface ListRowProps {
 export class ListRow extends Component<ListRowProps>{}
 
 export interface ListHeadersProps {
-  children?: ReactElement<typeof ListHeader>[];
+  children?: ReactElement<typeof ListHeader>|ReactElement<typeof ListHeader>[];
 }
 export class ListHeaders extends Component<ListHeadersProps> {}
 

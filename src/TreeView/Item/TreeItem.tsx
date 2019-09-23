@@ -20,7 +20,7 @@ export interface TreeItemProps {
   select?: false;
   checked?: false;
   uniqueKey?: number;
-  onExpand?: (expand: boolean) => void;
+  onExpand?: (expand: boolean, create: boolean) => void;
   onItemClick?: () => void;
   onDoubleClick?: () => void;
   item?: TreeItemData;
@@ -48,6 +48,8 @@ export class TreeItem extends Component<TreeItemProps, State> {
     checked: false,
     items: []
   };
+  private updateCache: { [key: string]: unknown } = {};
+  private keyCache: number[] = [];
   private item: TreeItemData;
   private mount: boolean = false;
   public constructor(props: TreeItemProps) {
@@ -59,10 +61,50 @@ export class TreeItem extends Component<TreeItemProps, State> {
   componentDidMount() {
     this.mount = true;
     TreeItem.referenceItem.set(this.item.uniqueKey, this);
+
+    //開閉イベントの初回実行
+    setTimeout(() => {
+      this.props.treeView &&
+        this.props.treeView.props.onExpand &&
+        this.props.treeView.props.onExpand(this, this.item.expand, true);
+      this.props.onExpand && this.props.onExpand(this.item.expand, true);
+    });
   }
   componentWillUnmount() {
     TreeItem.referenceItem.delete(this.item.uniqueKey);
     this.mount = false;
+  }
+  shouldComponentUpdate(_props: TreeItemProps, state: State) {
+    const item = this.item;
+    const cache = this.updateCache;
+    if (
+      item.itemStyle === cache["itemStyle"] &&
+      item.label === cache["label"] &&
+      item.expand === cache["expand"] &&
+      item.select === cache["select"] &&
+      item.checked === cache["checked"] &&
+      state.childAnimation === cache["childAnimation"] &&
+      state.expandState === cache["expandState"]
+    ) {
+      const keys = this.item.children.map(item => item.uniqueKey);
+      if (this.item.children.length === this.keyCache.length) {
+        if (
+          keys.reduce((flag, key, index) => {
+            return flag && key === this.keyCache[index];
+          }, true)
+        )
+          return false;
+      }
+      this.keyCache = keys;
+    }
+    cache["itemStyle"] = item.itemStyle;
+    cache["label"] = item.label;
+    cache["expand"] = item.expand;
+    cache["select"] = item.select;
+    cache["checked"] = item.checked;
+    cache["childAnimation"] = state.childAnimation;
+    cache["expandState"] = state.expandState;
+    return true;
   }
   public render() {
     return (
@@ -71,7 +113,7 @@ export class TreeItem extends Component<TreeItemProps, State> {
           id="item"
           className={this.state.item.select ? "select" : ""}
           onClick={() => {
-            this.props.onItemClick && this.props.onItemClick();
+            this.state.item.onItemClick && this.state.item.onItemClick();
             if (this.props.treeView) {
               this.props.treeView.selectItem(this);
               this.props.treeView.props.onItemClick &&
@@ -79,7 +121,7 @@ export class TreeItem extends Component<TreeItemProps, State> {
             }
           }}
           onDoubleClick={() => {
-            this.props.onDoubleClick && this.props.onDoubleClick();
+            this.state.item.onDoubleClick && this.state.item.onDoubleClick();
             this.props.treeView &&
               this.props.treeView.props.onItemDoubleClick &&
               this.props.treeView.props.onItemDoubleClick(this);
@@ -165,8 +207,20 @@ export class TreeItem extends Component<TreeItemProps, State> {
   }
   public onSelect(select: boolean) {
     this.item.select = select;
+    let parent: TreeItemData | null = this.item;
+    while ((parent = parent.parent)) {
+      const item = TreeItem.referenceItem.get(parent.uniqueKey);
+      if (item) item.setExpand(true);
+      else parent.expand = true;
+    }
     this.updateState();
   }
+  /**
+   *ツリーの開閉を行う
+   *
+   * @param {boolean} expand 開閉状態
+   * @memberof TreeItem
+   */
   setExpand(expand: boolean) {
     if (this.item.expand !== expand) {
       this.item.expand = expand;
@@ -177,8 +231,8 @@ export class TreeItem extends Component<TreeItemProps, State> {
       });
       this.props.treeView &&
         this.props.treeView.props.onExpand &&
-        this.props.treeView.props.onExpand(this, expand);
-      this.props.onExpand && this.props.onExpand(expand);
+        this.props.treeView.props.onExpand(this, expand, false);
+      this.props.onExpand && this.props.onExpand(expand, false);
     }
   }
   /**
@@ -235,8 +289,8 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   public findItem(value: unknown): TreeItem | null {
-    const find = (item: TreeItemData): TreeItem | null => {
-      if (item.value === value) return new TreeItem({ item });
+    const find = (item: TreeItemData): TreeItemData | null => {
+      if (item.value === value) return item;
       if (item.children) {
         for (const child of item.children) {
           const target = find(child);
@@ -247,7 +301,10 @@ export class TreeItem extends Component<TreeItemProps, State> {
       }
       return null;
     };
-    return find(this.item);
+    const itemData = find(this.item);
+    if (!itemData) return null;
+    const item = TreeItem.referenceItem.get(itemData.uniqueKey);
+    return item || new TreeItem({ item: itemData });
   }
   /**
    *valueに該当するアイテムを複数見つける
@@ -258,6 +315,15 @@ export class TreeItem extends Component<TreeItemProps, State> {
    */
   public findItems(value: unknown): TreeItem[] {
     const items: TreeItem[] = [];
+    const callChild = (item: TreeItemData) => {
+      if (item.value === value) items.push(new TreeItem({ item }));
+      if (item.children) {
+        for (const child of item.children) {
+          callChild(child);
+        }
+      }
+    };
+    callChild(this.item);
     return items;
   }
   /**

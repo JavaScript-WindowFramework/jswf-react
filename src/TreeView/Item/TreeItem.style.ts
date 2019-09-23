@@ -9,13 +9,7 @@ export const Root = styled.div.attrs<StyleProps>(p => ({
 }))<StyleProps>`
   position: relative;
 
-  #icon {
-    cursor: pointer;
-    box-sizing: border-box;
-    margin: ${lineSize * 0.2}em;
-    width: ${lineSize * 0.8}em;
-  }
-  #item {
+  > #item {
     border-radius: 4px;
     cursor: default;
     flex: 1;
@@ -31,30 +25,39 @@ export const Root = styled.div.attrs<StyleProps>(p => ({
         background-color: rgba(100, 150, 250, 0.5);
       }
     }
+
+    > #icon {
+      cursor: pointer;
+      box-sizing: border-box;
+      margin: ${lineSize * 0.2}em;
+      width: ${lineSize * 0.8}em;
+    }
+
+    > #label {
+      flex: 1;
+      flex-wrap: nowrap;
+      word-break: break-all;
+      margin: 0.1em;
+    }
   }
-  #label {
-    flex: 1;
-    flex-wrap: nowrap;
-    word-break: break-all;
-    margin: 0.1em;
-  }
-  #child {
+  > #child {
     position: relative;
     > div {
       display: flex;
       position: relative;
+
+      > #children {
+        flex: 1;
+      }
+      > #line {
+        width: ${lineSize / 2}em;
+        margin-right: ${lineSize / 2}em;
+        bottom: 0;
+        flex-grow: 0;
+        flex-shrink: 0;
+        border-right: solid 1px;
+      }
     }
-  }
-  #children {
-    flex: 1;
-  }
-  #line {
-    width: ${lineSize / 2}em;
-    margin-right: ${lineSize / 2}em;
-    bottom: 0;
-    flex-grow: 0;
-    flex-shrink: 0;
-    border-right: solid 1px;
   }
 
   .close {
@@ -70,21 +73,21 @@ export const Root = styled.div.attrs<StyleProps>(p => ({
 
   @keyframes treeOpen {
     0% {
-      transform:translateY(-100%);
+      transform: translateY(-100%);
     }
 
     100% {
-      transform:translateY(0);
+      transform: translateY(0);
     }
   }
 
   @keyframes treeClose {
     0% {
-      transform:translateY(0);
+      transform: translateY(0);
     }
 
     100% {
-      transform:translateY(-100%);
+      transform: translateY(-100%);
     }
   }
 `;

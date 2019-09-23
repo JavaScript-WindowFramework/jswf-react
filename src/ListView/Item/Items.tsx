@@ -78,13 +78,16 @@ export class ItemArea extends Component<ItemsProps, State> {
       });
     });
   }
-  public componentDidMount() {
-    this.fileImage = document.createElement("img");
-    this.fileImage.src = imgFile;
-    this.fileImage.style.height = "64px";
-
+  shouldComponentUpdate(props: ItemsProps) {
+    if (this.props !== props) {
+      if(!props.listView.isManual())
+        this.createItem(props);
+    }
+    return true;
+  }
+  private createItem(props: ItemsProps) {
     const itemRows: ItemRow[] = [];
-    for (const itemRow of this.props.children) {
+    for (const itemRow of props.children) {
       itemRows.push({
         value: itemRow.props.value,
         labels: React.Children.map(
@@ -95,8 +98,15 @@ export class ItemArea extends Component<ItemsProps, State> {
     }
 
     this.itemRows = itemRows;
-    this.setState({ itemRows: this.itemRows });
+    this.setState({ itemRows: itemRows });
     this.sort();
+  }
+  public componentDidMount() {
+    this.fileImage = document.createElement("img");
+    this.fileImage.src = imgFile;
+    this.fileImage.style.height = "64px";
+
+    this.createItem(this.props);
   }
 
   public render() {
@@ -164,7 +174,9 @@ export class ItemArea extends Component<ItemsProps, State> {
                         this.onDrop(e, rows, cols);
                       }}
                     >
-                      <div>{itemRow.labels[cols]}</div>
+                      <div style={{ width: "100%" }}>
+                        {itemRow.labels[cols]}
+                      </div>
                     </Item>
                   );
                 })}
@@ -225,7 +237,10 @@ export class ItemArea extends Component<ItemsProps, State> {
         return this.itemRows[item];
       });
 
-      const value: ListViewDragData = { type: this.props.listView.props.dragString!, items };
+      const value: ListViewDragData = {
+        type: this.props.listView.props.dragString!,
+        items
+      };
       e.dataTransfer.setData("text/plain", JSON.stringify(value));
     }
   }

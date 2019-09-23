@@ -1,6 +1,6 @@
 {
   "name": "@jswf/react",
-  "version": "0.2.11",
+  "version": "0.2.16",
   "description": "Virtual Window for React",
   "main": "dist/index.js",
   "scripts": {
@@ -31,5 +31,13 @@
     "@types/react": "~16.9.2",
     "@types/react-dom": "~16.9.0",
     "@types/styled-components": "~4.1.19"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JavaScript-WindowFramework/jswf-react.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JavaScript-WindowFramework/jswf-react/issues"
+  },
+  "homepage": "https://ttis.croud.jp/?uuid=b292d429-dbad-49b5-8fed-6d268f4feaf0"
 }

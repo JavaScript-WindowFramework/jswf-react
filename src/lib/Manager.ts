@@ -211,6 +211,16 @@ export function objectAssign(target: object, ...src: object[]): any {
   }
   return target;
 }
+export function getSetValues<T>(inst:Set<T>):T[]{
+  if(inst.values){
+    return Array.from(inst.values());
+  }
+  const values:T[] = [];
+  inst.forEach((v)=>{
+    values.push(v);
+  })
+  return values;
+}
 
 addEventListener("mouseup", mouseUp, false);
 addEventListener("touchend", mouseUp, { passive: false });

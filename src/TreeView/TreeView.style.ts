@@ -6,7 +6,7 @@ export const Root = styled.div.attrs<StyleProps>(p => ({
   style: {}
 }))<StyleProps>`
   user-select:none;
-  position: absolute;
+  position: relative;
   width: 100%;
   height: 100%;
   overflow:auto;

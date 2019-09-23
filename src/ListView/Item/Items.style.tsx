@@ -31,6 +31,7 @@ interface ItemProps {
 export const Item = styled.div.attrs<ItemProps>(p => ({
   style: { justifyContent: p.widthPos }
 }))<ItemProps>`
+  position: relative;
   display: flex;
   align-items: center;
   min-height: 1.5em;
