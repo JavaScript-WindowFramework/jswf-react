@@ -39,6 +39,7 @@ export interface WindowInfo extends NonNullableType<WindowProps> {
   realY: number;
   realWidth: number;
   realHeight: number;
+  realWindowState: WindowState;
   clientWidth: number;
   clientHeight: number;
 }
@@ -107,6 +108,7 @@ export class JSWindow extends Component<WindowProps, State> {
   private updateInfoHandle?: number;
   private windowInfo: WindowInfo;
   private windowInfoKeep: WindowInfo;
+  flagWindowState: boolean = false;
   /**
    *Creates an instance of JswfWindow.
    * @param {WindowProps} props
@@ -150,6 +152,7 @@ export class JSWindow extends Component<WindowProps, State> {
       overlapped: state.overlapped,
       windowStyle: props.windowStyle!,
       windowState: state.windowState,
+      realWindowState: state.boxEnumState,
       onUpdate: props.onUpdate!,
       clientWidth: 0,
       clientHeight: 0,
@@ -159,9 +162,16 @@ export class JSWindow extends Component<WindowProps, State> {
       realWidth: 0,
       realHeight: 0
     };
-    this.windowInfoKeep = objectAssign({}, this.windowInfo);
+    this.windowInfoKeep = { ...this.windowInfo };
   }
-
+  shouldComponentUpdate(props: WindowProps, state: State) {
+    if (!this.flagWindowState) {
+      if (props !== this.props && props.windowState !== state.windowState){
+        this.setWindowState(props.windowState);
+      }
+    }
+    return true;
+  }
   /**
    *React componentDidMount
    *
@@ -214,12 +224,11 @@ export class JSWindow extends Component<WindowProps, State> {
         }
       }
       if (flag) {
-        this.windowInfoKeep = objectAssign({}, this.windowInfo);
+        this.windowInfoKeep = {
+          ...this.windowInfo
+        };
         if (!this.updateInfoHandle) {
-          this.updateInfoHandle = setTimeout(() => {
-            if (this.props.onUpdate) this.props.onUpdate(this.windowInfoKeep);
-            this.updateInfoHandle = undefined;
-          }, 1);
+          if (this.props.onUpdate) this.props.onUpdate(this.windowInfoKeep);
         }
       }
     }
@@ -315,7 +324,8 @@ export class JSWindow extends Component<WindowProps, State> {
       realY: y,
       realWidth: width,
       realHeight: height,
-      windowState: this.state.windowState
+      windowState: this.state.windowState,
+      realWindowState: this.state.boxEnumState
     });
     return (
       <Root
@@ -345,7 +355,7 @@ export class JSWindow extends Component<WindowProps, State> {
                 <div
                   id="min"
                   onClick={() =>
-                    this.setWindowState(
+                    this._setWindowState(
                       this.state.oldEnumState === WindowState.MIN
                         ? WindowState.NORMAL
                         : WindowState.MIN
@@ -365,7 +375,7 @@ export class JSWindow extends Component<WindowProps, State> {
                     e.stopPropagation();
                   }}
                   onClick={e => {
-                    this.setWindowState(WindowState.MAX);
+                    this._setWindowState(WindowState.MAX);
                   }}
                 />
               ) : (
@@ -378,7 +388,7 @@ export class JSWindow extends Component<WindowProps, State> {
                     e.stopPropagation();
                   }}
                   onClick={e => {
-                    this.setWindowState(WindowState.NORMAL);
+                    this._setWindowState(WindowState.NORMAL);
                   }}
                 />
               )}
@@ -392,7 +402,7 @@ export class JSWindow extends Component<WindowProps, State> {
                     e.stopPropagation();
                   }}
                   onClick={e => {
-                    this.setWindowState(WindowState.HIDE);
+                    this._setWindowState(WindowState.HIDE);
                   }}
                 />
               )}
@@ -442,7 +452,14 @@ export class JSWindow extends Component<WindowProps, State> {
    * @memberof JswfWindow
    */
   public setWindowState(state: WindowState | undefined) {
-    if (state) this.setState({ windowState: state });
+    this.flagWindowState = true;
+    this._setWindowState(state);
+  }
+  public _setWindowState(state: WindowState | undefined) {
+    if (state) {
+      this.setState({ windowState: state });
+      this.windowInfo.windowState = state;
+    }
   }
 
   /**
@@ -468,7 +485,7 @@ export class JSWindow extends Component<WindowProps, State> {
           if (node._symbol instanceof JSWindow) {
             const act = activeNodes.has(node);
             //if(node._symbol.state.active !== act)
-              Manager.callEvent(node, "active", act);
+            Manager.callEvent(node, "active", act);
           }
           Array.prototype.forEach.call(node.childNodes, node => {
             sendActive(node as HTMLElement);
@@ -579,9 +596,13 @@ export class JSWindow extends Component<WindowProps, State> {
       .current;
     if (!node) return;
     node.style.animation = "";
-    setTimeout(() => {
-      node.style.animation = "Hide 0.5s ease 0s forwards";
+    const animation = () => {
+      node.removeEventListener("animationend", animation);
       this.setState({ boxEnumState: WindowState.HIDE });
+    };
+    setTimeout(() => {
+      node.addEventListener("animationend", animation);
+      node.style.animation = "Hide 0.5s ease 0s forwards";
     }, 1);
   }
   private onMouseDown(
