@@ -257,7 +257,20 @@ export class ListView extends Component<Props, State> {
     if (row < itemValues.length) itemValues[row].labels[col] = value;
     this.forceUpdate();
   }
-  getItemValue(row: number) {}
+
+  /**
+   *アイテムの値を返す
+   *
+   * @param {number} row
+   * @returns unknown
+   * @memberof ListView
+   */
+  public getItemValue(row: number):unknown {
+    const itemValues = this.itemsRef.current!.getItemValues();
+    if (row >= itemValues.length) return undefined;
+    return itemValues[row].value;
+  }
+
   /**
    *アイテム数を返す
    *
