@@ -239,7 +239,7 @@ export class ListView extends Component<Props, State> {
    * @memberof ListView
    */
   public getItem(row: number, col: number): React.ReactNode | undefined {
-    const itemValues = this.itemsRef.current!.getItemValues();
+    const itemValues = this.itemsRef.current!.getItems();
     if (row >= itemValues.length) return undefined;
     return itemValues[row].labels[col];
   }
@@ -253,7 +253,7 @@ export class ListView extends Component<Props, State> {
    */
   public setItem(row: number, col: number, value: ReactNode): void {
     this.manual = true;
-    const itemValues = this.itemsRef.current!.getItemValues();
+    const itemValues = this.itemsRef.current!.getItems();
     if (row < itemValues.length) itemValues[row].labels[col] = value;
     this.forceUpdate();
   }
@@ -266,7 +266,7 @@ export class ListView extends Component<Props, State> {
    * @memberof ListView
    */
   public getItemValue(row: number):unknown {
-    const itemValues = this.itemsRef.current!.getItemValues();
+    const itemValues = this.itemsRef.current!.getItems();
     if (row >= itemValues.length) return undefined;
     return itemValues[row].value;
   }
@@ -278,7 +278,7 @@ export class ListView extends Component<Props, State> {
    * @memberof ListView
    */
   public getRows(): number {
-    return this.itemsRef.current!.getItemValues().length;
+    return this.itemsRef.current!.getItems().length;
   }
   /**
    *アイテムのカラム数を返す
@@ -311,4 +311,5 @@ export class ListView extends Component<Props, State> {
     this.itemsRef.current!.removeItem(row);
     this.state.selectItems.clear();
   }
+
 }

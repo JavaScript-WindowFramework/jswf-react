@@ -260,7 +260,7 @@ export class ItemArea extends Component<ItemsProps, State> {
     e.preventDefault();
   }
 
-  public getItemValues() {
+  public getItems() {
     return this.state.itemRows;
   }
   public addItem(item: ItemRow) {
