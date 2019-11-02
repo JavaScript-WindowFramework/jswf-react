@@ -88,7 +88,7 @@ export class JSWindow extends Component<WindowProps, State> {
     height: 300,
     moveable: false,
     borderSize: 16,
-    titleSize: 32,
+    titleSize: 40,
     title: "",
     active: true,
     overlapped: true,
@@ -167,7 +167,7 @@ export class JSWindow extends Component<WindowProps, State> {
   shouldComponentUpdate(props: WindowProps, state: State) {
     if (!this.flagWindowState) {
       if (props !== this.props && props.windowState !== state.windowState){
-        this.setWindowState(props.windowState);
+        this._setWindowState(props.windowState);
       }
     }
     return true;
@@ -315,18 +315,18 @@ export class JSWindow extends Component<WindowProps, State> {
       clientWidth = width;
       clientHeight = height - this.state.titleSize;
     }
-    this.windowInfo = objectAssign(this.windowInfo, {
+    this.windowInfo = {...this.windowInfo,
       x: this.state.x,
       y: this.state.y,
       width: this.state.width,
       height: this.state.height,
-      realX: x,
-      realY: y,
+      realX: x!,
+      realY: y!,
       realWidth: width,
       realHeight: height,
       windowState: this.state.windowState,
       realWindowState: this.state.boxEnumState
-    });
+    };
     return (
       <Root
         overlapped={this.state.overlapped}

@@ -16,7 +16,7 @@ interface ItemsProps {
   xScroll: number;
   draggable: boolean;
   headerSizes: number[];
-  headerTypes: string[];
+  headerTypes: ("string" | "number")[];
   children: ReactComponentElement<typeof ListRow>[];
   sortOrder?: boolean;
   sortIndex?: number;
@@ -80,22 +80,21 @@ export class ItemArea extends Component<ItemsProps, State> {
   }
   shouldComponentUpdate(props: ItemsProps) {
     if (this.props !== props) {
-      if(!props.listView.isManual())
-        this.createItem(props);
+      if (!props.listView.isManual()) this.createItem(props);
     }
     return true;
   }
   private createItem(props: ItemsProps) {
     const itemRows: ItemRow[] = [];
-    for (const itemRow of props.children) {
+    React.Children.map(props.children, itemRow => {
       itemRows.push({
         value: itemRow.props.value,
         labels: React.Children.map(
           itemRow.props.children as ReactElement,
-          item => item.props.children
+          item => item.props.children || ""
         )
       });
-    }
+    });
 
     this.itemRows = itemRows;
     this.setState({ itemRows: itemRows });
@@ -174,7 +173,7 @@ export class ItemArea extends Component<ItemsProps, State> {
                         this.onDrop(e, rows, cols);
                       }}
                     >
-                      <div style={{ width: "100%" }}>
+                      <div>
                         {itemRow.labels[cols]}
                       </div>
                     </Item>

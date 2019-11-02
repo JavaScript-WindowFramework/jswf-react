@@ -21,7 +21,7 @@ export const Root = styled.div.attrs<StyleProps>(p => ({
   position: fixed;
   ${p => p.frame && "border: solid 1.0px rgba(0, 0, 0, 0.4);"}
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.4);
-
+  border-radius:1em 1em 0 0;
   @keyframes Show {
     0% {
       opacity: 0;

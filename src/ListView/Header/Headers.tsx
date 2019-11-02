@@ -64,7 +64,7 @@ export class HeaderArea extends Component<HeadersProps> {
             <Header
               key={index}
               ref={refHeader}
-              type={header.type}
+              type={header.type as "string"|"number"}
               width={header.width}
               onClick={() => {
                 this.onClick(index);

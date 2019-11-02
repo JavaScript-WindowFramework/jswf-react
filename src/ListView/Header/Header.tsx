@@ -1,7 +1,7 @@
 import React, { Component, createRef } from "react";
 import { Manager, JWFEvent, MovePoint } from "../../lib/Manager";
 interface HeaderProps {
-  type?: string;
+  type?: "string"|"number";
   width?: number;
   minWidth?: number;
   children?: React.ReactNode;
