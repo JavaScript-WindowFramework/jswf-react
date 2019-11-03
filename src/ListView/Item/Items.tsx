@@ -7,7 +7,7 @@ import React, {
   ReactComponentElement
 } from "react";
 import { ListViewDragData, ListView } from "..";
-import { ListRow } from "../ExportDefinition";
+import { ListRow, ListItem } from "../ExportDefinition";
 import { ItemColumn, Root, Item } from "./Items.style";
 import imgFile from "../../../images/file.png";
 
@@ -32,7 +32,7 @@ interface ItemsProps {
 }
 export interface ItemRow {
   value?: unknown;
-  labels: ReactNode[];
+  items: { label: ReactNode; value?: unknown }[];
 }
 
 interface State {
@@ -48,8 +48,21 @@ export class ItemArea extends Component<ItemsProps, State> {
   private sortIndex?: number;
   private itemRows: ItemRow[] = [];
   private fileImage?: HTMLImageElement;
+  private sortFlag = true;
 
   public componentDidUpdate() {
+    if (
+      this.sortFlag ||
+      this.sortOrder !== this.props.sortOrder ||
+      this.sortIndex !== this.props.sortIndex
+    ) {
+      this.sortOrder = this.props.sortOrder;
+      this.sortIndex = this.props.sortIndex;
+      this.sortFlag = false;
+
+      this.sort();
+    }
+
     //カラムのスクロールバー幅修正
     if (this.columnsRef.length) {
       const rootWidth = this.rootRef.current!.clientWidth + this.props.xScroll;
@@ -79,7 +92,7 @@ export class ItemArea extends Component<ItemsProps, State> {
     });
   }
   shouldComponentUpdate(props: ItemsProps) {
-    if (this.props !== props) {
+    if (this.props.children !== props.children) {
       if (!props.listView.isManual()) this.createItem(props);
     }
     return true;
@@ -87,18 +100,28 @@ export class ItemArea extends Component<ItemsProps, State> {
   private createItem(props: ItemsProps) {
     const itemRows: ItemRow[] = [];
     React.Children.map(props.children, itemRow => {
+      const items: ItemRow["items"] = [];
+
+      React.Children.forEach(itemRow.props.children as ReactElement, item => {
+        if (item.type === ListItem) {
+          const label: ReactNode =
+            React.Children.count(item.props.children) === 1 ? (
+              item.props.children
+            ) : (
+              <>{item.props.children}</>
+            );
+          items.push({ label, value: item.props.value });
+        }
+      });
+
       itemRows.push({
         value: itemRow.props.value,
-        labels: React.Children.map(
-          itemRow.props.children as ReactElement,
-          item => item.props.children || ""
-        )
+        items
       });
     });
-
     this.itemRows = itemRows;
     this.setState({ itemRows: itemRows });
-    this.sort();
+    this.sortFlag = true;
   }
   public componentDidMount() {
     this.fileImage = document.createElement("img");
@@ -109,16 +132,6 @@ export class ItemArea extends Component<ItemsProps, State> {
   }
 
   public render() {
-    if (
-      this.sortOrder !== this.props.sortOrder ||
-      this.sortIndex !== this.props.sortIndex
-    ) {
-      this.sortOrder = this.props.sortOrder;
-      this.sortIndex = this.props.sortIndex;
-      setTimeout(() => {
-        this.sort();
-      });
-    }
     this.itemsRef = [];
     this.columnsRef = [];
     return (
@@ -173,9 +186,7 @@ export class ItemArea extends Component<ItemsProps, State> {
                         this.onDrop(e, rows, cols);
                       }}
                     >
-                      <div>
-                        {itemRow.labels[cols]}
-                      </div>
+                      <div>{itemRow.items[cols].label}</div>
                     </Item>
                   );
                 })}
@@ -196,27 +207,30 @@ export class ItemArea extends Component<ItemsProps, State> {
   protected sort() {
     const sortIndex = this.props.sortIndex;
     if (sortIndex === undefined || sortIndex < 0) return;
-    const sortOrder = this.props.sortOrder;
-    if (this.props.sortType === "number") {
-      this.itemRows.sort((a, b) => {
-        if (sortOrder)
-          return (
-            parseFloat(a.labels[sortIndex]! as string) -
-            parseFloat(b.labels[sortIndex]! as string)
-          );
-        else
-          return (
-            parseFloat(b.labels[sortIndex]! as string) -
-            parseFloat(a.labels[sortIndex]! as string)
-          );
-      });
-    } else {
-      this.itemRows.sort((a, b) => {
-        if (sortOrder)
-          return a.labels[sortIndex]! <= b.labels[sortIndex]! ? -1 : 1;
-        else return a.labels[sortIndex]! < b.labels[sortIndex]! ? 1 : -1;
-      });
-    }
+    const sortOrder = this.props.sortOrder ? 1 : -1;
+
+    this.itemRows.sort((a, b) => {
+      const va = a.items[sortIndex].value as never;
+      const vb = b.items[sortIndex].value as never;
+      if (
+        va !== undefined &&
+        vb !== undefined
+      ) {
+        return (this.props.sortOrder?va < vb:vb<va)?-1:1;
+      } else {
+        const va = a.items[sortIndex].label as string;
+        const vb = b.items[sortIndex].label as string;
+        if (this.props.sortType === "number") {
+          const va2 = parseFloat(va);
+          const vb2 = parseFloat(vb);
+          return (va2 - vb2) * sortOrder;
+        } else {
+          if (va === vb) return 0;
+          return (va < vb ? -1 : 1) * sortOrder;
+        }
+      }
+    });
+
     this.setState({ itemRows: this.itemRows });
   }
 
