@@ -241,7 +241,7 @@ export class ListView extends Component<Props, State> {
   public getItem(row: number, col: number): React.ReactNode | undefined {
     const itemValues = this.itemsRef.current!.getItems();
     if (row >= itemValues.length) return undefined;
-    return itemValues[row].labels[col];
+    return itemValues[row].items[col].label;
   }
   /**
    *アイテムの内容を変更する
@@ -254,7 +254,7 @@ export class ListView extends Component<Props, State> {
   public setItem(row: number, col: number, value: ReactNode): void {
     this.manual = true;
     const itemValues = this.itemsRef.current!.getItems();
-    if (row < itemValues.length) itemValues[row].labels[col] = value;
+    if (row < itemValues.length) itemValues[row].items[col].label = value;
     this.forceUpdate();
   }
 
@@ -265,7 +265,7 @@ export class ListView extends Component<Props, State> {
    * @returns unknown
    * @memberof ListView
    */
-  public getItemValue(row: number):unknown {
+  public getItemValue(row: number): unknown {
     const itemValues = this.itemsRef.current!.getItems();
     if (row >= itemValues.length) return undefined;
     return itemValues[row].value;
@@ -297,8 +297,11 @@ export class ListView extends Component<Props, State> {
    */
   public addItem(item: ItemRow | ReactNode[]): void {
     this.manual = true;
-    if ("labels" in item) this.itemsRef.current!.addItem(item);
-    else this.itemsRef.current!.addItem({ labels: item });
+    if ("items" in item) this.itemsRef.current!.addItem(item);
+    else
+      this.itemsRef.current!.addItem({
+        items: item.map(item => ({ label: item }))
+      });
   }
   /**
    *アイテムの削除
@@ -311,5 +314,4 @@ export class ListView extends Component<Props, State> {
     this.itemsRef.current!.removeItem(row);
     this.state.selectItems.clear();
   }
-
 }

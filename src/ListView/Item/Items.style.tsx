@@ -36,7 +36,7 @@ export const Item = styled.div.attrs<ItemProps>(p => ({
   align-items: center;
   min-height: 1.5em;
   box-sizing: border-box;
-  padding: 0.1em;
+  padding: 0.4em;
   overflow: hidden;
   user-select: none;
   border-bottom: solid 1px rgba(0, 0, 0, 0.4);
