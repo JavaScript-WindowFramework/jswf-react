@@ -10,7 +10,6 @@ import { Root } from "./ListView.style";
 import { HeaderArea } from "./Header/Headers";
 import { ItemArea, ItemRow } from "./Item/Items";
 import { ListRow, ListHeaders } from "./ExportDefinition";
-import { getSetValues } from "../lib/Manager";
 export * from "./ExportDefinition";
 
 export const ListViewDragString = "ListViewDragData";
@@ -185,7 +184,7 @@ export class ListView extends Component<Props, State> {
       else selectItems.delete(row);
     } else if (e.shiftKey) {
       this.state.selectItems.add(row);
-      const items = getSetValues(selectItems);
+      const items = ListView.getSetValues(selectItems);
       let s = Math.min.apply(null, items);
       let e = Math.max.apply(null, items);
       for (let i = s; i <= e; i++) selectItems.add(i);
@@ -195,7 +194,7 @@ export class ListView extends Component<Props, State> {
     }
 
     this.state.selectItems.add(row);
-    this.setState({ selectItems: new Set(getSetValues(selectItems)) });
+    this.setState({ selectItems: new Set(ListView.getSetValues(selectItems)) });
 
     if (this.props.onItemClick) {
       this.props.onItemClick(row, col);
@@ -218,7 +217,7 @@ export class ListView extends Component<Props, State> {
    */
   public getSelectItem(): number {
     const selectItems = this.state.selectItems;
-    if (selectItems.size) return getSetValues(selectItems)[0];
+    if (selectItems.size) return ListView.getSetValues(selectItems)[0];
     return -1;
   }
   /**
@@ -228,7 +227,7 @@ export class ListView extends Component<Props, State> {
    * @memberof ListView
    */
   public getSelectItems(): number[] {
-    return getSetValues(this.state.selectItems);
+    return ListView.getSetValues(this.state.selectItems);
   }
   /**
    *アイテムの内容を返す
@@ -313,5 +312,16 @@ export class ListView extends Component<Props, State> {
     this.manual = true;
     this.itemsRef.current!.removeItem(row);
     this.state.selectItems.clear();
+  }
+
+  private static getSetValues<T>(inst: Set<T>): T[] {
+    if (inst.values) {
+      return Array.from(inst.values())
+    }
+    const values: T[] = []
+    inst.forEach((v) => {
+      values.push(v)
+    })
+    return values
   }
 }

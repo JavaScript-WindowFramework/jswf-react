@@ -1,5 +1,5 @@
 import React, { Component, createRef } from "react";
-import { Manager, JWFEvent, MovePoint } from "../../lib/Manager";
+import { Manager, MEvent, MovePoint } from "@jswf/manager";
 interface HeaderProps {
   type?: "string"|"number";
   width?: number;
@@ -104,7 +104,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
       Manager.nodeHeight = node.offsetHeight;
     }
   }
-  protected onMove(e: JWFEvent) {
+  protected onMove(e: MEvent) {
     let p = e.params as MovePoint;
     let width = p.nodePoint.x + (p.nowPoint.x - p.basePoint.x);
     if (width < this.props.minWidth!) width = this.props.minWidth!;

@@ -1,7 +1,7 @@
 import React, {  Component, createRef } from "react";
 import { Resize } from "./Resize";
 import imgResize from "../../../images/resize.svg";
-import { Manager, JWFEvent, MovePoint } from "../../lib/Manager";
+import { Manager, MEvent, MovePoint } from "@jswf/manager";
 import { BarProps, BarStyle } from "./Bar.style";
 
 
@@ -57,7 +57,7 @@ export class Bar extends Component<BarProps, BarState> {
       this.setState({ open: true });
     }
   }
-  protected onMove(e: JWFEvent) {
+  protected onMove(e: MEvent) {
     let p = e.params as MovePoint;
     let pos = this.state.pos;
     switch (this.props.type!) {

@@ -1,6 +1,6 @@
 import ResizeObserver from "resize-observer-polyfill";
 import React, { ReactNode, Component, createRef } from "react";
-import { Manager, MovePoint, JWFEvent, objectAssign } from "../lib/Manager";
+import { Manager, MovePoint,MEvent } from "@jswf/manager";
 import { Clinet } from "./parts/Client";
 import { Title } from "./parts/Title";
 import { Root } from "./JSWindow.style";
@@ -669,7 +669,7 @@ export class JSWindow extends Component<WindowProps, State> {
       this.resizeHandle = undefined;
     }, 10);
   }
-  private onMove(e: JWFEvent): void {
+  private onMove(e: MEvent): void {
     // if (WindowManager.frame == null) return;
     if (this.state.windowState === WindowState.MAX) return;
     let [px, py, pwidth, pheight] = [
