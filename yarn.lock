@@ -120,10 +120,10 @@
   resolved "https://registry.yarnpkg.com/@emotion/unitless/-/unitless-0.7.4.tgz#a87b4b04e5ae14a88d48ebef15015f6b7d1f5677"
   integrity sha512-kBa+cDHOR9jpRJ+kcGMsysrls0leukrm68DmFQoMIWQcXdr2cZvyvypWuGYT7U+9kAExUE7+T7r6G3C3A6L8MQ==
 
-"@jswf/manager@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@jswf/manager/-/manager-1.0.2.tgz#30f84fbe58cb5791c5b2404996c2a8eaf0bd7303"
-  integrity sha512-AGBekTFr6kYibCKCMvaRVwFuvO8PLB19l6WMndVjr4CPRZEauWOJObB8rn3J/p7CNaJAFqCr/LANDfXAEDJl/w==
+"@jswf/manager@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@jswf/manager/-/manager-1.0.3.tgz#accbaa79e6f93f289030729a5527093536ad5f77"
+  integrity sha512-mc6bGuXP09/Usrm6WgY+IM2RC+Uyzv+Q0M6yBA2lTlLVM5RgvFxV3boZuGN+aVAnc3IlUZeeu47g1OQRjEnCGw==
 
 "@types/prop-types@*":
   version "15.7.3"
@@ -3072,10 +3072,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@~3.7.2:
-  version "3.7.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.2.tgz#27e489b95fa5909445e9fef5ee48d81697ad18fb"
-  integrity sha512-ml7V7JfiN2Xwvcer+XAf2csGO1bPBdRbFCkYBczNZggrBZ9c7G3riSUeJmqEU5uOtXNPMhE3n+R4FA/3YOAWOQ==
+typescript@~3.7.3:
+  version "3.7.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.3.tgz#b36840668a16458a7025b9eabfad11b66ab85c69"
+  integrity sha512-Mcr/Qk7hXqFBXMN7p7Lusj1ktCBydylfQM/FZCk5glCNQJrCUKPkMHdo9R0MTFWsC/4kPFvDS0fDPvukfCkFsw==
 
 union-value@^1.0.0:
   version "1.0.1"

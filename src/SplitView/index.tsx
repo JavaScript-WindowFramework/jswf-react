@@ -3,6 +3,7 @@ import React, { Component, createRef, ReactNode } from "react";
 import { Root } from "./SplitView.style";
 import { Bar } from "./parts/Bar";
 import { Child } from "./parts/Child";
+import { Manager } from "@jswf/manager";
 
 export type SplitType = "ns" | "sn" | "we" | "ew";
 
@@ -88,6 +89,7 @@ export class SplitView extends Component<SplitProps, State> {
     } else this.layout();
   }
   public componentDidMount() {
+    Manager.init();
     this.resizeObserver = new ResizeObserver(() => {
       this.layout();
     });

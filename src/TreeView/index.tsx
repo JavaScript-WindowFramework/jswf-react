@@ -1,6 +1,7 @@
 import React, { Component, createRef, ReactElement, ReactNode } from "react";
 import { TreeItem, TreeItemProps } from "./Item/TreeItem";
 import { Root } from "./TreeView.style";
+import { Manager } from "@jswf/manager";
 
 interface Props {
   children?: ReactNode;
@@ -110,6 +111,9 @@ export class TreeView extends Component<Props, State> {
         />
       </Root>
     );
+  }
+  public componentDidMount(){
+    Manager.init();
   }
 
   /**

@@ -10,6 +10,7 @@ import { Root } from "./ListView.style";
 import { HeaderArea } from "./Header/Headers";
 import { ItemArea, ItemRow } from "./Item/Items";
 import { ListRow, ListHeaders } from "./ExportDefinition";
+import { Manager } from "@jswf/manager";
 export * from "./ExportDefinition";
 
 export const ListViewDragString = "ListViewDragData";
@@ -141,6 +142,7 @@ export class ListView extends Component<Props, State> {
     );
   }
   public componentDidMount(): void {
+    Manager.init();
     this.resizeObserver = new ResizeObserver(() => {
       this.layout();
     });
