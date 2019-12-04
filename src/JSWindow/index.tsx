@@ -178,6 +178,7 @@ export class JSWindow extends Component<WindowProps, State> {
    * @memberof JswfWindow
    */
   public componentDidMount() {
+    Manager.init();
     const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
       .current;
     if (node) {

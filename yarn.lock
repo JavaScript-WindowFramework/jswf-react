@@ -120,10 +120,10 @@
   resolved "https://registry.yarnpkg.com/@emotion/unitless/-/unitless-0.7.4.tgz#a87b4b04e5ae14a88d48ebef15015f6b7d1f5677"
   integrity sha512-kBa+cDHOR9jpRJ+kcGMsysrls0leukrm68DmFQoMIWQcXdr2cZvyvypWuGYT7U+9kAExUE7+T7r6G3C3A6L8MQ==
 
-"@jswf/manager@^1.0.0-rev2":
-  version "1.0.0-rev2"
-  resolved "https://registry.yarnpkg.com/@jswf/manager/-/manager-1.0.0-rev2.tgz#8f2637a4e2544d11e48e4a5a9e925cf243226abb"
-  integrity sha512-etpRbcSRKHwAjvvxpuYwEcMywOaDvYny+NUdhgidUoOhHQNR9G86lvgNl0lx67viOv6g7bh9mnbNUrZa2zqzpg==
+"@jswf/manager@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@jswf/manager/-/manager-1.0.2.tgz#30f84fbe58cb5791c5b2404996c2a8eaf0bd7303"
+  integrity sha512-AGBekTFr6kYibCKCMvaRVwFuvO8PLB19l6WMndVjr4CPRZEauWOJObB8rn3J/p7CNaJAFqCr/LANDfXAEDJl/w==
 
 "@types/prop-types@*":
   version "15.7.3"
