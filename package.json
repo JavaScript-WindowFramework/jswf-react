@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -b src",
-    "watch": "tsc -b -w src"
+    "build": "webpack --config src/webpack.config.js",
+    "watch": "webpack --config src/webpack.config.js -w"
   },
   "publishConfig": {
     "access": "public"
@@ -22,15 +22,19 @@
   "author": "SoraKumo",
   "license": "MIT",
   "dependencies": {
-    "@jswf/manager": "^1.0.2",
     "react": "~16.12.0",
     "resize-observer-polyfill": "~1.5.1",
     "styled-components": "~4.4.1"
   },
   "devDependencies": {
+    "@jswf/manager": "^1.0.2",
     "@types/react-dom": "~16.9.4",
     "@types/styled-components": "~4.4.0",
-    "typescript": "~3.7.2"
+    "ts-loader": "^6.2.1",
+    "typescript": "~3.7.2",
+    "url-loader": "^3.0.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
   },
   "repository": {
     "type": "git",
