@@ -1,11 +1,9 @@
 const path = require("path");
 
 const config = {
-  //mode: "development",
   mode: "production",
   entry: [path.resolve(__dirname, "index.ts")],
   output: {
-    //library: "@jswf/react",
     libraryTarget: "commonjs",
     filename: "index.js",
     path: path.resolve(__dirname, "../dist")
@@ -44,7 +42,6 @@ const config = {
   externals: {
     react: "react",
     "react-dom":"react-dom",
-    // "@jswf/manager":"@jswf/manager",
     "styled-components": "styled-components",
     "resize-observer-polyfill": "resize-observer-polyfill"
   }
