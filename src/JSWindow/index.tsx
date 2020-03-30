@@ -1,7 +1,7 @@
 import ResizeObserver from "resize-observer-polyfill";
 import React, { ReactNode, Component, createRef } from "react";
 import { Manager, MovePoint,MEvent } from "@jswf/manager";
-import { Clinet } from "./parts/Client";
+import { Client } from "./parts/Client";
 import { Title } from "./parts/Title";
 import { Root } from "./JSWindow.style";
 import { Border, borders } from "./parts/Border";
@@ -420,7 +420,7 @@ export class JSWindow extends Component<WindowProps, State> {
               onMouseDown={this.onFrame.bind(this)}
             />
           ))}
-        <Clinet
+        <Client
           id="CLIENT"
           ref={this.clientRef}
           TitleSize={this.state.titleSize}
@@ -429,7 +429,7 @@ export class JSWindow extends Component<WindowProps, State> {
           style={this.props.clientStyle!}
         >
           {this.props.children}
-        </Clinet>
+        </Client>
       </Root>
     );
   }

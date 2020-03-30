@@ -4,7 +4,7 @@ interface ClientState {
   TitleSize: number, Width: number, Height: number
 }
 
-export const Clinet = styled.div.attrs<ClientState>(p => ({
+export const Client = styled.div.attrs<ClientState>(p => ({
   style: {
     top: p.TitleSize + "px",
     width: p.Width + "px",
