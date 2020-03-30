@@ -454,6 +454,7 @@ export class JSWindow extends Component<WindowProps, State> {
           Height={clientHeight}
           style={this.props.clientStyle!}
           onWheel={this.onWheel.bind(this)}
+          onMouseMove={this.onMouseMove.bind(this)}
         >
           <div ref={this.zoomRef} style={{
             transformOrigin: `${this.state.transformation.originX}px ${this.state.transformation.originY}px`,
@@ -807,6 +808,14 @@ export class JSWindow extends Component<WindowProps, State> {
     return [scale, newScale];
   }
 
+  private panBy(x: number, y: number) {
+    this.setState((prevState) => ({ transformation: {
+      ...prevState.transformation,
+      translateX: prevState.transformation.translateX + x,
+      translateY: prevState.transformation.translateY + y,
+    }}));
+  }
+
   private zoom(deltaScale: number, x: number, y: number) {
     const zoomNode: HTMLElement | null = this.zoomRef.current;
     if (!zoomNode) return;
@@ -837,6 +846,13 @@ export class JSWindow extends Component<WindowProps, State> {
     const e: any = evt.nativeEvent;
     if ((e.ctrlKey === true || e.altKey === true) && e.deltaY) {
       this.zoom(-Math.sign(e.deltaY), e.pageX, e.pageY);
+    }
+  }
+  private onMouseMove(evt: React.MouseEvent) {
+    const e: any = evt.nativeEvent;
+    if (e.shiftKey === true) {
+      this.panBy(e.movementX, e.movementY);
+      evt.stopPropagation();
     }
   }
 }
