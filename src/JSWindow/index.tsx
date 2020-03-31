@@ -360,6 +360,7 @@ export class JSWindow extends Component<WindowProps, State> {
         ref={this.rootRef}
         x={x || 0}
         y={y || 0}
+        data-scale={this.state.transformation.scale}
         frame={(this.windowInfo.windowStyle & WindowStyle.FRAME) !== 0}
         width={width}
         height={height}
@@ -703,6 +704,20 @@ export class JSWindow extends Component<WindowProps, State> {
       this.resizeHandle = undefined;
     }, 10);
   }
+  private getParentScale(): number {
+    let scale = 1;
+    let node: HTMLElement & { _symbol?: Symbol } | null = this.rootRef.current;
+    if (node) {
+      while ((node = node.parentNode as HTMLElement)) {
+        if (node._symbol instanceof JSWindow) {
+          scale = +(node?.dataset?.scale || 1);
+          break;
+        }
+      }
+    }
+
+    return scale;
+  }
   private onMove(e: MEvent): void {
     // if (WindowManager.frame == null) return;
     if (this.state.windowState === WindowState.MAX) return;
@@ -713,11 +728,12 @@ export class JSWindow extends Component<WindowProps, State> {
       this.state.height
     ];
     let p = e.params as MovePoint;
+    const parentScale = this.getParentScale();
     if (p.distance) {
       const vx =
-        Math.abs(Math.cos(p.radian!) * p.distance) * (p.distance < 0 ? -1 : 1);
+        parentScale * Math.abs(Math.cos(p.radian!) * p.distance) * (p.distance < 0 ? -1 : 1);
       const vy =
-        Math.abs(-Math.sin(p.radian!) * p.distance) * (p.distance < 0 ? -1 : 1);
+        parentScale * Math.abs(-Math.sin(p.radian!) * p.distance) * (p.distance < 0 ? -1 : 1);
 
       px = p.nodePoint.x - vx / 2;
       py = p.nodePoint.y - vy / 2;
@@ -726,50 +742,52 @@ export class JSWindow extends Component<WindowProps, State> {
     } else {
       //選択されている場所によって挙動を変える
       let frameIndex = Manager.frame || "";
+      const deltaX = (p.nowPoint.x - p.basePoint.x) / parentScale;
+      const deltaY = (p.nowPoint.y - p.basePoint.y) / parentScale;
       switch (frameIndex) {
         case "TOP":
-          py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
-          pheight = Manager.nodeHeight - (p.nowPoint.y - p.basePoint.y);
+          py = p.nodePoint.y + deltaY;
+          pheight = Manager.nodeHeight - deltaY;
           break;
         case "RIGHT":
-          pwidth = Manager.nodeWidth + (p.nowPoint.x - p.basePoint.x);
+          pwidth = Manager.nodeWidth + deltaX;
           break;
         case "BOTTOM":
-          pheight = Manager.nodeHeight + (p.nowPoint.y - p.basePoint.y);
+          pheight = Manager.nodeHeight + deltaY;
           break;
         case "LEFT":
-          px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-          pwidth = Manager.nodeWidth - (p.nowPoint.x - p.basePoint.x);
+          px = p.nodePoint.x + deltaX;
+          pwidth = Manager.nodeWidth - deltaX;
           break;
         case "LEFT-TOP":
-          px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-          py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
-          pwidth = Manager.nodeWidth - (p.nowPoint.x - p.basePoint.x);
-          pheight = Manager.nodeHeight - (p.nowPoint.y - p.basePoint.y);
+          px = p.nodePoint.x + deltaX;
+          py = p.nodePoint.y + deltaY;
+          pwidth = Manager.nodeWidth - deltaX;
+          pheight = Manager.nodeHeight - deltaY;
           break;
         case "RIGHT-TOP":
-          py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
-          pwidth = Manager.nodeWidth + (p.nowPoint.x - p.basePoint.x);
-          pheight = Manager.nodeHeight - (p.nowPoint.y - p.basePoint.y);
+          py = p.nodePoint.y + deltaY;
+          pwidth = Manager.nodeWidth + deltaX;
+          pheight = Manager.nodeHeight - deltaY;
           break;
         case "LEFT-BOTTOM":
-          px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-          pwidth = Manager.nodeWidth - (p.nowPoint.x - p.basePoint.x);
-          pheight = Manager.nodeHeight + (p.nowPoint.y - p.basePoint.y);
+          px = p.nodePoint.x + deltaX;
+          pwidth = Manager.nodeWidth - deltaX;
+          pheight = Manager.nodeHeight + deltaY;
           break;
         case "RIGHT-BOTTOM":
-          pwidth = Manager.nodeWidth + (p.nowPoint.x - p.basePoint.x);
-          pheight = Manager.nodeHeight + (p.nowPoint.y - p.basePoint.y);
+          pwidth = Manager.nodeWidth + deltaX;
+          pheight = Manager.nodeHeight + deltaY;
           break;
         case "TITLE":
-          px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-          py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
+          px = p.nodePoint.x + deltaX;
+          py = p.nodePoint.y + deltaY;
           break;
         default:
           //クライアント領域
           if (this.props.moveable) {
-            px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-            py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
+            px = p.nodePoint.x + deltaX;
+            py = p.nodePoint.y + deltaY;
           } else return;
       }
     }
