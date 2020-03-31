@@ -23,6 +23,7 @@ export interface WindowProps {
   minScale?: number;
   maxScale?: number;
   moveable?: boolean;
+  workspace?: boolean;
   borderSize?: number;
   titleSize?: number;
   title?: string;
@@ -102,6 +103,7 @@ export class JSWindow extends Component<WindowProps, State> {
     minScale: 0.1,
     maxScale: 10,
     moveable: false,
+    workspace: false,
     borderSize: 16,
     titleSize: 40,
     title: "",
@@ -170,6 +172,7 @@ export class JSWindow extends Component<WindowProps, State> {
       minScale: props.minScale!,
       maxScale: props.maxScale!,
       moveable: props.moveable!,
+      workspace: props.workspace!,
       borderSize: state.borderSize,
       title: props.title!,
       titleSize: state.titleSize,
@@ -823,6 +826,7 @@ export class JSWindow extends Component<WindowProps, State> {
   }
 
   private panBy(x: number, y: number) {
+    if (!this.props.workspace) return;
     this.setState((prevState) => ({ transformation: {
       ...prevState.transformation,
       translateX: prevState.transformation.translateX + x,
@@ -831,6 +835,7 @@ export class JSWindow extends Component<WindowProps, State> {
   }
 
   private zoom(deltaScale: number, x: number, y: number) {
+    if (!this.props.workspace) return;
     const zoomNode: HTMLElement | null = this.zoomRef.current;
     if (!zoomNode) return;
 
