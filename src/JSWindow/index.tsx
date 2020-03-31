@@ -141,8 +141,8 @@ export class JSWindow extends Component<WindowProps, State> {
       titleSize:
         (props.windowStyle! & WindowStyle.TITLE) === 0 ? 0 : props.titleSize!,
       borderSize: props.borderSize!,
-      x: props.x!,
-      y: props.y!,
+      x: props.x || 0,
+      y: props.y || 0,
       width: props.width!,
       height: props.height!,
       transformation: {
@@ -302,14 +302,10 @@ export class JSWindow extends Component<WindowProps, State> {
           y = this.state.y;
           if (x === null) {
             x = (parentWidth - width) / 2;
-          } else if (x < 0) x = 0;
-          else if (x + this.state.width > parentWidth)
-            x = parentWidth - this.state.width;
+          }
           if (y === null) {
             y = (parentHeight - height) / 2;
-          } else if (y < 0) y = 0;
-          else if (y + this.state.titleSize > parentHeight)
-            y = parentHeight - this.state.titleSize;
+          }
           clientWidth = this.state.width;
           clientHeight = 0;
 
@@ -323,12 +319,10 @@ export class JSWindow extends Component<WindowProps, State> {
           if (height > parentHeight) height = parentHeight;
           if (x === null) {
             x = (parentWidth - width) / 2;
-          } else if (x < 0) x = 0;
-          else if (x + width > parentWidth) x = parentWidth - width;
+          }
           if (y === null) {
             y = (parentHeight - height) / 2;
-          } else if (y < 0) y = 0;
-          else if (y + height > parentHeight) y = parentHeight - height;
+          }
           clientWidth = width;
           clientHeight = height - this.state.titleSize;
 
