@@ -452,6 +452,8 @@ export class JSWindow extends Component<WindowProps, State> {
           onMouseMove={this.onMouseMove.bind(this)}
         >
           <div ref={this.zoomRef} style={{
+            width: '100%',
+            height: '100%',
             transformOrigin: `${this.state.transformation.originX}px ${this.state.transformation.originY}px`,
             transform: `matrix(${this.state.transformation.scale}, 0, 0, ${this.state.transformation.scale}, ${this.state.transformation.translateX}, ${this.state.transformation.translateY})`,
           }}>
