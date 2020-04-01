@@ -83,7 +83,7 @@ export class TreeView extends Component<Props, State> {
       item.children = (element.props.children
         ? React.Children.map(element.props.children, child => {
             return createItem(item, child);
-          }).filter(item => item)
+          }).filter((item:unknown) => item)
         : []) as TreeItemData[];
 
       return item;
