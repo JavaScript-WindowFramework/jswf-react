@@ -1,7 +1,7 @@
 import ResizeObserver from "resize-observer-polyfill";
 import React, { ReactNode, Component, createRef } from "react";
 import { Manager, MovePoint,MEvent } from "@jswf/manager";
-import { Clinet } from "./parts/Client";
+import { Client } from "./parts/Client";
 import { Title } from "./parts/Title";
 import { Root } from "./JSWindow.style";
 import { Border, borders } from "./parts/Border";
@@ -19,7 +19,11 @@ export interface WindowProps {
   y?: number | null;
   width?: number;
   height?: number;
+  zoomSensitivity?: number;
+  minScale?: number;
+  maxScale?: number;
   moveable?: boolean;
+  workspace?: boolean;
   borderSize?: number;
   titleSize?: number;
   title?: string;
@@ -51,6 +55,14 @@ export enum WindowState {
   HIDE
 }
 
+interface ZoomTransformState {
+  originX: number;
+  originY: number;
+  translateX: number;
+  translateY: number;
+  scale: number;
+}
+
 interface State {
   active: boolean;
   overlapped: boolean;
@@ -61,6 +73,7 @@ interface State {
   y: number | null;
   width: number;
   height: number;
+  transformation: ZoomTransformState;
   clientWidth: number;
   clientHeight: number;
   windowState: number;
@@ -86,7 +99,11 @@ export class JSWindow extends Component<WindowProps, State> {
     y: null,
     width: 300,
     height: 300,
+    zoomSensitivity: 25,
+    minScale: 0.1,
+    maxScale: 10,
     moveable: false,
+    workspace: false,
     borderSize: 16,
     titleSize: 40,
     title: "",
@@ -101,6 +118,7 @@ export class JSWindow extends Component<WindowProps, State> {
   private rootRef = createRef<HTMLDivElement>();
   private titleRef = createRef<HTMLDivElement>();
   private clientRef = createRef<HTMLDivElement>();
+  private zoomRef = createRef<HTMLDivElement>();
   private resizeObserver?: ResizeObserver;
   private resizeHandle?: number;
   private moveHandle?: number;
@@ -125,10 +143,17 @@ export class JSWindow extends Component<WindowProps, State> {
       titleSize:
         (props.windowStyle! & WindowStyle.TITLE) === 0 ? 0 : props.titleSize!,
       borderSize: props.borderSize!,
-      x: props.x!,
-      y: props.y!,
+      x: props.x || 0,
+      y: props.y || 0,
       width: props.width!,
       height: props.height!,
+      transformation: {
+        originX: 0,
+        originY: 0,
+        translateX: 0,
+        translateY: 0,
+        scale: 1
+      },
       oldEnumState: WindowState.HIDE,
       windowState: props.windowState!,
       boxEnumState: WindowState.HIDE,
@@ -143,7 +168,11 @@ export class JSWindow extends Component<WindowProps, State> {
       y: state.y,
       width: state.width,
       height: state.height,
+      zoomSensitivity: props.zoomSensitivity!,
+      minScale: props.minScale!,
+      maxScale: props.maxScale!,
       moveable: props.moveable!,
+      workspace: props.workspace!,
       borderSize: state.borderSize,
       title: props.title!,
       titleSize: state.titleSize,
@@ -276,14 +305,10 @@ export class JSWindow extends Component<WindowProps, State> {
           y = this.state.y;
           if (x === null) {
             x = (parentWidth - width) / 2;
-          } else if (x < 0) x = 0;
-          else if (x + this.state.width > parentWidth)
-            x = parentWidth - this.state.width;
+          }
           if (y === null) {
             y = (parentHeight - height) / 2;
-          } else if (y < 0) y = 0;
-          else if (y + this.state.titleSize > parentHeight)
-            y = parentHeight - this.state.titleSize;
+          }
           clientWidth = this.state.width;
           clientHeight = 0;
 
@@ -297,12 +322,10 @@ export class JSWindow extends Component<WindowProps, State> {
           if (height > parentHeight) height = parentHeight;
           if (x === null) {
             x = (parentWidth - width) / 2;
-          } else if (x < 0) x = 0;
-          else if (x + width > parentWidth) x = parentWidth - width;
+          }
           if (y === null) {
             y = (parentHeight - height) / 2;
-          } else if (y < 0) y = 0;
-          else if (y + height > parentHeight) y = parentHeight - height;
+          }
           clientWidth = width;
           clientHeight = height - this.state.titleSize;
 
@@ -334,6 +357,7 @@ export class JSWindow extends Component<WindowProps, State> {
         ref={this.rootRef}
         x={x || 0}
         y={y || 0}
+        data-scale={this.state.transformation.scale}
         frame={(this.windowInfo.windowStyle & WindowStyle.FRAME) !== 0}
         width={width}
         height={height}
@@ -420,16 +444,25 @@ export class JSWindow extends Component<WindowProps, State> {
               onMouseDown={this.onFrame.bind(this)}
             />
           ))}
-        <Clinet
+        <Client
           id="CLIENT"
           ref={this.clientRef}
           TitleSize={this.state.titleSize}
           Width={clientWidth}
           Height={clientHeight}
           style={this.props.clientStyle!}
+          onWheel={this.onWheel.bind(this)}
+          onMouseMove={this.onMouseMove.bind(this)}
         >
-          {this.props.children}
-        </Clinet>
+          <div ref={this.zoomRef} style={{
+            width: '100%',
+            height: '100%',
+            transformOrigin: `${this.state.transformation.originX}px ${this.state.transformation.originY}px`,
+            transform: `matrix(${this.state.transformation.scale}, 0, 0, ${this.state.transformation.scale}, ${this.state.transformation.translateX}, ${this.state.transformation.translateY})`,
+          }}>
+            {this.props.children}
+          </div>
+        </Client>
       </Root>
     );
   }
@@ -670,6 +703,20 @@ export class JSWindow extends Component<WindowProps, State> {
       this.resizeHandle = undefined;
     }, 10);
   }
+  private getParentScale(): number {
+    let scale = 1;
+    let node: HTMLElement & { _symbol?: Symbol } | null = this.rootRef.current;
+    if (node) {
+      while ((node = node.parentNode as HTMLElement)) {
+        if (node._symbol instanceof JSWindow) {
+          scale = +(node?.dataset?.scale || 1);
+          break;
+        }
+      }
+    }
+
+    return scale;
+  }
   private onMove(e: MEvent): void {
     // if (WindowManager.frame == null) return;
     if (this.state.windowState === WindowState.MAX) return;
@@ -680,11 +727,12 @@ export class JSWindow extends Component<WindowProps, State> {
       this.state.height
     ];
     let p = e.params as MovePoint;
+    const parentScale = this.getParentScale();
     if (p.distance) {
       const vx =
-        Math.abs(Math.cos(p.radian!) * p.distance) * (p.distance < 0 ? -1 : 1);
+        parentScale * Math.abs(Math.cos(p.radian!) * p.distance) * (p.distance < 0 ? -1 : 1);
       const vy =
-        Math.abs(-Math.sin(p.radian!) * p.distance) * (p.distance < 0 ? -1 : 1);
+        parentScale * Math.abs(-Math.sin(p.radian!) * p.distance) * (p.distance < 0 ? -1 : 1);
 
       px = p.nodePoint.x - vx / 2;
       py = p.nodePoint.y - vy / 2;
@@ -693,50 +741,52 @@ export class JSWindow extends Component<WindowProps, State> {
     } else {
       //選択されている場所によって挙動を変える
       let frameIndex = Manager.frame || "";
+      const deltaX = (p.nowPoint.x - p.basePoint.x) / parentScale;
+      const deltaY = (p.nowPoint.y - p.basePoint.y) / parentScale;
       switch (frameIndex) {
         case "TOP":
-          py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
-          pheight = Manager.nodeHeight - (p.nowPoint.y - p.basePoint.y);
+          py = p.nodePoint.y + deltaY;
+          pheight = Manager.nodeHeight - deltaY;
           break;
         case "RIGHT":
-          pwidth = Manager.nodeWidth + (p.nowPoint.x - p.basePoint.x);
+          pwidth = Manager.nodeWidth + deltaX;
           break;
         case "BOTTOM":
-          pheight = Manager.nodeHeight + (p.nowPoint.y - p.basePoint.y);
+          pheight = Manager.nodeHeight + deltaY;
           break;
         case "LEFT":
-          px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-          pwidth = Manager.nodeWidth - (p.nowPoint.x - p.basePoint.x);
+          px = p.nodePoint.x + deltaX;
+          pwidth = Manager.nodeWidth - deltaX;
           break;
         case "LEFT-TOP":
-          px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-          py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
-          pwidth = Manager.nodeWidth - (p.nowPoint.x - p.basePoint.x);
-          pheight = Manager.nodeHeight - (p.nowPoint.y - p.basePoint.y);
+          px = p.nodePoint.x + deltaX;
+          py = p.nodePoint.y + deltaY;
+          pwidth = Manager.nodeWidth - deltaX;
+          pheight = Manager.nodeHeight - deltaY;
           break;
         case "RIGHT-TOP":
-          py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
-          pwidth = Manager.nodeWidth + (p.nowPoint.x - p.basePoint.x);
-          pheight = Manager.nodeHeight - (p.nowPoint.y - p.basePoint.y);
+          py = p.nodePoint.y + deltaY;
+          pwidth = Manager.nodeWidth + deltaX;
+          pheight = Manager.nodeHeight - deltaY;
           break;
         case "LEFT-BOTTOM":
-          px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-          pwidth = Manager.nodeWidth - (p.nowPoint.x - p.basePoint.x);
-          pheight = Manager.nodeHeight + (p.nowPoint.y - p.basePoint.y);
+          px = p.nodePoint.x + deltaX;
+          pwidth = Manager.nodeWidth - deltaX;
+          pheight = Manager.nodeHeight + deltaY;
           break;
         case "RIGHT-BOTTOM":
-          pwidth = Manager.nodeWidth + (p.nowPoint.x - p.basePoint.x);
-          pheight = Manager.nodeHeight + (p.nowPoint.y - p.basePoint.y);
+          pwidth = Manager.nodeWidth + deltaX;
+          pheight = Manager.nodeHeight + deltaY;
           break;
         case "TITLE":
-          px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-          py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
+          px = p.nodePoint.x + deltaX;
+          py = p.nodePoint.y + deltaY;
           break;
         default:
           //クライアント領域
           if (this.props.moveable) {
-            px = p.nodePoint.x + p.nowPoint.x - p.basePoint.x;
-            py = p.nodePoint.y + p.nowPoint.y - p.basePoint.y;
+            px = p.nodePoint.x + deltaX;
+            py = p.nodePoint.y + deltaY;
           } else return;
       }
     }
@@ -758,6 +808,70 @@ export class JSWindow extends Component<WindowProps, State> {
       if (selection) selection.removeAllRanges();
     } catch (e) {
       //
+    }
+  }
+
+  private getTranslate(scale: number, minScale: number, maxScale: number) {
+    return (pos: number, prevPos: number, translate: number) => {
+      return (scale <= maxScale && scale >= minScale && pos !== prevPos)
+        ? translate + (pos - prevPos * scale) * (1 - 1 / scale)
+        : translate;
+    }
+  }
+
+  private getScale(scale: number, minScale: number, maxScale: number, zoomSensitivity: number, deltaScale: number) {
+    let newScale: number = scale + (deltaScale / (zoomSensitivity / scale));
+    newScale = Math.max(minScale, Math.min(newScale, maxScale));
+    return [scale, newScale];
+  }
+
+  private panBy(x: number, y: number) {
+    if (!this.props.workspace) return;
+    this.setState((prevState) => ({ transformation: {
+      ...prevState.transformation,
+      translateX: prevState.transformation.translateX + x,
+      translateY: prevState.transformation.translateY + y,
+    }}));
+  }
+
+  private zoom(deltaScale: number, x: number, y: number) {
+    if (!this.props.workspace) return;
+    const zoomNode: HTMLElement | null = this.zoomRef.current;
+    if (!zoomNode) return;
+
+    const { left, top } = zoomNode.getBoundingClientRect();
+    const { minScale, maxScale, zoomSensitivity } = this.props;
+    const [scale, newScale] = this.getScale(this.state.transformation.scale!, minScale!, maxScale!, zoomSensitivity!, deltaScale);
+    const originX = x - left;
+    const originY = y - top;
+    const newOriginX = originX / scale;
+    const newOriginY = originY / scale;
+    const translate = this.getTranslate(scale, minScale!, maxScale!);
+    const translateX = translate(originX, this.state.transformation.originX, this.state.transformation.translateX);
+    const translateY = translate(originY, this.state.transformation.originY, this.state.transformation.translateY);
+
+    this.setState({ transformation: {
+      originX: newOriginX,
+      originY: newOriginY,
+      translateX,
+      translateY,
+      scale: newScale,
+    }});
+  }
+
+  private onWheel(evt: React.MouseEvent) {
+    evt.stopPropagation();
+
+    const e: any = evt.nativeEvent;
+    if ((e.ctrlKey === true || e.altKey === true) && e.deltaY) {
+      this.zoom(-Math.sign(e.deltaY), e.pageX, e.pageY);
+    }
+  }
+  private onMouseMove(evt: React.MouseEvent) {
+    const e: any = evt.nativeEvent;
+    if (e.shiftKey === true) {
+      this.panBy(e.movementX, e.movementY);
+      evt.stopPropagation();
     }
   }
 }
