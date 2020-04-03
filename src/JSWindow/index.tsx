@@ -1,6 +1,6 @@
 import ResizeObserver from "resize-observer-polyfill";
 import React, { ReactNode, Component, createRef } from "react";
-import { Manager, MovePoint,MEvent } from "@jswf/manager";
+import { Manager, MovePoint, MEvent } from "@jswf/manager";
 import { Client } from "./parts/Client";
 import { Title } from "./parts/Title";
 import { Root } from "./JSWindow.style";
@@ -143,8 +143,8 @@ export class JSWindow extends Component<WindowProps, State> {
       titleSize:
         (props.windowStyle! & WindowStyle.TITLE) === 0 ? 0 : props.titleSize!,
       borderSize: props.borderSize!,
-      x: props.x || 0,
-      y: props.y || 0,
+      x: props.x === undefined ? null : props.x,
+      y: props.y === undefined ? null : props.y,
       width: props.width!,
       height: props.height!,
       transformation: {
@@ -195,7 +195,7 @@ export class JSWindow extends Component<WindowProps, State> {
   }
   shouldComponentUpdate(props: WindowProps, state: State) {
     if (!this.flagWindowState) {
-      if (props !== this.props && props.windowState !== state.windowState){
+      if (props !== this.props && props.windowState !== state.windowState) {
         this._setWindowState(props.windowState);
       }
     }
@@ -208,7 +208,7 @@ export class JSWindow extends Component<WindowProps, State> {
    */
   public componentDidMount() {
     Manager.init();
-    const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
+    const node: (HTMLElement & { _symbol?: JSWindow }) | null = this.rootRef
       .current;
     if (node) {
       node._symbol = this;
@@ -230,7 +230,7 @@ export class JSWindow extends Component<WindowProps, State> {
    * @memberof JswfWindow
    */
   public componentWillUnmount() {
-    const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
+    const node: (HTMLElement & { _symbol?: JSWindow }) | null = this.rootRef
       .current;
     if (node) {
       if (this.resizeObserver) {
@@ -271,7 +271,7 @@ export class JSWindow extends Component<WindowProps, State> {
    * @memberof JswfWindow
    */
   public render() {
-    const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
+    const node: (HTMLElement & { _symbol?: JSWindow }) | null = this.rootRef
       .current;
     const clientNode: HTMLElement | null = this.clientRef.current;
 
@@ -339,7 +339,8 @@ export class JSWindow extends Component<WindowProps, State> {
       clientWidth = width;
       clientHeight = height - this.state.titleSize;
     }
-    this.windowInfo = {...this.windowInfo,
+    this.windowInfo = {
+      ...this.windowInfo,
       x: this.state.x,
       y: this.state.y,
       width: this.state.width,
@@ -454,12 +455,15 @@ export class JSWindow extends Component<WindowProps, State> {
           onWheel={this.onWheel.bind(this)}
           onMouseMove={this.onMouseMove.bind(this)}
         >
-          <div ref={this.zoomRef} style={{
-            width: '100%',
-            height: '100%',
-            transformOrigin: `${this.state.transformation.originX}px ${this.state.transformation.originY}px`,
-            transform: `matrix(${this.state.transformation.scale}, 0, 0, ${this.state.transformation.scale}, ${this.state.transformation.translateX}, ${this.state.transformation.translateY})`,
-          }}>
+          <div
+            ref={this.zoomRef}
+            style={{
+              width: "100%",
+              height: "100%",
+              transformOrigin: `${this.state.transformation.originX}px ${this.state.transformation.originY}px`,
+              transform: `matrix(${this.state.transformation.scale}, 0, 0, ${this.state.transformation.scale}, ${this.state.transformation.translateX}, ${this.state.transformation.translateY})`
+            }}
+          >
             {this.props.children}
           </div>
         </Client>
@@ -504,7 +508,8 @@ export class JSWindow extends Component<WindowProps, State> {
   foreground(): void {
     //Activeになるノードを取得
     const activeNodes = new Set<HTMLElement>();
-    let node: HTMLElement & { _symbol?: Symbol } | null = this.rootRef.current;
+    let node: (HTMLElement & { _symbol?: Symbol }) | null = this.rootRef
+      .current;
     if (node) {
       let topNode: HTMLElement = node;
       do {
@@ -530,7 +535,7 @@ export class JSWindow extends Component<WindowProps, State> {
     }
   }
   protected update() {
-    const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
+    const node: (HTMLElement & { _symbol?: JSWindow }) | null = this.rootRef
       .current;
     const clientNode: HTMLElement | null = this.clientRef.current;
     if (node && clientNode) {
@@ -557,9 +562,9 @@ export class JSWindow extends Component<WindowProps, State> {
     }
   }
   private min() {
-    const rootNode: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
+    const rootNode: (HTMLElement & { _symbol?: JSWindow }) | null = this.rootRef
       .current;
-    const clientNode: HTMLElement & { _symbol?: JSWindow } | null = this
+    const clientNode: (HTMLElement & { _symbol?: JSWindow }) | null = this
       .clientRef.current;
     if (!rootNode || !clientNode) return;
     if (this.state.boxEnumState === WindowState.MIN) {
@@ -589,7 +594,7 @@ export class JSWindow extends Component<WindowProps, State> {
     }
   }
   private max() {
-    const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
+    const node: (HTMLElement & { _symbol?: JSWindow }) | null = this.rootRef
       .current;
     if (!node) return;
     node.style.animation = "";
@@ -603,7 +608,7 @@ export class JSWindow extends Component<WindowProps, State> {
       this.min();
       return;
     } else if (this.state.oldEnumState === WindowState.HIDE) {
-      const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
+      const node: (HTMLElement & { _symbol?: JSWindow }) | null = this.rootRef
         .current;
       if (!node) return;
       const animationEnd = () => {
@@ -615,7 +620,7 @@ export class JSWindow extends Component<WindowProps, State> {
       node.style.visibility = "visible";
       this.setState({ boxEnumState: WindowState.NORMAL });
     } else {
-      const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
+      const node: (HTMLElement & { _symbol?: JSWindow }) | null = this.rootRef
         .current;
       if (!node) return;
       node.style.animation = "";
@@ -626,7 +631,7 @@ export class JSWindow extends Component<WindowProps, State> {
     }
   }
   private hide() {
-    const node: HTMLElement & { _symbol?: JSWindow } | null = this.rootRef
+    const node: (HTMLElement & { _symbol?: JSWindow }) | null = this.rootRef
       .current;
     if (!node) return;
     node.style.animation = "";
@@ -705,7 +710,8 @@ export class JSWindow extends Component<WindowProps, State> {
   }
   private getParentScale(): number {
     let scale = 1;
-    let node: HTMLElement & { _symbol?: Symbol } | null = this.rootRef.current;
+    let node: (HTMLElement & { _symbol?: Symbol }) | null = this.rootRef
+      .current;
     if (node) {
       while ((node = node.parentNode as HTMLElement)) {
         if (node._symbol instanceof JSWindow) {
@@ -730,9 +736,13 @@ export class JSWindow extends Component<WindowProps, State> {
     const parentScale = this.getParentScale();
     if (p.distance) {
       const vx =
-        parentScale * Math.abs(Math.cos(p.radian!) * p.distance) * (p.distance < 0 ? -1 : 1);
+        parentScale *
+        Math.abs(Math.cos(p.radian!) * p.distance) *
+        (p.distance < 0 ? -1 : 1);
       const vy =
-        parentScale * Math.abs(-Math.sin(p.radian!) * p.distance) * (p.distance < 0 ? -1 : 1);
+        parentScale *
+        Math.abs(-Math.sin(p.radian!) * p.distance) *
+        (p.distance < 0 ? -1 : 1);
 
       px = p.nodePoint.x - vx / 2;
       py = p.nodePoint.y - vy / 2;
@@ -813,25 +823,33 @@ export class JSWindow extends Component<WindowProps, State> {
 
   private getTranslate(scale: number, minScale: number, maxScale: number) {
     return (pos: number, prevPos: number, translate: number) => {
-      return (scale <= maxScale && scale >= minScale && pos !== prevPos)
+      return scale <= maxScale && scale >= minScale && pos !== prevPos
         ? translate + (pos - prevPos * scale) * (1 - 1 / scale)
         : translate;
-    }
+    };
   }
 
-  private getScale(scale: number, minScale: number, maxScale: number, zoomSensitivity: number, deltaScale: number) {
-    let newScale: number = scale + (deltaScale / (zoomSensitivity / scale));
+  private getScale(
+    scale: number,
+    minScale: number,
+    maxScale: number,
+    zoomSensitivity: number,
+    deltaScale: number
+  ) {
+    let newScale: number = scale + deltaScale / (zoomSensitivity / scale);
     newScale = Math.max(minScale, Math.min(newScale, maxScale));
     return [scale, newScale];
   }
 
   private panBy(x: number, y: number) {
     if (!this.props.workspace) return;
-    this.setState((prevState) => ({ transformation: {
-      ...prevState.transformation,
-      translateX: prevState.transformation.translateX + x,
-      translateY: prevState.transformation.translateY + y,
-    }}));
+    this.setState(prevState => ({
+      transformation: {
+        ...prevState.transformation,
+        translateX: prevState.transformation.translateX + x,
+        translateY: prevState.transformation.translateY + y
+      }
+    }));
   }
 
   private zoom(deltaScale: number, x: number, y: number) {
@@ -841,22 +859,38 @@ export class JSWindow extends Component<WindowProps, State> {
 
     const { left, top } = zoomNode.getBoundingClientRect();
     const { minScale, maxScale, zoomSensitivity } = this.props;
-    const [scale, newScale] = this.getScale(this.state.transformation.scale!, minScale!, maxScale!, zoomSensitivity!, deltaScale);
+    const [scale, newScale] = this.getScale(
+      this.state.transformation.scale!,
+      minScale!,
+      maxScale!,
+      zoomSensitivity!,
+      deltaScale
+    );
     const originX = x - left;
     const originY = y - top;
     const newOriginX = originX / scale;
     const newOriginY = originY / scale;
     const translate = this.getTranslate(scale, minScale!, maxScale!);
-    const translateX = translate(originX, this.state.transformation.originX, this.state.transformation.translateX);
-    const translateY = translate(originY, this.state.transformation.originY, this.state.transformation.translateY);
+    const translateX = translate(
+      originX,
+      this.state.transformation.originX,
+      this.state.transformation.translateX
+    );
+    const translateY = translate(
+      originY,
+      this.state.transformation.originY,
+      this.state.transformation.translateY
+    );
 
-    this.setState({ transformation: {
-      originX: newOriginX,
-      originY: newOriginY,
-      translateX,
-      translateY,
-      scale: newScale,
-    }});
+    this.setState({
+      transformation: {
+        originX: newOriginX,
+        originY: newOriginY,
+        translateX,
+        translateY,
+        scale: newScale
+      }
+    });
   }
 
   private onWheel(evt: React.MouseEvent) {
