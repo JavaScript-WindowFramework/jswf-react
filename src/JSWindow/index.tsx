@@ -12,7 +12,7 @@ export enum WindowStyle {
   MIN = 4,
   CLOSE = 8,
   FRAME = 16,
-  RESIZE = 32
+  RESIZE = 32,
 }
 export interface WindowProps {
   x?: number | null;
@@ -52,7 +52,7 @@ export enum WindowState {
   NORMAL = 1,
   MAX,
   MIN,
-  HIDE
+  HIDE,
 }
 
 interface ZoomTransformState {
@@ -112,7 +112,7 @@ export class JSWindow extends Component<WindowProps, State> {
     windowStyle: 0xff,
     windowState: WindowState.NORMAL,
     clientStyle: {},
-    onUpdate: null
+    onUpdate: null,
   };
 
   private rootRef = createRef<HTMLDivElement>();
@@ -152,13 +152,13 @@ export class JSWindow extends Component<WindowProps, State> {
         originY: 0,
         translateX: 0,
         translateY: 0,
-        scale: 1
+        scale: 1,
       },
       oldEnumState: WindowState.HIDE,
       windowState: props.windowState!,
       boxEnumState: WindowState.HIDE,
       clientWidth: 0,
-      clientHeight: 0
+      clientHeight: 0,
     };
 
     this.state = state;
@@ -189,7 +189,7 @@ export class JSWindow extends Component<WindowProps, State> {
       realX: 0,
       realY: 0,
       realWidth: 0,
-      realHeight: 0
+      realHeight: 0,
     };
     this.windowInfoKeep = { ...this.windowInfo };
   }
@@ -255,7 +255,7 @@ export class JSWindow extends Component<WindowProps, State> {
       }
       if (flag) {
         this.windowInfoKeep = {
-          ...this.windowInfo
+          ...this.windowInfo,
         };
         if (!this.updateInfoHandle) {
           if (this.props.onUpdate) this.props.onUpdate(this.windowInfoKeep);
@@ -350,7 +350,7 @@ export class JSWindow extends Component<WindowProps, State> {
       realWidth: width,
       realHeight: height,
       windowState: this.state.windowState,
-      realWindowState: this.state.boxEnumState
+      realWindowState: this.state.boxEnumState,
     };
     return (
       <Root
@@ -394,26 +394,26 @@ export class JSWindow extends Component<WindowProps, State> {
               this.state.oldEnumState === WindowState.MIN ? (
                 <div
                   id="max"
-                  onMouseDown={e => {
+                  onMouseDown={(e) => {
                     e.stopPropagation();
                   }}
-                  onTouchStart={e => {
+                  onTouchStart={(e) => {
                     e.stopPropagation();
                   }}
-                  onClick={e => {
+                  onClick={(e) => {
                     this._setWindowState(WindowState.MAX);
                   }}
                 />
               ) : (
                 <div
                   id="normal"
-                  onMouseDown={e => {
+                  onMouseDown={(e) => {
                     e.stopPropagation();
                   }}
-                  onTouchStart={e => {
+                  onTouchStart={(e) => {
                     e.stopPropagation();
                   }}
-                  onClick={e => {
+                  onClick={(e) => {
                     this._setWindowState(WindowState.NORMAL);
                   }}
                 />
@@ -421,13 +421,13 @@ export class JSWindow extends Component<WindowProps, State> {
               {(this.state.titlePrmisson & WindowStyle.CLOSE) !== 0 && (
                 <div
                   id="close"
-                  onMouseDown={e => {
+                  onMouseDown={(e) => {
                     e.stopPropagation();
                   }}
-                  onTouchStart={e => {
+                  onTouchStart={(e) => {
                     e.stopPropagation();
                   }}
-                  onClick={e => {
+                  onClick={(e) => {
                     this._setWindowState(WindowState.HIDE);
                   }}
                 />
@@ -436,7 +436,7 @@ export class JSWindow extends Component<WindowProps, State> {
           </Title>
         )}
         {(this.state.titlePrmisson & WindowStyle.RESIZE) !== 0 &&
-          borders.map(border => (
+          borders.map((border) => (
             <Border
               key={border}
               id={border}
@@ -451,17 +451,18 @@ export class JSWindow extends Component<WindowProps, State> {
           TitleSize={this.state.titleSize}
           Width={clientWidth}
           Height={clientHeight}
-          style={this.props.clientStyle!}
           onWheel={this.onWheel.bind(this)}
           onMouseMove={this.onMouseMove.bind(this)}
         >
           <div
             ref={this.zoomRef}
             style={{
+              ...this.props.clientStyle,
+              position: "absolute",
               width: "100%",
               height: "100%",
               transformOrigin: `${this.state.transformation.originX}px ${this.state.transformation.originY}px`,
-              transform: `matrix(${this.state.transformation.scale}, 0, 0, ${this.state.transformation.scale}, ${this.state.transformation.translateX}, ${this.state.transformation.translateY})`
+              transform: `matrix(${this.state.transformation.scale}, 0, 0, ${this.state.transformation.scale}, ${this.state.transformation.translateX}, ${this.state.transformation.translateY})`,
             }}
           >
             {this.props.children}
@@ -526,7 +527,7 @@ export class JSWindow extends Component<WindowProps, State> {
             //if(node._symbol.state.active !== act)
             Manager.callEvent(node, "active", act);
           }
-          Array.prototype.forEach.call(node.childNodes, node => {
+          Array.prototype.forEach.call(node.childNodes, (node) => {
             sendActive(node as HTMLElement);
           });
         };
@@ -683,7 +684,7 @@ export class JSWindow extends Component<WindowProps, State> {
 
         Array.prototype.slice
           .call(parent.childNodes, 0)
-          .filter(node => {
+          .filter((node) => {
             return (
               (node as typeof node & { _symbol?: JSWindow })._symbol instanceof
               JSWindow
@@ -730,7 +731,7 @@ export class JSWindow extends Component<WindowProps, State> {
       this.state.x === null ? this.windowInfo.realX : this.state.x,
       this.state.y === null ? this.windowInfo.realY : this.state.y,
       this.state.width,
-      this.state.height
+      this.state.height,
     ];
     let p = e.params as MovePoint;
     const parentScale = this.getParentScale();
@@ -804,7 +805,7 @@ export class JSWindow extends Component<WindowProps, State> {
       x: px,
       y: py,
       height: pheight,
-      width: pwidth
+      width: pwidth,
     };
     if (!this.moveHandle) {
       this.moveHandle = setTimeout(() => {
@@ -843,12 +844,12 @@ export class JSWindow extends Component<WindowProps, State> {
 
   private panBy(x: number, y: number) {
     if (!this.props.workspace) return;
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       transformation: {
         ...prevState.transformation,
         translateX: prevState.transformation.translateX + x,
-        translateY: prevState.transformation.translateY + y
-      }
+        translateY: prevState.transformation.translateY + y,
+      },
     }));
   }
 
@@ -888,8 +889,8 @@ export class JSWindow extends Component<WindowProps, State> {
         originY: newOriginY,
         translateX,
         translateY,
-        scale: newScale
-      }
+        scale: newScale,
+      },
     });
   }
 

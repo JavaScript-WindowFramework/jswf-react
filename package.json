@@ -1,11 +1,11 @@
 {
   "name": "@jswf/react",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Virtual Window for React",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config src/webpack.config.js",
+    "build:pub": "webpack --config src/webpack.config.js && node bin/copy-package",
     "watch": "webpack --config src/webpack.config.js -w"
   },
   "publishConfig": {
@@ -22,13 +22,12 @@
   "author": "SoraKumo",
   "license": "MIT",
   "dependencies": {
+    "@jswf/manager": "^1.0.3",
     "react": "~16.13.1",
     "resize-observer-polyfill": "~1.5.1",
     "styled-components": "~5.0.1"
   },
   "devDependencies": {
-    "@jswf/manager": "^1.0.3",
-    "@types/react-dom": "~16.9.6",
     "@types/styled-components": "~5.0.1",
     "ts-loader": "^6.2.2",
     "typescript": "~3.8.3",

@@ -6,31 +6,29 @@ interface StyleProps {
   height: number;
   overlapped: boolean;
   titleSize: number;
-  frame:boolean;
+  frame: boolean;
 }
-export const Root = styled.div.attrs<StyleProps>(p => ({
+export const Root = styled.div.attrs<StyleProps>((p) => ({
   style: {
+    visibility: "hidden",
     left: p.x + "px",
     top: p.y + "px",
     width: p.width + "px",
     height: p.height + "px",
-    position: p.overlapped ? "fixed" : "absolute"
-  }
-})) <StyleProps>`
-  visibility :hidden;
+    position: p.overlapped ? "fixed" : "absolute",
+  },
+}))<StyleProps>`
   position: fixed;
-  ${p => p.frame && "border: solid 1.0px rgba(0, 0, 0, 0.4);"}
+  ${(p) => p.frame && "border: solid 1.0px rgba(0, 0, 0, 0.4);"}
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.4);
-  border-radius:1em 1em 0 0;
+  border-radius: 1em 1em 0 0;
   @keyframes Show {
     0% {
       opacity: 0;
-      //transform: scale(0);
     }
 
     100% {
       opacity: 1;
-      //transform: scale(1);
     }
   }
   @keyframes Hide {
@@ -64,7 +62,7 @@ export const Root = styled.div.attrs<StyleProps>(p => ({
   }
   @keyframes MinRoot {
     100% {
-      height: ${p => p.titleSize}px;
+      height: ${(p) => p.titleSize}px;
     }
   }
 
@@ -83,7 +81,7 @@ export const Root = styled.div.attrs<StyleProps>(p => ({
   }
   @keyframes MinRestoreRoot {
     0% {
-      max-height: ${p => p.titleSize}px;
+      max-height: ${(p) => p.titleSize}px;
     }
     100% {
       max-height: 100%;

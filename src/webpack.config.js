@@ -40,10 +40,11 @@ const config = {
   },
   devtool: "source-map",
   externals: {
-    react: "react",
-    "react-dom":"react-dom",
-    "styled-components": "styled-components",
-    "resize-observer-polyfill": "resize-observer-polyfill"
+    react:true,
+    "@jswf/manager":true,
+    "react":true,
+    "styled-components":true,
+    "resize-observer-polyfill":true
   }
 };
 if (config.mode === "development") {
