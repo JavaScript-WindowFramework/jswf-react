@@ -1,4 +1,4 @@
-name: CI
+name: Build Test
 on:
   push:
 
@@ -12,23 +12,11 @@ jobs:
         id: cache
         uses: actions/cache@v1
         with:
-          path: node_modules
-          key: ${{ runner.OS }}-build-${{ hashFiles('yarn.lock') }}
+          path: main/node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('main/yarn.lock') }}
           restore-keys: ${{ runner.OS }}-build-${{ env.cache-name }}-
       - name: install
         if: steps.cache.outputs.cache-hit != 'true'
-        run: yarn install
+        run: yarn --cwd main
       - name: build
-        run: yarn build
-      - name: update npm version
-        if: contains(github.ref, 'refs/tags')
-        uses: SoraKumo001/actions-npm-version-update@release
-      - name: publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        if: contains(github.ref, 'refs/tags')
-        run: |
-          a=($(echo $GITHUB_REF | sed -n -r 's/^refs\/tags\/([^-]*)-(.*)$/\1 \2/p')) tag=${a[0]} version=${a[1]}
-          echo publish $version [$tag]
-          npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-          npm publish --tag $tag
+        run: yarn --cwd main build

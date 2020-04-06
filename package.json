@@ -1,46 +1,12 @@
 {
-  "name": "@jswf/react",
-  "version": "1.0.11",
-  "description": "Virtual Window for React",
-  "main": "dist/index.js",
-  "scripts": {
-    "build": "webpack --config src/webpack.config.js",
-    "build:pub": "webpack --config src/webpack.config.js && node bin/copy-package",
-    "watch": "webpack --config src/webpack.config.js -w"
+  "name": "@jswf/react-package",
+  "version": "1.0.0",
+  "scripts":{
+    "init":"yarn --cwd main && yarn --cwd test && yarn --cwd main build && yarn --cwd main link && yarn --cwd test link @jswf/react",
+    "start:storybook":"yarn --cwd test start"
   },
-  "publishConfig": {
-    "access": "public"
-  },
-  "keywords": [
-    "jswf",
-    "react",
-    "VirtualWindow",
-    "ListView",
-    "TreeView",
-    "SplitView"
-  ],
-  "author": "SoraKumo",
-  "license": "MIT",
-  "dependencies": {
-    "@jswf/manager": "^1.0.3",
-    "react": "~16.13.1",
-    "resize-observer-polyfill": "~1.5.1",
-    "styled-components": "~5.0.1"
-  },
-  "devDependencies": {
-    "@types/styled-components": "~5.0.1",
-    "ts-loader": "^6.2.2",
-    "typescript": "~3.8.3",
-    "url-loader": "^4.0.0",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/JavaScript-WindowFramework/jswf-react.git"
-  },
-  "bugs": {
-    "url": "https://github.com/JavaScript-WindowFramework/jswf-react/issues"
-  },
-  "homepage": "https://ttis.croud.jp/?uuid=b292d429-dbad-49b5-8fed-6d268f4feaf0"
+  "main": "index.js",
+  "repository": "https://github.com/JavaScript-WindowFramework/jswf-react",
+  "author": "SoraKumo <info@croud.jp>",
+  "license": "MIT"
 }
