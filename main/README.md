@@ -6,26 +6,9 @@ Virtual window component for React
 
 ## １．Contents
 
-### 1.0 Repository
-
-#### dir
-
-- root
-  - main  
-     main package
-  - test  
-     Test package composed of Storybook
-
-#### command
-
-- yarn build  
-    package build
-- yarn start  
-    start storybook
-
 ### 1.1 Basic explanation
 
-Components for realizing virtual windows with React  
+Components for realizing virtual windows with React
 Just enclose with JSWindow and it will become a virtual window
 
 ### 1.2 Currently available features

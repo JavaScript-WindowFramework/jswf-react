@@ -2,10 +2,9 @@
   "name": "@jswf/react-package",
   "version": "1.0.0",
   "scripts":{
-    "init":"yarn --cwd main && yarn --cwd test && yarn --cwd main build && yarn --cwd main link && yarn --cwd test link @jswf/react",
-    "start:storybook":"yarn --cwd test start"
+    "start":"yarn --cwd test start",
+    "build":"yarn --cwd main && yarn --cwd main build && yarn --cwd main link && yarn --cwd test link @jswf/react && yarn --cwd test"
   },
-  "main": "index.js",
   "repository": "https://github.com/JavaScript-WindowFramework/jswf-react",
   "author": "SoraKumo <info@croud.jp>",
   "license": "MIT"
