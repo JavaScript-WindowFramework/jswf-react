@@ -45,15 +45,18 @@ jobs:
           git add .
           git commit -m $BRANCH
           git push -f origin captures/$BRANCH
-      - name: publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: update npm package version
+        if: contains(github.ref, 'refs/tags')
+        uses: SoraKumo001/actions-npm-version-update@release
         with:
           path: test/package.json
+      - name: publish
         if: contains(github.ref, 'refs/tags')
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          cd test
           a=($(echo $GITHUB_REF | sed -n -r 's/^refs\/tags\/([^-]*)-(.*)$/\1 \2/p')) tag=${a[0]} version=${a[1]}
           echo publish $version [$tag]
-          cd test
           npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
           npm publish --tag $tag
