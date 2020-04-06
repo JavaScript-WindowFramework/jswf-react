@@ -8,15 +8,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Cache node modules(yarn.lock)
+      - name: main:Cache node modules(yarn.lock)
         id: cache
         uses: actions/cache@v1
         with:
           path: main/node_modules
           key: ${{ runner.OS }}-build-${{ hashFiles('main/yarn.lock') }}
           restore-keys: ${{ runner.OS }}-build-${{ env.cache-name }}-
-      - name: install
+      - name: main:package-install
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn --cwd main
-      - name: build
+      - name: main:build
         run: yarn --cwd main build
+      - name: test:Cache node modules(yarn.lock)
+        id: test-cache
+        uses: actions/cache@v1
+        with:
+          path: test/node_modules
+          key: ${{ runner.OS }}-build-test-${{ hashFiles('test/yarn.lock') }}
+          restore-keys: ${{ runner.OS }}-build-${{ env.cache-name }}-
+      - name: test:package-install
+        if: steps.test-cache.outputs.cache-hit != 'true'
+        run: yarn --cwd test
+      - name: Create capture
+        run: yarn capture
+      - name: Save capture
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+        run: |
+          BRANCH=`echo $GITHUB_REF | sed 's/^refs\/heads\///'`
+          cd __screenshots__
+          git init
+          git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/$GITHUB_REPOSITORY
+          git config --global user.name $GITHUB_ACTOR
+          git config --global user.email ${GITHUB_ACTOR}@git
+          git checkout -b captures/$BRANCH
+          git add .
+          git commit -m $BRANCH
+          git push -f origin captures/$BRANCH
