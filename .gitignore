@@ -1,5 +1,7 @@
 node_modules
 package-lock.json
 *.tsbuildinfo
-/dist/
+dist
 .vscode
+storybook-static
+__screenshots__
