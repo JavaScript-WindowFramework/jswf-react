@@ -1,0 +1,54 @@
+name: VisualTest(pull request)
+on:
+  pull_request:
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: test:Cache node modules(yarn.lock)
+        id: test-cache
+        uses: actions/cache@v1
+        with:
+          path: test/node_modules
+          key: ${{ runner.OS }}-build-test-${{ hashFiles('test/yarn.lock') }}
+          restore-keys: ${{ runner.OS }}-build-${{ env.cache-name }}-
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: yarn -cwd test
+      - name: Screnn capture
+        run: yarn -cwd capture
+      - name: Regression test
+        run: |
+          mkdir __reg__
+          mv test/__screenshots__ __reg__/actual/
+          git clone https://github.com/${GITHUB_REPOSITORY} -b captures/${GITHUB_BASE_REF} __reg__/expected
+          rm -rf __reg__/expected/.git
+          yarn reg-cli  __reg__/actual  __reg__/expected __reg__/diff -R __reg__/index.html -J __reg__/reg.json -I
+      - name: Create pege
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+        run: |
+          num=`echo ${{ github.ref }} | awk -F'/' '{print $3}'`
+          git clone https://github.com/${GITHUB_REPOSITORY} -b gh-pages __gh-pages__ || mkdir __gh-pages__
+          node .github/scripts/comment.js
+          mkdir __gh-pages__/$num || true
+          mv __reg__ __gh-pages__/$num/$GITHUB_RUN_ID
+          set $(awk -F/ '{print $1, $2}' <<< $GITHUB_REPOSITORY)
+          url=https://$1.github.io/$2/$num/$GITHUB_RUN_ID
+      - name: Save regression
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+        run: |
+          cd __gh-pages__
+          if [ ! -d .git ]; then
+            git init
+            git checkout -b gh-pages
+            git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/$GITHUB_REPOSITORY
+          fi
+          git remote set-url origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/$GITHUB_REPOSITORY
+          git config --global user.name $GITHUB_ACTOR
+          git config --global user.email ${GITHUB_ACTOR}@git
+          git add .
+          git commit -m $GITHUB_REF
+          git push origin gh-pages

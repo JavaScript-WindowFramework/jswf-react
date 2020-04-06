@@ -1,7 +1,6 @@
-name: Build Test
+name: VisualTest(push)
 on:
   push:
-
 jobs:
   release:
     name: check version, add tag and release

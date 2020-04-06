@@ -1,0 +1,16 @@
+name: VisualTest(delete)
+on:
+  delete:
+    branches-ignore: ['captures/**','gh-pages']
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: delete visual test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+        run: |
+          DELETE_BRANCH=`cat $GITHUB_EVENT_PATH | jq -r ".ref"`
+          git remote set-url origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/$GITHUB_REPOSITORY
+          git push --delete origin captures/${DELETE_BRANCH} || true
