@@ -31,13 +31,13 @@ jobs:
         if: steps.test-cache.outputs.cache-hit != 'true'
         run: yarn --cwd test
       - name: Create capture
-        run: yarn capture
+        run: yarn --cwd test capture
       - name: Save capture
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
         run: |
           BRANCH=`echo $GITHUB_REF | sed 's/^refs\/heads\///'`
-          cd __screenshots__
+          cd test/__screenshots__
           git init
           git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/$GITHUB_REPOSITORY
           git config --global user.name $GITHUB_ACTOR
