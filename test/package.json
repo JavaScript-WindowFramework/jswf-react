@@ -8,7 +8,8 @@
     "build": "webpack --mode production",
     "capture": "npm-run-all -p -r sc:*",
     "sc:start-storybook": "start-storybook -p 9001 --ci",
-    "sc:screenshot": "storycap http://localhost:9001"
+    "sc:screenshot": "storycap http://localhost:9001",
+    "reg-local": "node bin/reg-local"
   },
   "publishConfig": {
     "access": "public"
