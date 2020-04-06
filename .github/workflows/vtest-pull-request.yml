@@ -24,7 +24,7 @@ jobs:
           mv test/__screenshots__ __reg__/actual/
           git clone https://github.com/${GITHUB_REPOSITORY} -b captures/${GITHUB_BASE_REF} __reg__/expected
           rm -rf __reg__/expected/.git
-          yarn reg-cli  __reg__/actual  __reg__/expected __reg__/diff -R __reg__/index.html -J __reg__/reg.json -I
+          yarn -cwd test reg-cli  __reg__/actual  __reg__/expected __reg__/diff -R __reg__/index.html -J __reg__/reg.json -I
       - name: Create pege
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
