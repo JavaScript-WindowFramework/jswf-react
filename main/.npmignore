@@ -1,7 +1,6 @@
-package-lock.json
+yarn.lock
 node_modules
 *.tsbuildinfo
-/src/
+src/
 sample
-.github
 images
