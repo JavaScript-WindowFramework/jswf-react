@@ -19,7 +19,6 @@ export interface WindowProps {
   y?: number | null;
   width?: number;
   height?: number;
-  zoomSensitivity?: number;
   minScale?: number;
   maxScale?: number;
   moveable?: boolean;
@@ -55,14 +54,6 @@ export enum WindowState {
   HIDE,
 }
 
-interface ZoomTransformState {
-  originX: number;
-  originY: number;
-  translateX: number;
-  translateY: number;
-  scale: number;
-}
-
 interface State {
   active: boolean;
   overlapped: boolean;
@@ -73,7 +64,6 @@ interface State {
   y: number | null;
   width: number;
   height: number;
-  transformation: ZoomTransformState;
   clientWidth: number;
   clientHeight: number;
   windowState: number;
@@ -99,7 +89,6 @@ export class JSWindow extends Component<WindowProps, State> {
     y: null,
     width: 300,
     height: 300,
-    zoomSensitivity: 25,
     minScale: 0.1,
     maxScale: 10,
     moveable: false,
@@ -118,7 +107,6 @@ export class JSWindow extends Component<WindowProps, State> {
   private rootRef = createRef<HTMLDivElement>();
   private titleRef = createRef<HTMLDivElement>();
   private clientRef = createRef<HTMLDivElement>();
-  private zoomRef = createRef<HTMLDivElement>();
   private resizeObserver?: ResizeObserver;
   private resizeHandle?: number;
   private moveHandle?: number;
@@ -147,13 +135,6 @@ export class JSWindow extends Component<WindowProps, State> {
       y: props.y === undefined ? null : props.y,
       width: props.width!,
       height: props.height!,
-      transformation: {
-        originX: 0,
-        originY: 0,
-        translateX: 0,
-        translateY: 0,
-        scale: 1,
-      },
       oldEnumState: WindowState.HIDE,
       windowState: props.windowState!,
       boxEnumState: WindowState.HIDE,
@@ -168,7 +149,6 @@ export class JSWindow extends Component<WindowProps, State> {
       y: state.y,
       width: state.width,
       height: state.height,
-      zoomSensitivity: props.zoomSensitivity!,
       minScale: props.minScale!,
       maxScale: props.maxScale!,
       moveable: props.moveable!,
@@ -358,7 +338,6 @@ export class JSWindow extends Component<WindowProps, State> {
         ref={this.rootRef}
         x={x || 0}
         y={y || 0}
-        data-scale={this.state.transformation.scale}
         frame={(this.windowInfo.windowStyle & WindowStyle.FRAME) !== 0}
         width={width}
         height={height}
@@ -451,22 +430,8 @@ export class JSWindow extends Component<WindowProps, State> {
           TitleSize={this.state.titleSize}
           Width={clientWidth}
           Height={clientHeight}
-          onWheel={this.onWheel.bind(this)}
-          onMouseMove={this.onMouseMove.bind(this)}
         >
-          <div
-            ref={this.zoomRef}
-            style={{
-              ...this.props.clientStyle,
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-              transformOrigin: `${this.state.transformation.originX}px ${this.state.transformation.originY}px`,
-              transform: `matrix(${this.state.transformation.scale}, 0, 0, ${this.state.transformation.scale}, ${this.state.transformation.translateX}, ${this.state.transformation.translateY})`,
-            }}
-          >
-            {this.props.children}
-          </div>
+          {this.props.children}
         </Client>
       </Root>
     );
@@ -524,7 +489,6 @@ export class JSWindow extends Component<WindowProps, State> {
         const sendActive = (node: HTMLElement & { _symbol?: Symbol }) => {
           if (node._symbol instanceof JSWindow) {
             const act = activeNodes.has(node);
-            //if(node._symbol.state.active !== act)
             Manager.callEvent(node, "active", act);
           }
           Array.prototype.forEach.call(node.childNodes, (node) => {
@@ -819,94 +783,6 @@ export class JSWindow extends Component<WindowProps, State> {
       if (selection) selection.removeAllRanges();
     } catch (e) {
       //
-    }
-  }
-
-  private getTranslate(scale: number, minScale: number, maxScale: number) {
-    return (pos: number, prevPos: number, translate: number) => {
-      return scale <= maxScale && scale >= minScale && pos !== prevPos
-        ? translate + (pos - prevPos * scale) * (1 - 1 / scale)
-        : translate;
-    };
-  }
-
-  private getScale(
-    scale: number,
-    minScale: number,
-    maxScale: number,
-    zoomSensitivity: number,
-    deltaScale: number
-  ) {
-    let newScale: number = scale + deltaScale / (zoomSensitivity / scale);
-    newScale = Math.max(minScale, Math.min(newScale, maxScale));
-    return [scale, newScale];
-  }
-
-  private panBy(x: number, y: number) {
-    if (!this.props.workspace) return;
-    this.setState((prevState) => ({
-      transformation: {
-        ...prevState.transformation,
-        translateX: prevState.transformation.translateX + x,
-        translateY: prevState.transformation.translateY + y,
-      },
-    }));
-  }
-
-  private zoom(deltaScale: number, x: number, y: number) {
-    if (!this.props.workspace) return;
-    const zoomNode: HTMLElement | null = this.zoomRef.current;
-    if (!zoomNode) return;
-
-    const { left, top } = zoomNode.getBoundingClientRect();
-    const { minScale, maxScale, zoomSensitivity } = this.props;
-    const [scale, newScale] = this.getScale(
-      this.state.transformation.scale!,
-      minScale!,
-      maxScale!,
-      zoomSensitivity!,
-      deltaScale
-    );
-    const originX = x - left;
-    const originY = y - top;
-    const newOriginX = originX / scale;
-    const newOriginY = originY / scale;
-    const translate = this.getTranslate(scale, minScale!, maxScale!);
-    const translateX = translate(
-      originX,
-      this.state.transformation.originX,
-      this.state.transformation.translateX
-    );
-    const translateY = translate(
-      originY,
-      this.state.transformation.originY,
-      this.state.transformation.translateY
-    );
-
-    this.setState({
-      transformation: {
-        originX: newOriginX,
-        originY: newOriginY,
-        translateX,
-        translateY,
-        scale: newScale,
-      },
-    });
-  }
-
-  private onWheel(evt: React.MouseEvent) {
-    evt.stopPropagation();
-
-    const e: any = evt.nativeEvent;
-    if ((e.ctrlKey === true || e.altKey === true) && e.deltaY) {
-      this.zoom(-Math.sign(e.deltaY), e.pageX, e.pageY);
-    }
-  }
-  private onMouseMove(evt: React.MouseEvent) {
-    const e: any = evt.nativeEvent;
-    if (e.shiftKey === true) {
-      this.panBy(e.movementX, e.movementY);
-      evt.stopPropagation();
     }
   }
 }
