@@ -55,7 +55,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          cd test
+          cd main
           a=($(echo $GITHUB_REF | sed -n -r 's/^refs\/tags\/([^-]*)-(.*)$/\1 \2/p')) tag=${a[0]} version=${a[1]}
           echo publish $version [$tag]
           npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
