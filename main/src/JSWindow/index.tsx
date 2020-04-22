@@ -19,7 +19,6 @@ export interface WindowProps {
   y?: number | null;
   width?: number;
   height?: number;
-  zoomSensitivity?: number;
   minScale?: number;
   maxScale?: number;
   moveable?: boolean;
@@ -53,14 +52,6 @@ export enum WindowState {
   MAX,
   MIN,
   HIDE,
-}
-
-interface ZoomTransformState {
-  originX: number;
-  originY: number;
-  translateX: number;
-  translateY: number;
-  scale: number;
 }
 
 interface State {
@@ -98,7 +89,6 @@ export class JSWindow extends Component<WindowProps, State> {
     y: null,
     width: 300,
     height: 300,
-    zoomSensitivity: 25,
     minScale: 0.1,
     maxScale: 10,
     moveable: false,
@@ -117,7 +107,6 @@ export class JSWindow extends Component<WindowProps, State> {
   private rootRef = createRef<HTMLDivElement>();
   private titleRef = createRef<HTMLDivElement>();
   private clientRef = createRef<HTMLDivElement>();
-  private zoomRef = createRef<HTMLDivElement>();
   private resizeObserver?: ResizeObserver;
   private resizeHandle?: number;
   private moveHandle?: number;
@@ -160,7 +149,6 @@ export class JSWindow extends Component<WindowProps, State> {
       y: state.y,
       width: state.width,
       height: state.height,
-      zoomSensitivity: props.zoomSensitivity!,
       minScale: props.minScale!,
       maxScale: props.maxScale!,
       moveable: props.moveable!,
@@ -443,17 +431,7 @@ export class JSWindow extends Component<WindowProps, State> {
           Width={clientWidth}
           Height={clientHeight}
         >
-          <div
-            ref={this.zoomRef}
-            style={{
-              ...this.props.clientStyle,
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-            }}
-          >
-            {this.props.children}
-          </div>
+          {this.props.children}
         </Client>
       </Root>
     );
@@ -807,5 +785,4 @@ export class JSWindow extends Component<WindowProps, State> {
       //
     }
   }
-
 }
