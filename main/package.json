@@ -1,6 +1,6 @@
 {
   "name": "@jswf/react",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Virtual Window for React",
   "main": "dist/index.js",
   "scripts": {
