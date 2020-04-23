@@ -1,5 +1,17 @@
 import * as React from "react";
-import { JSWindow, ListView, ListHeaders, ListHeader, ListItem, ListRow } from "@jswf/react";
+import {
+  JSWindow,
+  ListView,
+  ListHeaders,
+  ListHeader,
+  ListItem,
+  ListRow,
+} from "@jswf/react";
+import { storiesOf } from "@storybook/react";
+
+storiesOf("Pages/Window", module).add("ClientStyle", () => {
+  return <ClientStyle />;
+});
 
 export function ClientStyle() {
   return (
@@ -14,9 +26,7 @@ export function ClientStyle() {
       <ListView>
         <ListHeaders>
           <ListHeader type="number">No</ListHeader>
-          <ListHeader width={100}>
-            武器の名前
-          </ListHeader>
+          <ListHeader width={100}>武器の名前</ListHeader>
           <ListHeader type="number">攻撃力</ListHeader>
           <ListHeader type="number">価格</ListHeader>
         </ListHeaders>

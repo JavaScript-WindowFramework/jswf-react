@@ -18,6 +18,13 @@ import { SplitViewSimple } from "./Samples/SplitViewSimple";
 import { TreeViewSimple } from "./Samples/TreeViewSimple";
 import { ListViewSimple } from "./Samples/ListViewSimple";
 import { ClientStyle } from "./Samples/ClientStyle";
+import { storiesOf } from "@storybook/react";
+
+storiesOf("Pages", module)
+  .add("All", () => {
+    return <CompornentList />;
+  });
+
 
 let key = 0;
 const Compornents: [() => JSX.Element, string, string][] = [

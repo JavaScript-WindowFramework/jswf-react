@@ -1,6 +1,12 @@
 import * as React from "react";
 import { JSWindow } from "@jswf/react";
 
+import { storiesOf } from "@storybook/react";
+
+storiesOf("Pages/Window", module).add("WindowBasic", () => {
+  return <WindowBasic />;
+});
+
 export function WindowBasic() {
   return (
     <JSWindow
@@ -13,7 +19,8 @@ export function WindowBasic() {
       moveable={true}
       clientStyle={{ backgroundColor: "#CCFFCC" }}
     >
-      <pre>{`
+      <pre>
+        {`
         title="WindowBasic"
         x={100}
         y={100}

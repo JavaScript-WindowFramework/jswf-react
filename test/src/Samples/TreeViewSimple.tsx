@@ -1,9 +1,11 @@
 import * as React from "react";
-import {
-  JSWindow,
-  TreeView,
-  TreeItem
-} from "@jswf/react";
+import { JSWindow, TreeView, TreeItem } from "@jswf/react";
+
+import { storiesOf } from "@storybook/react";
+
+storiesOf("Pages/TreeView", module).add("TreeViewSimple", () => {
+  return <TreeViewSimple />;
+});
 
 export function TreeViewSimple() {
   return (
