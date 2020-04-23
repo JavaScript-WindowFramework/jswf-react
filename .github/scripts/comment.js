@@ -10,7 +10,7 @@ const {
 } = process.env;
 const num = GITHUB_REF.split("/")[2];
 const rep = GITHUB_REPOSITORY.split("/");
-const url = `https://${rep[0]}.github.io/${rep[1]}/${num}/${GITHUB_RUN_ID}/`;
+const url = `https://${rep[0]}.github.io/${rep[1]}/${num}/${GITHUB_RUN_ID}/index.html`;
 
 const body = `
 [${url}](${url})

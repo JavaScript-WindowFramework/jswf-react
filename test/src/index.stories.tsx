@@ -10,6 +10,8 @@ import { ListViewBasic } from "./Samples/ListViewBasic";
 import { TreeViewSimple } from "./Samples/TreeViewSimple";
 import { TreeViewBasic } from "./Samples/TreeViewBasic";
 import { CompornentList } from ".";
+import { ClientStyle } from "./Samples/ClientStyle";
+
 
 storiesOf("Pages", module)
   .add("index", () => {
@@ -41,4 +43,7 @@ storiesOf("Pages", module)
   })
   .add("TreeViewBasic", () => {
     return <TreeViewBasic />;
+  })
+  .add("ClientStyle", () => {
+    return <ClientStyle />;
   });

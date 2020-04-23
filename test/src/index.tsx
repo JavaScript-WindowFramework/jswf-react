@@ -17,6 +17,7 @@ import { TreeViewBasic } from "./Samples/TreeViewBasic";
 import { SplitViewSimple } from "./Samples/SplitViewSimple";
 import { TreeViewSimple } from "./Samples/TreeViewSimple";
 import { ListViewSimple } from "./Samples/ListViewSimple";
+import { ClientStyle } from "./Samples/ClientStyle";
 
 let key = 0;
 const Compornents: [() => JSX.Element, string, string][] = [
@@ -28,12 +29,13 @@ const Compornents: [() => JSX.Element, string, string][] = [
   [ListViewSimple, "ListViewSimple", "Simple ListView usage"],
   [ListViewBasic, "ListViewBasic", "ListView usage"],
   [TreeViewSimple, "TreeViewSimple", "Simple TreeView usage"],
-  [TreeViewBasic, "TreeViewBasic", "Basic TreeView usage"]
+  [TreeViewBasic, "TreeViewBasic", "Basic TreeView usage"],
+  [ClientStyle, "ClientStyle", "Client Style usage"]
 ];
 export function CompornentList() {
   let count = 0;
   const [nodes, setNodes] = React.useState<ReactElement[]>([]);
-  const [src, setSrc] = React.useState("");
+  const [src] = React.useState("");
 
   return (
     <>
