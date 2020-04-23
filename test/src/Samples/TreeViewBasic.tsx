@@ -7,6 +7,12 @@ import {
   TreeItemStyle
 } from "@jswf/react";
 
+import { storiesOf } from "@storybook/react";
+
+storiesOf("Pages/TreeView", module).add("TreeViewBasic", () => {
+  return <TreeViewBasic />;
+});
+
 export function TreeViewBasic() {
   const treeViewRef = React.useRef<TreeView>(null);
   const [message, setMessage] = React.useState<React.ReactNode>();

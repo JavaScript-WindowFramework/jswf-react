@@ -2,6 +2,11 @@ import * as React from "react";
 import {
   JSWindow, ListView, SplitView, ListHeaders, ListHeader, ListRow, ListItem, ListViewDragData
 } from "@jswf/react";
+import { storiesOf } from "@storybook/react";
+
+storiesOf("Pages/ListView", module).add("ListViewBasic", () => {
+  return <ListViewBasic />;
+});
 
 export function ListViewBasic() {
     let listViewRef = React.useRef<ListView>(null);

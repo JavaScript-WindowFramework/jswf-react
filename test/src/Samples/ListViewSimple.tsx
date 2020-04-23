@@ -8,6 +8,12 @@ import {
   ListItem,
 } from "@jswf/react";
 
+import { storiesOf } from "@storybook/react";
+
+storiesOf("Pages/ListView", module).add("ListViewSimple", () => {
+  return <ListViewSimple />;
+});
+
 export function ListViewSimple() {
   let count = 1;
   return (
