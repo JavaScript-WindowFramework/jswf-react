@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "start-storybook",
-    "build": "webpack --mode production",
+    "build": "build-storybook",
     "capture": "npm-run-all -p -r sc:*",
     "sc:start-storybook": "start-storybook -p 9001 --ci",
     "sc:screenshot": "storycap http://localhost:9001",
