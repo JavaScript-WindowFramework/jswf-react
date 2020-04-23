@@ -6,6 +6,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: main:Cache node modules(yarn.lock)
+        id: cache
+        uses: actions/cache@v1
+        with:
+          path: main/node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('main/yarn.lock') }}
+          restore-keys: ${{ runner.OS }}-build-${{ env.cache-name }}-
+      - name: main:package-install
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: yarn --cwd main
+      - name: main:build
+        run: yarn --cwd main build
       - name: test:Cache node modules(yarn.lock)
         id: test-cache
         uses: actions/cache@v1
@@ -14,7 +26,7 @@ jobs:
           key: ${{ runner.OS }}-build-test-${{ hashFiles('test/yarn.lock') }}
           restore-keys: ${{ runner.OS }}-build-${{ env.cache-name }}-
       - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.test-cache.outputs.cache-hit != 'true'
         run: yarn --cwd test
       - name: Screnn capture
         run: yarn --cwd test capture
