@@ -1,4 +1,4 @@
-name: VisualTest(pull request)
+name: Create StoryBook Page
 on:
   push:
     branches:
@@ -32,13 +32,11 @@ jobs:
         run: yarn --cwd test
       - name: build storybook
         run: yarn --cwd build
-      - name: Create pege
+      - name: Create gh-pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
         run: |
-          num=`echo ${{ github.ref }} | awk -F'/' '{print $3}'`
           git clone https://github.com/${GITHUB_REPOSITORY} -b gh-pages __gh-pages__ || mkdir __gh-pages__
-          NODE_PATH=test/node_modules node .github/scripts/comment.js
           mkdir __gh-pages__ || true
           rm -rf __gh-pages__/storybook-static || true
           mv storybook-static __gh-pages__
