@@ -426,6 +426,7 @@ export class JSWindow extends Component<WindowProps, State> {
           ))}
         <Client
           id="CLIENT"
+          style={this.props.clientStyle}
           ref={this.clientRef}
           TitleSize={this.state.titleSize}
           Width={clientWidth}
