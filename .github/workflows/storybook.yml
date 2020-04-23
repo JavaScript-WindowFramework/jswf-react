@@ -31,7 +31,7 @@ jobs:
         if: steps.test-cache.outputs.cache-hit != 'true'
         run: yarn --cwd test
       - name: build storybook
-        run: yarn --cwd build
+        run: yarn --cwd test build
       - name: Create gh-pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
@@ -39,7 +39,7 @@ jobs:
           git clone https://github.com/${GITHUB_REPOSITORY} -b gh-pages __gh-pages__ || mkdir __gh-pages__
           mkdir __gh-pages__ || true
           rm -rf __gh-pages__/storybook-static || true
-          mv storybook-static __gh-pages__
+          mv test/storybook-static __gh-pages__
       - name: Save gh-pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
