@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@types/styled-components": "~5.1.0",
-    "ts-loader": "^7.0.1",
+    "ts-loader": "^7.0.2",
     "typescript": "~3.8.3",
     "url-loader": "^4.1.0",
     "webpack": "^4.43.0",
