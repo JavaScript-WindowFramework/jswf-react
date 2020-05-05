@@ -25,6 +25,8 @@
   "devDependencies": {
     "@babel/core": "^7.9.6",
     "@jswf/react": "../main",
+    "@storybook/addon-actions": "^5.3.18",
+    "@storybook/addon-console": "^1.2.1",
     "@storybook/addon-storysource": "^5.3.18",
     "@storybook/react": "^5.3.18",
     "@storybook/source-loader": "^5.3.18",

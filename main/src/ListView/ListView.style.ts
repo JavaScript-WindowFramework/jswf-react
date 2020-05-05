@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 interface StyleProps {}
-export const Root = styled.div.attrs<StyleProps>(p => ({
+export const Root = styled.div.attrs<StyleProps>(() => ({
   style: {}
 }))<StyleProps>`
   position: relative;

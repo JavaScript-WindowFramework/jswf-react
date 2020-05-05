@@ -4,7 +4,7 @@ interface StyleProps {}
 
 const lineSize = 1.6;
 
-export const Root = styled.div.attrs<StyleProps>(p => ({
+export const Root = styled.div.attrs<StyleProps>(() => ({
   style: {}
 }))<StyleProps>`
   position: relative;

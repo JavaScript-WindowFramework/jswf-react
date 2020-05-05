@@ -49,7 +49,7 @@ jobs:
         if: contains(github.ref, 'refs/tags')
         uses: SoraKumo001/actions-npm-version-update@release
         with:
-          path: test/package.json
+          path: main/package.json
       - name: publish
         if: contains(github.ref, 'refs/tags')
         env:
