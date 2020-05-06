@@ -1,34 +1,40 @@
-import React, { Component, ReactNode, createRef, RefObject } from "react";
+import React, { Component, ReactNode } from "react";
 import imgAlone from "../../../images/talone.svg";
 import imgClose from "../../../images/tclose.svg";
 import imgOpen from "../../../images/topen.svg";
 import { Root } from "./TreeItem.style";
-import { TreeView, TreeItemData, ItemDataDefault, UniqueKey } from "..";
+import { TreeView, ItemDataDefault, UniqueKey } from "..";
 
 export enum TreeItemStyle {
-  CHECKBOX = 1
+  CHECKBOX = 1,
 }
 
-export interface TreeItemProps {
+export interface Props {
+  key?: string | number;
   itemStyle?: number;
   children?: ReactNode;
   label?: ReactNode;
   expand?: boolean;
   value?: unknown;
   treeView?: TreeView;
-  parent?: TreeItem | TreeView;
-  select?: false;
-  checked?: false;
+  parent?: TreeItem;
+  select?: boolean;
+  checked?: boolean;
   uniqueKey?: number;
   onExpand?: (expand: boolean, create: boolean) => void;
   onItemClick?: () => void;
   onDoubleClick?: () => void;
-  item?: TreeItemData;
+  onRef?: (item: TreeItem) => void;
 }
 export interface State {
-  item: TreeItemData;
   childAnimation?: boolean;
   expandState?: boolean;
+  expand?: boolean;
+  select?: boolean;
+  itemStyle?: number;
+  checked?: boolean;
+  label?: ReactNode;
+  children?: ReactNode;
 }
 
 /**
@@ -36,84 +42,51 @@ export interface State {
  *
  * @export
  * @class TreeItem
- * @extends {Component<TreeItemProps, State>}
+ * @extends {Component<Props, State>}
  */
-export class TreeItem extends Component<TreeItemProps, State> {
+export class TreeItem extends Component<Props, State> {
   static referenceItem = new Map<number, TreeItem>();
   static defaultProps = {
-    itemStyle: 0,
     label: "",
     expand: true,
     select: false,
     checked: false,
-    items: []
   };
-  private updateCache: { [key: string]: unknown } = {};
-  private keyCache: number[] = [];
-  private item: TreeItemData;
-  private mount: boolean = false;
-  public constructor(props: TreeItemProps) {
+  private value: unknown;
+  private keys: { [key: string]: unknown } = {};
+  private children = new Set<TreeItem>()
+  public constructor(props: Props) {
     super(props);
-    this.item = this.props.item!;
-    //子アイテムの抽出
-    this.state = { item: this.item };
+    this.state = {};
+    props.onRef?.(this);
+    props.parent?.addChild(this)
   }
   componentDidMount() {
-    this.mount = true;
-    TreeItem.referenceItem.set(this.item.uniqueKey, this);
-
     //開閉イベントの初回実行
     setTimeout(() => {
       this.props.treeView &&
         this.props.treeView.props.onExpand &&
-        this.props.treeView.props.onExpand(this, this.item.expand, true);
-      this.props.onExpand && this.props.onExpand(this.item.expand, true);
+        this.props.treeView.props.onExpand(this, this.isExpand(), true);
+      this.props.onExpand && this.props.onExpand(this.isExpand(), true);
     });
   }
-  componentWillUnmount() {
-    TreeItem.referenceItem.delete(this.item.uniqueKey);
-    this.mount = false;
+  componentWillUnmount(){
+    this.props.parent?.removeChild(this);
   }
-  shouldComponentUpdate(_props: TreeItemProps, state: State) {
-    const item = this.item;
-    const cache = this.updateCache;
-    if (
-      item.itemStyle === cache["itemStyle"] &&
-      item.label === cache["label"] &&
-      item.expand === cache["expand"] &&
-      item.select === cache["select"] &&
-      item.checked === cache["checked"] &&
-      state.childAnimation === cache["childAnimation"] &&
-      state.expandState === cache["expandState"]
-    ) {
-      const keys = this.item.children.map(item => item.uniqueKey);
-      if (this.item.children.length === this.keyCache.length) {
-        if (
-          keys.reduce((flag, key, index) => {
-            return flag && key === this.keyCache[index];
-          }, true)
-        )
-          return false;
-      }
-      this.keyCache = keys;
-    }
-    cache["itemStyle"] = item.itemStyle;
-    cache["label"] = item.label;
-    cache["expand"] = item.expand;
-    cache["select"] = item.select;
-    cache["checked"] = item.checked;
-    cache["childAnimation"] = state.childAnimation;
-    cache["expandState"] = state.expandState;
-    return true;
+  protected addChild(item:TreeItem){
+    this.children.add(item);
+  }
+  protected removeChild(item:TreeItem){
+    this.children.delete(item);
   }
   public render() {
     return (
       <Root>
         <div
           id="item"
-          className={this.state.item.select ? "select" : ""}
+          className={this.isSelect() ? "select" : ""}
           onClick={() => {
-            this.state.item.onItemClick && this.state.item.onItemClick();
+            this.props.onItemClick && this.props.onItemClick();
             if (this.props.treeView) {
               this.props.treeView.selectItem(this);
               this.props.treeView.props.onItemClick &&
@@ -121,61 +94,55 @@ export class TreeItem extends Component<TreeItemProps, State> {
             }
           }}
           onDoubleClick={() => {
-            this.state.item.onDoubleClick && this.state.item.onDoubleClick();
+            this.props.onDoubleClick && this.props.onDoubleClick();
             this.props.treeView &&
               this.props.treeView.props.onItemDoubleClick &&
               this.props.treeView.props.onItemDoubleClick(this);
           }}
         >
           <img
-            onClick={e => {
-              this.setExpand(!this.item.expand);
+            onClick={(e) => {
+              this.setExpand(!this.isExpand());
               e.stopPropagation();
             }}
             id="icon"
             src={
-              this.state.item.children!.length === 0
+              React.Children.count(this.getChildren()) === 0
                 ? imgAlone
-                : this.item.expand
+                : this.isExpand()
                 ? imgOpen
                 : imgClose
             }
           />
-          {(this.state.item.itemStyle! & TreeItemStyle.CHECKBOX) !== 0 && (
+          {(this.getItemStyle() & TreeItemStyle.CHECKBOX) !== 0 && (
             <input
               id="checkbox"
               type="checkbox"
-              checked={this.state.item.checked}
-              onClick={e => {
+              checked={this.isChecked()}
+              onClick={(e) => {
                 e.stopPropagation();
               }}
               value=""
-              onChange={() => this.setChecked(!this.item.checked)}
+              onChange={() => this.setChecked(!this.isChecked())}
             />
           )}
-          <div id="label">{this.state.item.label}</div>
+          <div id="label">{this.getLabel()}</div>
         </div>
         <div
           style={{
             overflow: this.state.childAnimation ? "hidden" : "visible",
             display:
-              this.state.item.expand || this.state.childAnimation
-                ? "block"
-                : "none"
+              this.isExpand() || this.state.childAnimation ? "block" : "none",
           }}
           id="child"
           className={
-            this.state.expandState
-              ? this.state.item.expand
-                ? "open"
-                : "close"
-              : ""
+            this.state.expandState ? (this.isExpand() ? "open" : "close") : ""
           }
-          onAnimationStart={e => {
+          onAnimationStart={(e) => {
             this.setState({ childAnimation: true });
             e.stopPropagation();
           }}
-          onAnimationEnd={e => {
+          onAnimationEnd={(e) => {
             this.setState({ childAnimation: false });
             e.stopPropagation();
           }}
@@ -183,37 +150,58 @@ export class TreeItem extends Component<TreeItemProps, State> {
           <div>
             <div id="line"></div>
             <div id="children">
-              {this.state.item.children!.map(item => (
-                <TreeItem
-                  key={item.uniqueKey}
-                  treeView={this.props.treeView}
-                  parent={this}
-                  item={item}
-                />
-              ))}
+              {React.Children.map(
+                this.getChildren(),
+                (item) =>
+                  typeof item === "object" &&
+                  item &&
+                  "type" in item &&
+                  item.type === TreeItem && (
+                    <TreeItem
+                      {...item.props}
+                      key={item.key}
+                      ref={() => {
+                        this.props.onRef?.(this);
+                      }}
+                      treeView={this.props.treeView}
+                      parent={this}
+                    />
+                  )
+              )}
             </div>
           </div>
         </div>
       </Root>
     );
   }
-  public updateState() {
-    if (this.mount) {
-      this.setState({ item: this.item });
-    } else {
-      const item = TreeItem.referenceItem.get(this.item.uniqueKey);
-      if (item) item.setState({ item: this.item });
+  public onSelect(select: boolean) {
+    this.setState({ select });
+    let parent: TreeItem | TreeView | undefined = this;
+    while (
+      (parent = "parent" in parent.props ? parent.props.parent : undefined)
+    ) {
+      if (parent && "setExpand" in parent) parent.setExpand(true);
     }
   }
-  public onSelect(select: boolean) {
-    this.item.select = select;
-    let parent: TreeItemData | null = this.item;
-    while ((parent = parent.parent)) {
-      const item = TreeItem.referenceItem.get(parent.uniqueKey);
-      if (item) item.setExpand(true);
-      else parent.expand = true;
-    }
-    this.updateState();
+  public isSelect() {
+    return this.state.select !== undefined
+      ? this.state.select
+      : this.props.select!;
+  }
+  isExpand() {
+    return this.state.expand !== undefined
+      ? this.state.expand
+      : this.props.expand!;
+  }
+  isChecked() {
+    return this.state.checked !== undefined
+      ? this.state.checked
+      : this.props.checked!;
+  }
+  public getItemStyle() {
+    return this.state.itemStyle !== undefined
+      ? this.state.itemStyle
+      : this.props.itemStyle || this.props.treeView?.props.itemStyle || 0;
   }
   /**
    *ツリーの開閉を行う
@@ -222,12 +210,11 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   setExpand(expand: boolean) {
-    if (this.item.expand !== expand) {
-      this.item.expand = expand;
+    if (this.isExpand() !== expand) {
       this.setState({
-        item: this.item,
         childAnimation: true,
-        expandState: true
+        expandState: true,
+        expand,
       });
       this.props.treeView &&
         this.props.treeView.props.onExpand &&
@@ -250,7 +237,9 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   public getLabel(): React.ReactNode {
-    return this.item.label;
+    return this.state.label !== undefined
+      ? this.state.label
+      : this.props.label!;
   }
   /**
    *ラベルを設定する
@@ -259,8 +248,7 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   public setLabel(label: ReactNode): void {
-    this.item.label = label;
-    this.updateState();
+    this.setState({ label });
   }
   /**
    *値を取得する
@@ -269,7 +257,7 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   getValue(): unknown {
-    return this.item.value;
+    return this.value;
   }
   /**
    *値を設定する
@@ -278,8 +266,7 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   setValue(value: unknown): void {
-    this.item.value = value;
-    this.updateState();
+    this.value = value;
   }
   /**
    *valueに該当するアイテムを一つ見つける
@@ -289,11 +276,12 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   public findItem(value: unknown): TreeItem | null {
-    const find = (item: TreeItemData): TreeItemData | null => {
+    const find = (item: TreeItem): TreeItem | null => {
       if (item.value === value) return item;
-      if (item.children) {
-        for (const child of item.children) {
-          const target = find(child);
+      const children = this.getChildren();
+      if (children) {
+        for (const child of React.Children.toArray(children)) {
+          const target = find(child as TreeItem);
           if (target) {
             return target;
           }
@@ -301,10 +289,7 @@ export class TreeItem extends Component<TreeItemProps, State> {
       }
       return null;
     };
-    const itemData = find(this.item);
-    if (!itemData) return null;
-    const item = TreeItem.referenceItem.get(itemData.uniqueKey);
-    return item || new TreeItem({ item: itemData });
+    return find(this);
   }
   /**
    *valueに該当するアイテムを複数見つける
@@ -315,49 +300,60 @@ export class TreeItem extends Component<TreeItemProps, State> {
    */
   public findItems(value: unknown): TreeItem[] {
     const items: TreeItem[] = [];
-    const callChild = (item: TreeItemData) => {
-      if (item.value === value) items.push(new TreeItem({ item }));
-      if (item.children) {
-        for (const child of item.children) {
-          callChild(child);
+    const callChild = (item: TreeItem) => {
+      if (item.value === value) items.push(item);
+      const children = this.getChildren();
+      if (children) {
+        for (const child of React.Children.toArray(children)) {
+          callChild(child as TreeItem);
         }
       }
     };
-    callChild(this.item);
+    callChild(this);
     return items;
   }
   /**
    *アイテムの追加
    *
-   * @param {TreeItemProps} props
+   * @param {Props} props
    * @memberof TreeItem
    */
-  public addItem(props?: TreeItemProps): TreeItem {
-    const item: TreeItemData = props
-      ? {
-          itemStyle: props.itemStyle || this.item.itemStyle || 0,
-          label: props.label || "",
-          expand: props.expand === undefined ? true : props.expand,
-          value: props.value,
-          select: props.select || false,
-          checked: props.checked || false,
-          uniqueKey: UniqueKey.value++,
-          keys: {},
-          parent: this.item,
-          children: [],
-          onExpand: props.onExpand,
-          onItemClick: props.onItemClick,
-          onDoubleClick: props.onDoubleClick
-        }
-      : {
-          ...ItemDataDefault,
-          uniqueKey: UniqueKey.value++,
-          itemStyle: this.item.itemStyle,
-          parent: this.item
-        };
-    this.item.children!.push(item);
-    this.updateState();
-    return new TreeItem({ item });
+  public addItem(props?: Props): Promise<TreeItem> {
+    return new Promise((resolve) => {
+      const item: Props = props
+        ? {
+            itemStyle: props.itemStyle || this.getItemStyle(),
+            label: props.label || "",
+            expand: props.expand === undefined ? true : props.expand,
+            value: props.value,
+            checked: props.checked || false,
+            uniqueKey: UniqueKey.value++,
+            treeView: this.props.treeView,
+            parent: this,
+            onExpand: props.onExpand,
+            onItemClick: props.onItemClick,
+            onDoubleClick: props.onDoubleClick,
+          }
+        : {
+            ...ItemDataDefault,
+            treeView: this.props.treeView,
+            uniqueKey: UniqueKey.value++,
+            itemStyle: this.getItemStyle(),
+            parent: this,
+          };
+      this.setState({
+        children: [
+          ...React.Children.toArray(this.getChildren()),
+          <TreeItem
+            key={item.uniqueKey}
+            {...item}
+            onRef={(item) => {
+              resolve(item);
+            }}
+          />,
+        ],
+      });
+    });
   }
   /**
    *指定したアイテムを削除
@@ -368,7 +364,7 @@ export class TreeItem extends Component<TreeItemProps, State> {
    */
   public delItem(item: TreeItem): boolean {
     item.remove();
-    return false;
+    return true;
   }
   /**
    *自分自身を削除
@@ -376,16 +372,15 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   public remove(): void {
-    if (this.item.parent) {
-      const children = this.item.parent.children;
-      for (let i = 0, l = children.length; i < l; i++) {
-        if (this.item.uniqueKey === children[i].uniqueKey) {
-          children.splice(i, 1);
-          const item = TreeItem.referenceItem.get(this.item.parent.uniqueKey);
-          item!.updateState();
-          break;
-        }
-      }
+    const parent = this.props.parent as TreeItem;
+    if (parent) {
+      const children = React.Children.toArray(
+        parent.getChildren()
+      ) as React.ReactElement<Props>[];
+      const newChildren = children.filter(
+        (item) => this.props.uniqueKey !== item.props.uniqueKey
+      );
+      parent.setState({ children: newChildren });
     }
   }
   /**
@@ -394,17 +389,19 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   public clear(): void {
-    this.item.children = [];
-    this.updateState();
+    // this.item.children = [];
   }
   /**
    *子アイテムを取得
    *
-   * @returns {TreeItemProps[]}
+   * @returns {Props[]}
    * @memberof TreeItem
    */
-  public getChildren(): TreeItemData[] {
-    return this.item.children!;
+
+  public getChildren(): ReactNode {
+    return this.state.children !== undefined
+      ? this.state.children
+      : this.props.children;
   }
   /**
    *チェックボックスの設定
@@ -413,8 +410,7 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   public setChecked(checked: boolean): void {
-    this.item.checked = checked;
-    this.updateState();
+    this.setState({ checked });
   }
   /**
    *チェックされているアイテムを返す
@@ -424,15 +420,13 @@ export class TreeItem extends Component<TreeItemProps, State> {
    */
   public getCheckItems(): TreeItem[] {
     const checks: TreeItem[] = [];
-    const callChild = (item: TreeItemData) => {
-      if (item.checked) checks.push(new TreeItem({ item }));
-      if (item.children) {
-        for (const child of item.children) {
-          callChild(child);
-        }
+    const callChild = (item: TreeItem) => {
+      if (item.isChecked()) checks.push(item);
+      for (const child of Array.from(item.children)) {
+        callChild(child);
       }
     };
-    callChild(this.item);
+    callChild(this);
     return checks;
   }
   /**
@@ -443,7 +437,7 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   public setKey(name: string, value: unknown): void {
-    this.item.keys[name] = value;
+    this.keys[name] = value;
   }
   /**
    *アイテムのキーを取得する
@@ -453,6 +447,6 @@ export class TreeItem extends Component<TreeItemProps, State> {
    * @memberof TreeItem
    */
   public getKey(name: string): unknown {
-    return this.item.keys[name];
+    return this.keys[name];
   }
 }

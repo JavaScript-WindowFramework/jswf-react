@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts":{
     "start":"yarn --cwd test start",
-    "build":"yarn --cwd main && yarn --cwd main build && yarn --cwd main link && yarn --cwd test link @jswf/react && yarn --cwd test"
+    "build":"yarn --cwd main && yarn --cwd main build && yarn --cwd test",
+    "watch":"yarn --cwd main watch"
   },
   "repository": "https://github.com/JavaScript-WindowFramework/jswf-react",
   "author": "SoraKumo <info@croud.jp>",

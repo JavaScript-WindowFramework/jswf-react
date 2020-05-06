@@ -1,2 +1,3 @@
-import { configure } from '@storybook/react';
-configure(require.context('../src', true, /\.tsx?$/), module);
+import { configure } from "@storybook/react";
+import "@storybook/addon-console";
+configure(require.context("../src", true, /\.tsx?$/), module);

@@ -379,7 +379,7 @@ export class JSWindow extends Component<WindowProps, State> {
                   onTouchStart={(e) => {
                     e.stopPropagation();
                   }}
-                  onClick={(e) => {
+                  onClick={() => {
                     this._setWindowState(WindowState.MAX);
                   }}
                 />
@@ -392,7 +392,7 @@ export class JSWindow extends Component<WindowProps, State> {
                   onTouchStart={(e) => {
                     e.stopPropagation();
                   }}
-                  onClick={(e) => {
+                  onClick={() => {
                     this._setWindowState(WindowState.NORMAL);
                   }}
                 />
@@ -406,7 +406,7 @@ export class JSWindow extends Component<WindowProps, State> {
                   onTouchStart={(e) => {
                     e.stopPropagation();
                   }}
-                  onClick={(e) => {
+                  onClick={() => {
                     this._setWindowState(WindowState.HIDE);
                   }}
                 />

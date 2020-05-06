@@ -19,7 +19,22 @@ export interface ListViewDragData {
   type: string;
   items: ItemRow[];
 }
-
+export interface TreeItemData {
+  key?: number | string | null;
+  itemStyle: number;
+  label: ReactNode;
+  expand: boolean;
+  value: unknown;
+  select: boolean;
+  checked: boolean;
+  uniqueKey: number;
+  keys: { [key: string]: unknown };
+  parent: TreeItemData | null;
+  children: TreeItemData[];
+  onExpand?: (expand: boolean, first: boolean) => void;
+  onItemClick?: () => void;
+  onDoubleClick?: () => void;
+}
 interface Props {
   draggable?: boolean;
   dragString?: string;
@@ -103,7 +118,7 @@ export class ListView extends Component<Props, State> {
       <Root
         ref={this.rootRef}
         onDrop={this.props.onDrop}
-        onScroll={e => {
+        onScroll={() => {
           this.setState({ xScroll: this.rootRef.current!.scrollLeft });
         }}
       >
@@ -203,7 +218,7 @@ export class ListView extends Component<Props, State> {
     }
   }
   protected onItemDoubleClick(
-    e: React.MouseEvent,
+    _: React.MouseEvent,
     row: number,
     col: number
   ): void {

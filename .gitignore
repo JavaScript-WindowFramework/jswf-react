@@ -6,3 +6,4 @@ dist
 storybook-static
 __screenshots__
 __reg__
+*.log

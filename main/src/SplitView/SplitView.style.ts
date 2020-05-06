@@ -7,7 +7,7 @@ interface StyleProps {
   children?: ReactNode | null;
 }
 
-export const Root = styled.div.attrs<StyleProps>(p => ({
+export const Root = styled.div.attrs<StyleProps>(() => ({
   style: {}
 }))<StyleProps>`
   & {
