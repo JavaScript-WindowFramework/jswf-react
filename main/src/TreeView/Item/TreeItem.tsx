@@ -54,12 +54,12 @@ export class TreeItem extends Component<Props, State> {
   };
   private value: unknown;
   private keys: { [key: string]: unknown } = {};
-  private children = new Set<TreeItem>()
+  private children = new Set<TreeItem>();
   public constructor(props: Props) {
     super(props);
     this.state = {};
     props.onRef?.(this);
-    props.parent?.addChild(this)
+    props.parent?.addChild(this);
   }
   componentDidMount() {
     //開閉イベントの初回実行
@@ -70,13 +70,13 @@ export class TreeItem extends Component<Props, State> {
       this.props.onExpand && this.props.onExpand(this.isExpand(), true);
     });
   }
-  componentWillUnmount(){
+  componentWillUnmount() {
     this.props.parent?.removeChild(this);
   }
-  protected addChild(item:TreeItem){
+  protected addChild(item: TreeItem) {
     this.children.add(item);
   }
-  protected removeChild(item:TreeItem){
+  protected removeChild(item: TreeItem) {
     this.children.delete(item);
   }
   public render() {
@@ -257,7 +257,7 @@ export class TreeItem extends Component<Props, State> {
    * @memberof TreeItem
    */
   getValue(): unknown {
-    return this.value;
+    return this.value !== undefined ? this.value : this.props.value;
   }
   /**
    *値を設定する
