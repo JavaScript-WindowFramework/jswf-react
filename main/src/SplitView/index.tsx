@@ -35,7 +35,7 @@ export class SplitView extends Component<SplitProps, State> {
     pos: 200,
     activeWait: 3000,
     activeSize: 300,
-    style: {}
+    style: {},
   };
   private type: SplitType;
   private activeStop: boolean = false;
@@ -75,8 +75,8 @@ export class SplitView extends Component<SplitProps, State> {
           type={this.props.type!}
           size={this.props.bold!}
           pos={this.state.pos}
-          procOpen={open => this.onOpen(open)}
-          procMove={pos => this.onMove(pos)}
+          procOpen={(open) => this.onOpen(open)}
+          procMove={(pos) => this.onMove(pos)}
         ></Bar>
       </Root>
     );
@@ -137,7 +137,8 @@ export class SplitView extends Component<SplitProps, State> {
   protected onLayout() {
     let activeMode = false;
     let pos = this.state.pos;
-    const rootRef = this.rootRef!.current!;
+    const rootRef = this.rootRef.current;
+    if (!rootRef) return;
     const children = [this.childRef[0].current!, this.childRef[1].current!];
     const barSize = this.props.bold!;
     const barType = this.props.type;
