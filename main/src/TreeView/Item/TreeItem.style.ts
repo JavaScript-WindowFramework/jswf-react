@@ -1,12 +1,8 @@
 import styled from "styled-components";
 
-interface StyleProps {}
-
 const lineSize = 1.6;
 
-export const Root = styled.div.attrs<StyleProps>(() => ({
-  style: {}
-}))<StyleProps>`
+export const Root = styled.div`
   position: relative;
 
   > #item {
