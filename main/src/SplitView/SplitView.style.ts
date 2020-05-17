@@ -1,15 +1,7 @@
-import { ReactNode } from "react";
 import styled from "styled-components";
 
-interface StyleProps {
-  type?: "ns" | "sn" | "we" | "ew";
-  pos?: number;
-  children?: ReactNode | null;
-}
 
-export const Root = styled.div.attrs<StyleProps>(() => ({
-  style: {}
-}))<StyleProps>`
+export const Root = styled.div`
   & {
     overflow: hidden;
     position: absolute;
