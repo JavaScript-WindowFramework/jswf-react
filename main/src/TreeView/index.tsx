@@ -6,6 +6,7 @@ import { Manager } from "@jswf/manager";
 interface Props {
   children?: ReactNode;
   itemStyle?: number;
+  userSelect?: boolean;
   onExpand?: (item: TreeItem, expand: boolean, first: boolean) => void;
   onItemClick?: (item: TreeItem) => void;
   onItemDoubleClick?: (item: TreeItem) => void;

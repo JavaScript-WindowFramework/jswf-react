@@ -175,7 +175,8 @@ export class TreeItem extends Component<Props, State> {
     );
   }
   public onSelect(select: boolean) {
-    this.setState({ select });
+   if( this.props.treeView?.props.userSelect !== false)
+      this.setState({ select });
     let parent: TreeItem | TreeView | undefined = this;
     while (
       (parent = "parent" in parent.props ? parent.props.parent : undefined)
