@@ -30,7 +30,7 @@ interface State {
  */
 export class SplitView extends Component<SplitProps, State> {
   static defaultProps: SplitProps = {
-    type: "ew",
+    type: "we",
     bold: 16,
     pos: 200,
     activeWait: 3000,
@@ -77,7 +77,7 @@ export class SplitView extends Component<SplitProps, State> {
           pos={this.state.pos}
           procOpen={(open) => this.onOpen(open)}
           procMove={(pos) => this.onMove(pos)}
-        ></Bar>
+        />
       </Root>
     );
   }

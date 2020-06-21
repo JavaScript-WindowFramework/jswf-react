@@ -44,6 +44,7 @@ export function TreeViewBasic() {
         <TreeView
           itemStyle={TreeItemStyle.CHECKBOX}
           ref={treeViewRef}
+          draggable={true}
           onItemClick={item => setMessage(item.getLabel())}
         >
           <TreeItem label="Root">

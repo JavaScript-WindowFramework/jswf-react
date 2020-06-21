@@ -2,14 +2,21 @@ import React, { Component, createRef, ReactNode } from "react";
 import { TreeItem } from "./Item/TreeItem";
 import { Root } from "./TreeView.style";
 import { Manager } from "@jswf/manager";
+import imgFile from "../../images/file.png";
 
 interface Props {
   children?: ReactNode;
   itemStyle?: number;
   userSelect?: boolean;
+  draggable?: boolean;
   onExpand?: (item: TreeItem, expand: boolean, first: boolean) => void;
   onItemClick?: (item: TreeItem) => void;
   onItemDoubleClick?: (item: TreeItem) => void;
+  onItemDragStart?: (e: React.DragEvent, item: TreeItem) => void;
+  onItemDragEnter?: (e: React.DragEvent, item: TreeItem) => void;
+  onItemDragLeave?: (e: React.DragEvent, item: TreeItem) => void;
+  onItemDragOver?: (e: React.DragEvent, item: TreeItem) => void;
+  onItemDrop?: (e: React.DragEvent, item: TreeItem) => void;
 }
 export const ItemDataDefault = {
   itemStyle: 0,
@@ -33,7 +40,7 @@ export var UniqueKey = { value: 1 };
 export class TreeView extends Component<Props> {
   private rootItemRef = createRef<TreeItem>();
   private select: TreeItem | null = null;
-
+  private fileImage?: HTMLImageElement;
   public constructor(props: Props) {
     super(props);
   }
@@ -49,6 +56,12 @@ export class TreeView extends Component<Props> {
             item.type === TreeItem && (
               <TreeItem
                 ref={this.rootItemRef}
+                draggable={this.props.draggable}
+                onItemDragStart={this.onItemDragStart?.bind(this)}
+                onItemDragEnter={this.onItemDragEnter?.bind(this)}
+                onItemDragLeave={this.onItemDragLeave?.bind(this)}
+                onItemDragOver={this.onItemDragOver?.bind(this)}
+                onItemDrop={this.onItemDrop?.bind(this)}
                 {...item.props}
                 treeView={this}
               />
@@ -59,6 +72,9 @@ export class TreeView extends Component<Props> {
   }
   public componentDidMount() {
     Manager.init();
+    this.fileImage = document.createElement("img");
+    this.fileImage.src = imgFile;
+    this.fileImage.style.height = "64px";
   }
 
   /**
@@ -132,4 +148,38 @@ export class TreeView extends Component<Props> {
   // public getRootUniqueKey() {
   //   return this.item.uniqueKey;
   // }
+  protected onItemDragStart(e: React.DragEvent, item: TreeItem) {
+    //コールバックイベントを呼ぶ
+    this.props.onItemDragStart?.(e, item);
+    //イベントがキャンセルされていなければ転送データを修正
+    if (!e.defaultPrevented) {
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setDragImage(this.fileImage!, 10, 10);
+      e.dataTransfer.setData(
+        "text/plain",
+        JSON.stringify({
+          type: "TreeItem",
+          label: item.getLabel(),
+          value: item.getValue(),
+        })
+      );
+    }
+    //e.preventDefault();
+  }
+  protected onItemDragEnter(e: React.DragEvent, item: TreeItem) {
+    this.props.onItemDragEnter?.(e, item);
+    e.preventDefault();
+  }
+  protected onItemDragLeave(e: React.DragEvent, item: TreeItem) {
+    this.props.onItemDragLeave?.(e, item);
+    e.preventDefault();
+  }
+  protected onItemDragOver(e: React.DragEvent, item: TreeItem) {
+    this.props.onItemDragOver?.(e, item);
+    e.preventDefault();
+  }
+  protected onItemDrop(e: React.DragEvent, item: TreeItem) {
+    this.props.onItemDrop?.(e, item);
+    e.preventDefault();
+  }
 }
