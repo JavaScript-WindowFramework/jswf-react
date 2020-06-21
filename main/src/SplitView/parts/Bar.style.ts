@@ -11,7 +11,7 @@ export interface BarProps extends React.HTMLAttributes<HTMLDivElement> {
   procOpen: (open: boolean) => void;
   procMove: (pos: number) => void;
 }
-export const BarStyle = styled.div.attrs<BarProps>(p => {
+export const BarStyle = styled.div.attrs<BarProps>((p) => {
   let style = {};
   switch (p.type) {
     case "we":
@@ -22,7 +22,7 @@ export const BarStyle = styled.div.attrs<BarProps>(p => {
         right: null,
         width: p.size + "px",
         cursor: "ew-resize",
-        paddingLeft: "2px"
+        paddingLeft: "2px",
       };
       break;
     case "ew":
@@ -33,7 +33,7 @@ export const BarStyle = styled.div.attrs<BarProps>(p => {
         left: null,
         width: p.size + "px",
         cursor: "ew-resize",
-        paddingLeft: "2px"
+        paddingLeft: "2px",
       };
       break;
     case "ns":
@@ -44,7 +44,7 @@ export const BarStyle = styled.div.attrs<BarProps>(p => {
         bottom: null,
         height: p.size + "px",
         paddingTop: "px",
-        cursor: "ns-resize"
+        cursor: "ns-resize",
       };
       break;
     case "sn":
@@ -55,7 +55,7 @@ export const BarStyle = styled.div.attrs<BarProps>(p => {
         bottom: p.pos + "px",
         height: p.size + "px",
         paddingTop: "px",
-        cursor: "ns-resize"
+        cursor: "ns-resize",
       };
       break;
   }
@@ -68,7 +68,7 @@ export const BarStyle = styled.div.attrs<BarProps>(p => {
   border: outset 2px #b8b7b7;
   user-select: none;
   vertical-align: middle;
-  &:active{
+  &:active {
     background-color: #cccccc;
   }
 `;

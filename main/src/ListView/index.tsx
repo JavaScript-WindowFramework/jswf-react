@@ -4,7 +4,7 @@ import React, {
   ReactNode,
   ReactElement,
   createRef,
-  ReactComponentElement
+  ReactComponentElement,
 } from "react";
 import { Root } from "./ListView.style";
 import { HeaderArea } from "./Header/Headers";
@@ -68,7 +68,7 @@ export class ListView extends Component<Props, State> {
   static defaultProps = {
     draggable: false,
     dragString: ListViewDragString,
-    children: []
+    children: [],
   };
   private resizeObserver?: ResizeObserver;
   private rootRef = createRef<HTMLDivElement>();
@@ -85,7 +85,7 @@ export class ListView extends Component<Props, State> {
       xScroll: 0,
       headerSizes: [],
       sortIndex: -1,
-      selectItems: new Set()
+      selectItems: new Set(),
     };
     this.createItem(props);
   }
@@ -126,7 +126,7 @@ export class ListView extends Component<Props, State> {
           clientWidth={this.state.clientWidth}
           ref={this.headersRef}
           onClick={this.onHeaderClick.bind(this)}
-          onSize={headerSizes => this.setState({ headerSizes })}
+          onSize={(headerSizes) => this.setState({ headerSizes })}
         >
           {this.headers}
         </HeaderArea>
@@ -311,13 +311,15 @@ export class ListView extends Component<Props, State> {
    * @param {ReactNode[]} item 追加するアイテム
    * @memberof ListView
    */
-  public addItem(item: ItemRow | ReactNode[]): void {
+  public addItem(item: ItemRow | (ReactNode|ItemRow)[]): void {
     this.manual = true;
-    if ("items" in item) this.itemsRef.current!.addItem(item);
-    else
-      this.itemsRef.current!.addItem({
-        items: item.map(item => ({ label: item }))
-      });
+    if ("items" in item) {
+      this.itemsRef.current!.addItem(item);
+    } else {
+       this.itemsRef.current!.addItem({
+         items: item.map((item) => (item && typeof item  === "object" && "label" in item)?item:({ label: item })),
+       });
+    }
   }
   /**
    *アイテムの削除
@@ -333,12 +335,12 @@ export class ListView extends Component<Props, State> {
 
   private static getSetValues<T>(inst: Set<T>): T[] {
     if (inst.values) {
-      return Array.from(inst.values())
+      return Array.from(inst.values());
     }
-    const values: T[] = []
+    const values: T[] = [];
     inst.forEach((v) => {
-      values.push(v)
-    })
-    return values
+      values.push(v);
+    });
+    return values;
   }
 }

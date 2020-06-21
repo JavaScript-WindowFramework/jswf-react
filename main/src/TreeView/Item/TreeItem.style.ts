@@ -21,7 +21,10 @@ export const Root = styled.div`
         background-color: rgba(100, 150, 250, 0.5);
       }
     }
-
+    &.over #label{
+      box-sizing:border-box;
+      border-bottom: 1px solid;
+    }
     > #icon {
       cursor: pointer;
       box-sizing: border-box;

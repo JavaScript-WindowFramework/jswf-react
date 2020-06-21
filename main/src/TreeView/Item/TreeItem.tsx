@@ -21,10 +21,16 @@ export interface Props {
   select?: boolean;
   checked?: boolean;
   uniqueKey?: number;
+  draggable?: boolean;
   onExpand?: (expand: boolean, create: boolean) => void;
   onItemClick?: () => void;
   onDoubleClick?: () => void;
   onRef?: (item: TreeItem) => void;
+  onItemDragStart?: (e: React.DragEvent, item: TreeItem) => void;
+  onItemDragEnter?: (e: React.DragEvent, item: TreeItem) => void;
+  onItemDragLeave?: (e: React.DragEvent, item: TreeItem) => void;
+  onItemDragOver?: (e: React.DragEvent, item: TreeItem) => void;
+  onItemDrop?: (e: React.DragEvent, item: TreeItem) => void;
 }
 export interface State {
   childAnimation?: boolean;
@@ -35,6 +41,7 @@ export interface State {
   checked?: boolean;
   label?: ReactNode;
   children?: ReactNode;
+  dragOver?: boolean;
 }
 
 /**
@@ -61,6 +68,7 @@ export class TreeItem extends Component<Props, State> {
     props.onRef?.(this);
     props.parent?.addChild(this);
   }
+
   componentDidMount() {
     //開閉イベントの初回実行
     setTimeout(() => {
@@ -84,7 +92,10 @@ export class TreeItem extends Component<Props, State> {
       <Root>
         <div
           id="item"
-          className={this.isSelect() ? "select" : ""}
+          className={
+            (this.isSelect() ? "select" : "") +
+            (this.state.dragOver ? " over" : "")
+          }
           onClick={() => {
             this.props.onItemClick && this.props.onItemClick();
             if (this.props.treeView) {
@@ -126,7 +137,25 @@ export class TreeItem extends Component<Props, State> {
               onChange={() => this.setChecked(!this.isChecked())}
             />
           )}
-          <div id="label">{this.getLabel()}</div>
+          <div
+            id="label"
+            draggable={this.props.draggable}
+            onDragStart={(e) => {
+              this.props.onItemDragStart?.(e, this);
+            }}
+            onDragEnter={(e) => this.props.onItemDragEnter?.(e, this)}
+            onDragLeave={(e) => {
+              this.setState({ dragOver: false });
+              this.props.onItemDragLeave?.(e, this);
+            }}
+            onDragOver={(e) => {
+              this.setState({ dragOver: true });
+              this.props.onItemDragOver?.(e, this);
+            }}
+            onDrop={(e) => { this.setState({ dragOver: false });this.props.onItemDrop?.(e, this)}}
+          >
+            {this.getLabel()}
+          </div>
         </div>
         <div
           style={{
@@ -158,6 +187,12 @@ export class TreeItem extends Component<Props, State> {
                   "type" in item &&
                   item.type === TreeItem && (
                     <TreeItem
+                      draggable={this.props.draggable}
+                      onItemDragStart={this.props.onItemDragStart}
+                      onItemDragEnter={this.props.onItemDragEnter}
+                      onItemDragLeave={this.props.onItemDragLeave}
+                      onItemDragOver={this.props.onItemDragOver}
+                      onItemDrop={this.props.onItemDrop}
                       {...item.props}
                       key={item.key}
                       ref={() => {
@@ -175,7 +210,7 @@ export class TreeItem extends Component<Props, State> {
     );
   }
   public onSelect(select: boolean) {
-   if( this.props.treeView?.props.userSelect !== false)
+    if (this.props.treeView?.props.userSelect !== false)
       this.setState({ select });
     let parent: TreeItem | TreeView | undefined = this;
     while (

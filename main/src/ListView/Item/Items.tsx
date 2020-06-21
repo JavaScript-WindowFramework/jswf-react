@@ -237,6 +237,7 @@ export class ItemArea extends Component<ItemsProps, State> {
   protected onDragStart(e: React.DragEvent, row: number, col: number) {
     //選択されていなければ終了
     if (!this.props.selectItems.has(row)) {
+      e.preventDefault();
       return;
     }
     //コールバックイベントを呼ぶ
