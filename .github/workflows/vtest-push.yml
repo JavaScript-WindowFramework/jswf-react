@@ -1,6 +1,11 @@
 name: VisualTest(push)
 on:
   push:
+    tags-ignore:
+     - 'devel.**'
+     - 'latest.**'
+    branches:
+     - '*'
 jobs:
   release:
     name: check version, add tag and release
