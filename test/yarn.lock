@@ -1363,7 +1363,7 @@
   integrity sha512-mc6bGuXP09/Usrm6WgY+IM2RC+Uyzv+Q0M6yBA2lTlLVM5RgvFxV3boZuGN+aVAnc3IlUZeeu47g1OQRjEnCGw==
 
 "@jswf/react@../main":
-  version "1.0.21"
+  version "1.0.22"
   dependencies:
     "@jswf/manager" "^1.0.3"
     react "~16.13.1"
