@@ -152,7 +152,10 @@ export class TreeItem extends Component<Props, State> {
               this.setState({ dragOver: true });
               this.props.onItemDragOver?.(e, this);
             }}
-            onDrop={(e) => { this.setState({ dragOver: false });this.props.onItemDrop?.(e, this)}}
+            onDrop={(e) => {
+              this.setState({ dragOver: false });
+              this.props.onItemDrop?.(e, this);
+            }}
           >
             {this.getLabel()}
           </div>
@@ -314,7 +317,7 @@ export class TreeItem extends Component<Props, State> {
   public findItem(value: unknown): TreeItem | null {
     const find = (item: TreeItem): TreeItem | null => {
       if (item.value === value) return item;
-      const children = this.getChildren();
+      const children = item.getChildren();
       if (children) {
         for (const child of React.Children.toArray(children)) {
           const target = find(child as TreeItem);
@@ -338,7 +341,7 @@ export class TreeItem extends Component<Props, State> {
     const items: TreeItem[] = [];
     const callChild = (item: TreeItem) => {
       if (item.value === value) items.push(item);
-      const children = this.getChildren();
+      const children = item.getChildren();
       if (children) {
         for (const child of React.Children.toArray(children)) {
           callChild(child as TreeItem);
@@ -355,31 +358,32 @@ export class TreeItem extends Component<Props, State> {
    * @memberof TreeItem
    */
   public addItem(props?: Props): Promise<TreeItem> {
+    const that = this;
     return new Promise((resolve) => {
       const item: Props = props
         ? {
-            itemStyle: props.itemStyle || this.getItemStyle(),
+            itemStyle: props.itemStyle || that.getItemStyle(),
             label: props.label || "",
             expand: props.expand === undefined ? true : props.expand,
             value: props.value,
             checked: props.checked || false,
             uniqueKey: UniqueKey.value++,
-            treeView: this.props.treeView,
-            parent: this,
+            treeView: that.props.treeView,
+            parent: that,
             onExpand: props.onExpand,
             onItemClick: props.onItemClick,
             onDoubleClick: props.onDoubleClick,
           }
         : {
             ...ItemDataDefault,
-            treeView: this.props.treeView,
+            treeView: that.props.treeView,
             uniqueKey: UniqueKey.value++,
-            itemStyle: this.getItemStyle(),
-            parent: this,
+            itemStyle: that.getItemStyle(),
+            parent: that,
           };
-      this.setState({
+      that.setState({
         children: [
-          ...React.Children.toArray(this.getChildren()),
+          ...React.Children.toArray(that.getChildren()),
           <TreeItem
             key={item.uniqueKey}
             {...item}
