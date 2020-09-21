@@ -317,7 +317,7 @@ export class TreeItem extends Component<Props, State> {
   public findItem(value: unknown): TreeItem | null {
     const find = (item: TreeItem): TreeItem | null => {
       if (item.value === value) return item;
-      const children = item.getChildren();
+      const children = item.getChildren?.();
       if (children) {
         for (const child of React.Children.toArray(children)) {
           const target = find(child as TreeItem);
@@ -341,7 +341,7 @@ export class TreeItem extends Component<Props, State> {
     const items: TreeItem[] = [];
     const callChild = (item: TreeItem) => {
       if (item.value === value) items.push(item);
-      const children = item.getChildren();
+      const children = item.getChildren?.();
       if (children) {
         for (const child of React.Children.toArray(children)) {
           callChild(child as TreeItem);
