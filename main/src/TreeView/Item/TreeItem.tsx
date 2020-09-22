@@ -62,6 +62,7 @@ export class TreeItem extends Component<Props, State> {
   private value: unknown;
   private keys: { [key: string]: unknown } = {};
   private children = new Set<TreeItem>();
+  private refChildren: TreeItem[] = [];
   public constructor(props: Props) {
     super(props);
     this.state = {};
@@ -181,35 +182,38 @@ export class TreeItem extends Component<Props, State> {
         >
           <div>
             <div id="line"></div>
-            <div id="children">
-              {React.Children.map(
-                this.getChildren(),
-                (item) =>
-                  typeof item === "object" &&
-                  item &&
-                  "type" in item &&
-                  item.type === TreeItem && (
-                    <TreeItem
-                      draggable={this.props.draggable}
-                      onItemDragStart={this.props.onItemDragStart}
-                      onItemDragEnter={this.props.onItemDragEnter}
-                      onItemDragLeave={this.props.onItemDragLeave}
-                      onItemDragOver={this.props.onItemDragOver}
-                      onItemDrop={this.props.onItemDrop}
-                      {...item.props}
-                      key={item.key}
-                      ref={() => {
-                        this.props.onRef?.(this);
-                      }}
-                      treeView={this.props.treeView}
-                      parent={this}
-                    />
-                  )
-              )}
-            </div>
+            <div id="children">{this.outChildren()}</div>
           </div>
         </div>
       </Root>
+    );
+  }
+  private outChildren() {
+    this.refChildren = [];
+    return React.Children.map(
+      this.getChildren(),
+      (item, index) =>
+        typeof item === "object" &&
+        item &&
+        "type" in item &&
+        item.type === TreeItem && (
+          <TreeItem
+            draggable={this.props.draggable}
+            onItemDragStart={this.props.onItemDragStart}
+            onItemDragEnter={this.props.onItemDragEnter}
+            onItemDragLeave={this.props.onItemDragLeave}
+            onItemDragOver={this.props.onItemDragOver}
+            onItemDrop={this.props.onItemDrop}
+            {...item.props}
+            key={item.key}
+            ref={(item) => {
+              this.props.onRef?.(item!);
+              this.refChildren[index] = item!;
+            }}
+            treeView={this.props.treeView}
+            parent={this}
+          />
+        )
     );
   }
   public onSelect(select: boolean) {
@@ -316,11 +320,11 @@ export class TreeItem extends Component<Props, State> {
    */
   public findItem(value: unknown): TreeItem | null {
     const find = (item: TreeItem): TreeItem | null => {
-      if (item.value === value) return item;
-      const children = item.getChildren?.();
+      if (item.getValue() === value) return item;
+      const children = item.refChildren;
       if (children) {
-        for (const child of React.Children.toArray(children)) {
-          const target = find(child as TreeItem);
+        for (const child of children) {
+          const target = find(child);
           if (target) {
             return target;
           }
@@ -341,10 +345,10 @@ export class TreeItem extends Component<Props, State> {
     const items: TreeItem[] = [];
     const callChild = (item: TreeItem) => {
       if (item.value === value) items.push(item);
-      const children = item.getChildren?.();
+      const children = item.refChildren;;
       if (children) {
-        for (const child of React.Children.toArray(children)) {
-          callChild(child as TreeItem);
+        for (const child of children) {
+          callChild(child);
         }
       }
     };
