@@ -320,8 +320,8 @@ export class TreeItem extends Component<Props, State> {
    */
   public findItem(value: unknown): TreeItem | null {
     const find = (item: TreeItem): TreeItem | null => {
-      if (item.getValue() === value) return item;
-      const children = item.refChildren;
+      if (item?.getValue() === value) return item;
+      const children = item?.refChildren;
       if (children) {
         for (const child of children) {
           const target = find(child);
