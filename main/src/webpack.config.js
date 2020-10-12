@@ -30,7 +30,7 @@ const config = {
       },
       {
         test: /\.(jpg|png|svg|gif)$/,
-        loaders: "url-loader"
+        type: "asset/inline"
       }
     ]
   },

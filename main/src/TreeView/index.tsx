@@ -9,6 +9,7 @@ interface Props {
   itemStyle?: number;
   userSelect?: boolean;
   draggable?: boolean;
+  dragString?: string;
   onExpand?: (item: TreeItem, expand: boolean, first: boolean) => void;
   onItemClick?: (item: TreeItem) => void;
   onItemDoubleClick?: (item: TreeItem) => void;
@@ -145,9 +146,6 @@ export class TreeView extends Component<Props> {
   public getCheckItems(): TreeItem[] {
     return this.rootItemRef.current!.getCheckItems();
   }
-  // public getRootUniqueKey() {
-  //   return this.item.uniqueKey;
-  // }
   protected onItemDragStart(e: React.DragEvent, item: TreeItem) {
     //コールバックイベントを呼ぶ
     this.props.onItemDragStart?.(e, item);
@@ -155,16 +153,14 @@ export class TreeView extends Component<Props> {
     if (!e.defaultPrevented) {
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setDragImage(this.fileImage!, 10, 10);
-      e.dataTransfer.setData(
-        "text/plain",
-        JSON.stringify({
-          type: "TreeItem",
-          label: item.getLabel(),
+      try {
+        const json = JSON.stringify({
+          type: this.props.dragString || "TreeItem",
           value: item.getValue(),
-        })
-      );
+        });
+        e.dataTransfer.setData("text/plain", json);
+      } catch (e) {}
     }
-    //e.preventDefault();
   }
   protected onItemDragEnter(e: React.DragEvent, item: TreeItem) {
     this.props.onItemDragEnter?.(e, item);
