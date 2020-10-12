@@ -79,16 +79,6 @@ export function ListViewBasic() {
             //クリックした場所のデータを読み出す
             if (item) setMessage(`「${item.toString()}」がクリックされました`);
           }}
-          onDrop={(e) => {
-            const dragData = JSON.parse(
-              e.dataTransfer.getData("text/plain")
-            ) as ListViewDragData;
-            if (dragData && dragData.items instanceof Array) {
-              for (const item of dragData.items) {
-                listViewRef.current!.addItem(item.items);
-              }
-            }
-          }}
         >
           <ListHeaders>
             <ListHeader type="number">No</ListHeader>

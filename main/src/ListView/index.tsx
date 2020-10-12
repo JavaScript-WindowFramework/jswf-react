@@ -17,7 +17,7 @@ export const ListViewDragString = "ListViewDragData";
 
 export interface ListViewDragData {
   type: string;
-  items: ItemRow[];
+  items: { value: unknown; values: unknown[] }[];
 }
 export interface TreeItemData {
   key?: number | string | null;
@@ -246,6 +246,32 @@ export class ListView extends Component<Props, State> {
   public getSelectItems(): number[] {
     return ListView.getSetValues(this.state.selectItems);
   }
+
+  /**
+   *選択中のアイテムの値を返す
+   *
+   * @returns 選択中のアイテムの値
+   * @memberof ListView
+   */
+  public getSelectValue(): unknown {
+    const index = this.getSelectItem();
+    if (index < 0) return undefined;
+    const items = this.itemsRef.current!.getItems();
+    return items[index].value;
+  }
+
+  /**
+   *選択中のアイテムの値を返す
+   *
+   * @returns 選択中のアイテムの値
+   * @memberof ListView
+   */
+  public getSelectValues(): unknown[] {
+    const selects = this.getSelectItems();
+    const items = this.itemsRef.current!.getItems();
+    const values = selects.map((index) => items[index].value);
+    return values;
+  }
   /**
    *アイテムの内容を返す
    *
@@ -311,14 +337,18 @@ export class ListView extends Component<Props, State> {
    * @param {ReactNode[]} item 追加するアイテム
    * @memberof ListView
    */
-  public addItem(item: ItemRow | (ReactNode|ItemRow)[]): void {
+  public addItem(item: ItemRow | (ReactNode | ItemRow)[]): void {
     this.manual = true;
     if ("items" in item) {
       this.itemsRef.current!.addItem(item);
     } else {
-       this.itemsRef.current!.addItem({
-         items: item.map((item) => (item && typeof item  === "object" && "label" in item)?item:({ label: item })),
-       });
+      this.itemsRef.current!.addItem({
+        items: item.map((item) =>
+          item && typeof item === "object" && "label" in item
+            ? item
+            : { label: item }
+        ),
+      });
     }
   }
   /**

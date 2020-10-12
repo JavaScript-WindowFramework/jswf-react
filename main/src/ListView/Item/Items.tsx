@@ -4,7 +4,7 @@ import React, {
   RefObject,
   ReactElement,
   createRef,
-  ReactComponentElement
+  ReactComponentElement,
 } from "react";
 import { ListViewDragData, ListView } from "..";
 import { ListRow, ListItem } from "../ExportDefinition";
@@ -84,7 +84,7 @@ export class ItemArea extends Component<ItemsProps, State> {
         );
       }, 0);
       const select = this.props.selectItems.has(index);
-      row.forEach(item => {
+      row.forEach((item) => {
         if (select) item.current!.classList.add("Select");
         else item.current!.classList.remove("Select");
         item.current!.style.height = height + "px";
@@ -99,10 +99,10 @@ export class ItemArea extends Component<ItemsProps, State> {
   }
   private createItem(props: ItemsProps) {
     const itemRows: ItemRow[] = [];
-    React.Children.map(props.children, itemRow => {
+    React.Children.map(props.children, (itemRow) => {
       const items: ItemRow["items"] = [];
 
-      React.Children.forEach(itemRow.props.children as ReactElement, item => {
+      React.Children.forEach(itemRow.props.children as ReactElement, (item) => {
         if (item.type === ListItem) {
           const label: ReactNode =
             React.Children.count(item.props.children) === 1 ? (
@@ -116,7 +116,7 @@ export class ItemArea extends Component<ItemsProps, State> {
 
       itemRows.push({
         value: itemRow.props.value,
-        items
+        items,
       });
     });
     this.itemRows = itemRows;
@@ -138,7 +138,7 @@ export class ItemArea extends Component<ItemsProps, State> {
       <Root
         ref={this.rootRef}
         left={this.props.xScroll}
-        onDragOver={e => e.preventDefault()}
+        onDragOver={(e) => e.preventDefault()}
       >
         <div style={{ position: "relative", left: -this.props.xScroll }}>
           {this.props.headerSizes.map((size, cols) => {
@@ -164,25 +164,25 @@ export class ItemArea extends Component<ItemsProps, State> {
                       onMouseLeave={() => {
                         this.onOver(rows, false);
                       }}
-                      onClick={e => {
+                      onClick={(e) => {
                         this.props.onClick(e, rows, cols);
                       }}
-                      onDoubleClick={e => {
+                      onDoubleClick={(e) => {
                         this.props.onDoubleClick(e, rows, cols);
                       }}
-                      onDragStart={e => {
+                      onDragStart={(e) => {
                         this.onDragStart(e, rows, cols);
                       }}
-                      onDragLeave={e => {
+                      onDragLeave={(e) => {
                         this.onDragLeave(e, rows, cols);
                       }}
-                      onDragEnter={e => {
+                      onDragEnter={(e) => {
                         this.onDragEnter(e, rows, cols);
                       }}
-                      onDragOver={e => {
+                      onDragOver={(e) => {
                         this.onDragOver(e, rows, cols);
                       }}
-                      onDrop={e => {
+                      onDrop={(e) => {
                         this.onDrop(e, rows, cols);
                       }}
                     >
@@ -212,11 +212,8 @@ export class ItemArea extends Component<ItemsProps, State> {
     this.itemRows.sort((a, b) => {
       const va = a.items[sortIndex].value as never;
       const vb = b.items[sortIndex].value as never;
-      if (
-        va !== undefined &&
-        vb !== undefined
-      ) {
-        return (this.props.sortOrder?va < vb:vb<va)?-1:1;
+      if (va !== undefined && vb !== undefined) {
+        return (this.props.sortOrder ? va < vb : vb < va) ? -1 : 1;
       } else {
         const va = a.items[sortIndex].label as string;
         const vb = b.items[sortIndex].label as string;
@@ -247,15 +244,22 @@ export class ItemArea extends Component<ItemsProps, State> {
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setDragImage(this.fileImage!, 10, 10);
       const rows = Array.from(this.props.selectItems.values());
-      const items = rows.map(item => {
-        return this.itemRows[item];
+      const items = rows.map((index) => {
+        const item = this.itemRows[index];
+        return {
+          index,
+          value: item.value,
+          values: item.items.map((item) => item.value),
+        };
       });
+      try {
+        const value: ListViewDragData = {
+          type: this.props.listView.props.dragString || "",
+          items,
+        };
 
-      const value: ListViewDragData = {
-        type: this.props.listView.props.dragString!,
-        items
-      };
-      e.dataTransfer.setData("text/plain", JSON.stringify(value));
+        e.dataTransfer.setData("text/plain", JSON.stringify(value));
+      } catch (e) {}
     }
   }
   protected onDragLeave(e: React.DragEvent, row: number, col: number) {
