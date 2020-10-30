@@ -1,6 +1,6 @@
 {
   "name": "@jswf/react",
-  "version": "1.0.27",
+  "version": "1.0.32",
   "description": "Virtual Window for React",
   "main": "dist/index.js",
   "scripts": {
@@ -21,18 +21,17 @@
   "author": "SoraKumo",
   "license": "MIT",
   "dependencies": {
-    "@jswf/manager": "^1.0.3",
-    "react": "~16.14.0",
-    "resize-observer-polyfill": "~1.5.1",
-    "styled-components": "~5.2.0"
+    "@jswf/manager": "*",
+    "react": "*",
+    "resize-observer-polyfill": "*",
+    "styled-components": "*"
   },
   "devDependencies": {
     "@types/styled-components": "~5.1.4",
-    "ts-loader": "^8.0.5",
-    "typescript": "~4.0.3",
-    "url-loader": "^4.1.1",
-    "webpack": "<5.0.0",
-    "webpack-cli": "^4.0.0"
+    "ts-loader": "^8.0.7",
+    "typescript": "~4.0.5",
+    "webpack": "~5.3.2",
+    "webpack-cli": "~4.1.0"
   },
   "repository": {
     "type": "git",
