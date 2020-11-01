@@ -8,7 +8,7 @@ Virtual window component for React
 
 ### 1.0 Storybook
 
-- [Storybook](https://javascript-windowframework.github.io/jswf-react/storybook-static/?path=/story/pages--index)
+- [Storybook](https://javascript-windowframework.github.io/jswf-react/storybook-static/?path=/story/pages--all)
 
 ### 1.0 Repository
 
