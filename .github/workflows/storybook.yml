@@ -36,7 +36,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
         run: |
-          git clone https://github.com/${GITHUB_REPOSITORY} -b gh-pages __gh-pages__ || mkdir -f __gh-pages__
+          git clone https://github.com/${GITHUB_REPOSITORY} -b gh-pages __gh-pages__ || mkdir -p __gh-pages__
           rm -rf __gh-pages__/storybook-static || true
           mv test/storybook-static __gh-pages__
       - name: Save gh-pages
