@@ -1,12 +1,12 @@
 import * as React from "react";
 import { JSWindow, SplitType, SplitView } from "@jswf/react";
-import { storiesOf } from "@storybook/react";
 
-storiesOf("Pages/SplitView", module).add("SplitViewBasic", () => {
-  return <SplitViewBasic />;
-});
+export default {
+  title: "Pages/SplitView",
+  component: SplitView,
+};
 
-export function SplitViewBasic() {
+export const SplitViewBasic = () => {
   const [type, setType] = React.useState<SplitType>("ew");
   return (
     <JSWindow
@@ -31,4 +31,4 @@ export function SplitViewBasic() {
       </SplitView>
     </JSWindow>
   );
-}
+};

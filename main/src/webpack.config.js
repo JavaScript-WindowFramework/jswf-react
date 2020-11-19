@@ -6,7 +6,7 @@ const config = {
   output: {
     libraryTarget: "commonjs",
     filename: "index.js",
-    path: path.resolve(__dirname, "../dist")
+    path: path.resolve(__dirname, "../dist"),
   },
   module: {
     rules: [
@@ -22,32 +22,30 @@ const config = {
           {
             loader: "css-loader",
             options: {
-              modules: true
-            }
+              modules: true,
+            },
           },
-          "sass-loader"
-        ]
+          "sass-loader",
+        ],
       },
       {
         test: /\.(jpg|png|svg|gif)$/,
-        type: "asset/inline"
-      }
-    ]
+        type: "asset/inline",
+      },
+    ],
   },
   resolve: {
     symlinks: false,
-    extensions: [".ts", ".tsx", ".js", ".scss", "css", ".svg"]
+    extensions: [".ts", ".tsx", ".js", ".scss", "css", ".svg"],
   },
   devtool: "source-map",
   externals: {
-    react:true,
-    "@jswf/manager":true,
-    "react":true,
-    "styled-components":true,
-    "resize-observer-polyfill":true
-  }
+    react: true,
+    "@jswf/manager": true,
+    "styled-components": true,
+    "resize-observer-polyfill": true
+  },
 };
-if (config.mode === "development") {
-  config.devtool = "source-map";
-}
+config.devtool = "source-map";
+
 module.exports = config;

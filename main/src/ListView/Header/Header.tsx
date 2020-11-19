@@ -1,7 +1,7 @@
 import React, { Component, createRef } from "react";
 import { Manager, MEvent, MovePoint } from "@jswf/manager";
 interface HeaderProps {
-  type?: "string"|"number";
+  type?: "string" | "number";
   width?: number;
   minWidth?: number;
   children?: React.ReactNode;
@@ -24,7 +24,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
   static defaultProps = {
     minWidth: 60,
     width: -1,
-    type: "string"
+    type: "string",
   };
   state: HeaderState;
   private labelRef = createRef<HTMLDivElement>();
@@ -38,7 +38,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
     return (
       <div
         style={{
-          width: Math.max(this.state.tempWidth, this.state.width) + "px"
+          width: Math.max(this.state.tempWidth, this.state.width) + "px",
         }}
         onClick={this.props.onClick}
       >
@@ -53,7 +53,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
           id="slider"
           onTouchStart={this.onSlider.bind(this)}
           onMouseDown={this.onSlider.bind(this)}
-          onClick={e => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         ></div>
       </div>
     );
@@ -72,7 +72,6 @@ export class Header extends Component<HeaderProps, HeaderState> {
     this.setState({ width }, () => {
       this.props.onSize();
     });
-
   }
   public componentWillUnmount() {
     const node = this.sliderRef.current!;

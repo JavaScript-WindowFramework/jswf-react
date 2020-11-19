@@ -345,7 +345,7 @@ export class TreeItem extends Component<Props, State> {
     const items: TreeItem[] = [];
     const callChild = (item: TreeItem) => {
       if (item.value === value) items.push(item);
-      const children = item.refChildren;;
+      const children = item.refChildren;
       if (children) {
         for (const child of children) {
           callChild(child);

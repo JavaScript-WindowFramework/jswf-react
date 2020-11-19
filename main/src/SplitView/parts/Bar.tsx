@@ -1,10 +1,8 @@
-import React, {  Component, createRef } from "react";
+import React, { Component, createRef } from "react";
 import { Resize } from "./Resize";
 import imgResize from "../../../images/resize.svg";
 import { Manager, MEvent, MovePoint } from "@jswf/manager";
 import { BarProps, BarStyle } from "./Bar.style";
-
-
 
 interface BarState {
   open: boolean;

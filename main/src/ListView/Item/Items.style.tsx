@@ -7,19 +7,19 @@ interface ItemColumnProps {
 interface StyleProps {
   left: number;
 }
-export const Root = styled.div.attrs<StyleProps>(p => ({
-  style: { left: p.left + "px" }
+export const Root = styled.div.attrs<StyleProps>((p) => ({
+  style: { left: p.left + "px" },
 }))<StyleProps>`
   position: relative;
   white-space: nowrap;
   overflow-x: hidden;
   overflow-y: auto;
   flex: 1;
-  cursor: default
+  cursor: default;
 `;
 
-export const ItemColumn = styled.div.attrs<ItemColumnProps>(p => ({
-  style: { width: p.width + "px" }
+export const ItemColumn = styled.div.attrs<ItemColumnProps>((p) => ({
+  style: { width: p.width + "px" },
 }))<ItemColumnProps>`
   display: inline-block;
   vertical-align: top;
@@ -28,8 +28,8 @@ export const ItemColumn = styled.div.attrs<ItemColumnProps>(p => ({
 interface ItemProps {
   widthPos: string;
 }
-export const Item = styled.div.attrs<ItemProps>(p => ({
-  style: { justifyContent: p.widthPos }
+export const Item = styled.div.attrs<ItemProps>((p) => ({
+  style: { justifyContent: p.widthPos },
 }))<ItemProps>`
   position: relative;
   display: flex;
