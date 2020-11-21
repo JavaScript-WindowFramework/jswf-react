@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from "react";
+import React, { ReactElement } from "react";
 import * as ReactDOM from "react-dom";
 import {
   JSWindow,
@@ -6,25 +6,23 @@ import {
   ListHeaders,
   ListRow,
   ListHeader,
-  ListItem
+  ListItem,
 } from "@jswf/react";
-import { WindowSimple } from "./Samples/WindowSimple";
-import { WindowBasic } from "./Samples/WindowBasic";
-import { WindowChild } from "./Samples/WindowChild";
-import { SplitViewBasic } from "./Samples/SplitViewBasic";
-import { ListViewBasic } from "./Samples/ListViewBasic";
-import { TreeViewBasic } from "./Samples/TreeViewBasic";
-import { SplitViewSimple } from "./Samples/SplitViewSimple";
-import { TreeViewSimple } from "./Samples/TreeViewSimple";
-import { ListViewSimple } from "./Samples/ListViewSimple";
-import { ClientStyle } from "./Samples/ClientStyle";
-import { storiesOf } from "@storybook/react";
+import { WindowSimple } from "./Samples/WindowSimple.stories";
+import { WindowBasic } from "./Samples/WindowBasic.stories";
+import { WindowChild } from "./Samples/WindowChild.stories";
+import { SplitViewBasic } from "./Samples/SplitViewBasic.stories";
+import { ListViewBasic } from "./Samples/ListViewBasic.stories";
+import { TreeViewBasic } from "./Samples/TreeViewBasic.stories";
+import { SplitViewSimple } from "./Samples/SplitViewSimple.stories";
+import { TreeViewSimple } from "./Samples/TreeViewSimple.stories";
+import { ListViewSimple } from "./Samples/ListViewSimple.stories";
+import { ClientStyle } from "./Samples/ClientStyle.stories";
 
-storiesOf("Pages", module)
-  .add("All", () => {
-    return <CompornentList />;
-  });
-
+export default {
+  title: "Pages",
+  component: JSWindow,
+};
 
 let key = 0;
 const Compornents: [() => JSX.Element, string, string][] = [
@@ -37,9 +35,9 @@ const Compornents: [() => JSX.Element, string, string][] = [
   [ListViewBasic, "ListViewBasic", "ListView usage"],
   [TreeViewSimple, "TreeViewSimple", "Simple TreeView usage"],
   [TreeViewBasic, "TreeViewBasic", "Basic TreeView usage"],
-  [ClientStyle, "ClientStyle", "Client Style usage"]
+  [ClientStyle, "ClientStyle", "Client Style usage"],
 ];
-export function CompornentList() {
+export const CompornentList = () => {
   let count = 0;
   const [nodes, setNodes] = React.useState<ReactElement[]>([]);
   const [src] = React.useState("");
@@ -67,13 +65,13 @@ export function CompornentList() {
     </>
   );
   function onItemClick(row: number, col: number) {
-    const newNodes = nodes.filter(node => {
+    const newNodes = nodes.filter((node) => {
       return node.type !== Compornents[row][0];
     });
     newNodes.push(React.createElement(Compornents[row][0], { key: key++ }));
     setNodes(newNodes.slice());
   }
-}
+};
 
 function App() {
   return <CompornentList />;

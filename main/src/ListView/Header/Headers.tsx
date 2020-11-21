@@ -1,9 +1,4 @@
-import React, {
-  Component,
-  createRef,
-  RefObject,
-  ReactElement
-} from "react";
+import React, { Component, createRef, RefObject, ReactElement } from "react";
 import { Root } from "./Headers.style";
 import { Header } from "./Header";
 import { ListHeader, ListHeaderProps } from "../ExportDefinition";
@@ -27,10 +22,10 @@ export class HeaderArea extends Component<HeadersProps> {
   private rootRef = createRef<HTMLDivElement>();
   public componentDidMount() {
     this.values = this.props.children
-      .filter(header => {
+      .filter((header) => {
         return header.type === ListHeader.prototype.constructor;
       })
-      .map(header => header.props) as ListHeaderProps[];
+      .map((header) => header.props) as ListHeaderProps[];
     this.onSize();
   }
   public componentDidUpdate() {
@@ -64,7 +59,7 @@ export class HeaderArea extends Component<HeadersProps> {
             <Header
               key={index}
               ref={refHeader}
-              type={header.type as "string"|"number"}
+              type={header.type as "string" | "number"}
               width={header.width}
               onClick={() => {
                 this.onClick(index);
@@ -79,7 +74,7 @@ export class HeaderArea extends Component<HeadersProps> {
     );
   }
   protected onSize() {
-    const headerSizes = this.headersRef.map(headerRef => {
+    const headerSizes = this.headersRef.map((headerRef) => {
       if (headerRef.current) return headerRef.current.getWidth();
       return -1;
     });
@@ -94,7 +89,7 @@ export class HeaderArea extends Component<HeadersProps> {
     return this.headersRef[index];
   }
   public getTypes() {
-    return this.headersRef.map(header => {
+    return this.headersRef.map((header) => {
       return header.current!.getType();
     });
   }

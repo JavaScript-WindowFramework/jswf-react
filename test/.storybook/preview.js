@@ -1,1 +1,3 @@
-import "@storybook/addon-console";
+export const parameters = {
+  docs: { inlineStories: false },
+};

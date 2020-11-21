@@ -4,58 +4,56 @@ import {
   ListView,
   ListHeaders,
   ListHeader,
-  ListItem,
   ListRow,
+  ListItem,
 } from "@jswf/react";
-import { storiesOf } from "@storybook/react";
 
-storiesOf("Pages/Window", module).add("ClientStyle", () => {
-  return <ClientStyle />;
-});
+export default {
+  title: "Pages/ListView",
+  component: ListView,
+};
 
-export function ClientStyle() {
+export const ListViewSimple = () => {
+  let count = 1;
   return (
-    <JSWindow
-      title="WindowStyle"
-      clientStyle={{ display: "flex", flexDirection: "column" }}
-    >
-      <div>
-        <button>Button1</button>
-        <button>Button2</button>
-      </div>
+    <JSWindow width={600} title="ListViewSimple">
       <ListView>
         <ListHeaders>
           <ListHeader type="number">No</ListHeader>
-          <ListHeader width={100}>武器の名前</ListHeader>
+          <ListHeader width={100}>
+            武器の
+            <br />
+            名前
+          </ListHeader>
           <ListHeader type="number">攻撃力</ListHeader>
           <ListHeader type="number">価格</ListHeader>
         </ListHeaders>
         <ListRow>
-          <ListItem>1</ListItem>
+          <ListItem>{count++}</ListItem>
           <ListItem>竹槍</ListItem>
           <ListItem value={5}>5</ListItem>
           <ListItem>10</ListItem>
         </ListRow>
         <ListRow>
-          <ListItem>2</ListItem>
+          <ListItem>{count++}</ListItem>
           <ListItem>銅の剣</ListItem>
           <ListItem value={18}>18</ListItem>
           <ListItem>120</ListItem>
         </ListRow>
         <ListRow>
-          <ListItem>3</ListItem>
+          <ListItem>{count++}</ListItem>
           <ListItem>棍棒</ListItem>
           <ListItem value={10}>10</ListItem>
           <ListItem>40</ListItem>
         </ListRow>
         <ListRow>
-          <ListItem>4</ListItem>
+          <ListItem>{count++}</ListItem>
           <ListItem>鉄の槍</ListItem>
           <ListItem value={30}>30</ListItem>
           <ListItem>380</ListItem>
         </ListRow>
         <ListRow>
-          <ListItem>5</ListItem>
+          <ListItem>{count++}</ListItem>
           <ListItem>鉄の剣</ListItem>
           <ListItem value={40}>40</ListItem>
           <ListItem>700</ListItem>
@@ -63,4 +61,4 @@ export function ClientStyle() {
       </ListView>
     </JSWindow>
   );
-}
+};

@@ -7,15 +7,14 @@ import {
   ListHeader,
   ListRow,
   ListItem,
-  ListViewDragData,
 } from "@jswf/react";
-import { storiesOf } from "@storybook/react";
 
-storiesOf("Pages/ListView", module).add("ListViewBasic", () => {
-  return <ListViewBasic />;
-});
+export default {
+  title: "Pages/ListView",
+  component: ListView,
+};
 
-export function ListViewBasic() {
+export const ListViewBasic = () => {
   let listViewRef = React.useRef<ListView>(null);
   const [message, setMessage] = React.useState("");
   let count = 1;
@@ -124,4 +123,4 @@ export function ListViewBasic() {
       </SplitView>
     </JSWindow>
   );
-}
+};
