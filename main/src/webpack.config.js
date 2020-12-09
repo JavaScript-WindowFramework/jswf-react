@@ -1,5 +1,5 @@
 const path = require("path");
-
+const { createTransformer } = require("typescript-plugin-styled-components");
 const config = {
   mode: "production",
   entry: [path.resolve(__dirname, "index.ts")],
@@ -13,7 +13,16 @@ const config = {
       {
         test: /\.(js|ts|tsx)$/,
         exclude: /node_modules/,
-        loader: "ts-loader",
+        use: [
+          {
+            loader: "ts-loader",
+            options: {
+              getCustomTransformers: () => ({
+                before: [createTransformer({ minify: true, ssr: true })],
+              }),
+            },
+          },
+        ],
       },
       {
         test: /\.(scss|css)$/,
@@ -29,8 +38,13 @@ const config = {
         ],
       },
       {
-        test: /\.(jpg|png|svg|gif)$/,
+        test: /\.(jpg|png|gif)$/,
         type: "asset/inline",
+      },
+      {
+        test: /\.(svg)$/,
+        type: "asset/inline",
+        use: [{ loader: "svgo-loader" }],
       },
     ],
   },
@@ -43,7 +57,7 @@ const config = {
     react: true,
     "@jswf/manager": true,
     "styled-components": true,
-    "resize-observer-polyfill": true
+    "resize-observer-polyfill": true,
   },
 };
 config.devtool = "source-map";
